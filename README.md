@@ -1,361 +1,160 @@
 # Xerbs OS
 
 <p align="center">
-
 <img src="https://img.shields.io/badge/status-active%20development-blue">
 <img src="https://img.shields.io/badge/backend-FastAPI-009688">
 <img src="https://img.shields.io/badge/frontend-Vue3-42b883">
 <img src="https://img.shields.io/badge/database-PostgreSQL-blue">
 <img src="https://img.shields.io/badge/AI-OpenAI%20%7C%20Qwen-orange">
 <img src="https://img.shields.io/badge/license-MIT-green">
-
 </p>
 
-<h2 align="center">
-
-The AI Operating System for Personalized Herbal Healthcare
-
-</h2>
+<h2 align="center">The AI Operating System for Personalized Herbal Healthcare</h2>
 
 <p align="center">
-
-From AI diagnosis to personalized herbal treatment, continuous care, and lifelong Health Memory.
-
+From diagnosis to personalized herbal treatment, continuous care, and lifelong Health Memory.
 </p>
 
 ---
 
-## Table of Contents
+<p align="center">
+<img src="docs/assets/architecture-overview.svg" width="1000" alt="Architecture Overview">
+</p>
 
-- [Why Xerbs?](#why-xerbs)
-- [Core Features](#core-features)
-- [Treatment Workflow](#treatment-workflow)
-- [High-Level Architecture](#high-level-architecture)
-- [Technology Stack](#technology-stack)
-- [Documentation](#documentation)
-- [Repository Structure](#repository-structure)
-- [Development Status](#development-status)
-- [Roadmap](#roadmap)
-- [Design Principles](#design-principles)
-- [License](#license)
+## Why Xerbs?
 
----
-
-# Why Xerbs?
-
-Modern healthcare is fragmented.
+Healthcare today is fragmented.
 
 - AI assistants answer questions.
 - Electronic health records store information.
-- Herbal databases organize knowledge.
-- Treatment plans rarely evolve after diagnosis.
+- Treatment plans rarely improve over time.
+- Herbal knowledge is difficult to personalize at scale.
 
-**Xerbs combines all of these into one intelligent healthcare operating system.**
-
-Instead of isolated consultations, Xerbs supports the complete treatment lifecycle:
-
-```text
-Symptoms
-
-↓
-
-AI Diagnosis
-
-↓
-
-Personalized Formula
-
-↓
-
-Treatment
-
-↓
-
-Daily Follow-up
-
-↓
-
-Health Memory
-
-↓
-
-Continuous AI Improvement
-```
+**Xerbs OS unifies diagnosis, formula intelligence, treatment management, and lifelong health memory into one continuous care platform.**
 
 ---
 
-# Core Features
+## Core Engines
 
-| Feature | Description | Status |
-|----------|-------------|:------:|
-| 🤖 AI Diagnosis | AI-powered clinical reasoning | ✅ |
-| 👅 Tongue Analysis | Computer vision tongue diagnosis | 🚧 |
-| 🌿 Formula Intelligence | Personalized herbal prescriptions | 🚧 |
-| 🧠 Health Memory | Long-term personalized health profile | 🚧 |
-| 📈 Treatment Tracking | Continuous outcome monitoring | 🚧 |
-| 🛡 Safety Analysis | Herb interaction and contraindication checks | 🚧 |
-| 📚 Herbal Knowledge Graph | AI retrieval and reasoning | 📅 |
-| 🤝 AI Health Coach | Personalized daily coaching | 📅 |
-
-Legend:
-
-- ✅ Completed
-- 🚧 In Progress
-- 📅 Planned
+| Engine | Responsibility |
+| --- | --- |
+| 🩺 Diagnosis Engine | AI-powered syndrome differentiation and clinical reasoning |
+| 🌿 Formula Engine | Personalized herbal formula generation |
+| 📈 Care Engine | Continuous treatment planning and follow-up |
+| 🧠 Health Memory Engine | Long-term patient context and learning |
 
 ---
 
-# Treatment Workflow
+## Treatment Lifecycle
 
 ```mermaid
-flowchart TD
-
-A[Symptoms]
-
-B[Tongue Images]
-
-C[Health Profile]
-
-D[AI Diagnosis]
-
-E[Pattern Identification]
-
-F[Formula Engine]
-
-G[Treatment Plan]
-
-H[Daily Check-in]
-
-I[Outcome]
-
-J[Health Memory]
-
-A --> D
-B --> D
-C --> D
-
-D --> E
-E --> F
-F --> G
-G --> H
-H --> I
-I --> J
-J --> D
+flowchart LR
+Symptoms --> Diagnosis
+Diagnosis --> Formula
+Formula --> Treatment
+Treatment --> Care
+Care --> Memory
+Memory --> BetterDiagnosis
 ```
+
+> **Every treatment makes the next diagnosis smarter.**
 
 ---
 
-# High-Level Architecture
+## High-Level Architecture
 
 ```mermaid
 graph TD
-
-User
-
-↓
-
-Frontend["Vue 3 Frontend"]
-
-↓
-
-API["FastAPI Backend"]
-
-↓
-
-Diagnosis["Diagnosis Engine"]
-
-Formula["Formula Engine"]
-
-Care["Care Engine"]
-
-Memory["Health Memory"]
-
+User --> Frontend
+Frontend --> API
+API --> Diagnosis
+API --> Formula
+API --> Care
 Diagnosis --> Memory
 Formula --> Memory
 Care --> Memory
-
 Memory --> PostgreSQL
-
-Memory --> Redis
-
 Memory --> RAG
-
 RAG --> OpenAI
-
 RAG --> Qwen
 ```
 
 ---
 
-# Technology Stack
+## Technology Stack
 
 | Layer | Technology |
-|--------|------------|
-| Frontend | Vue 3 |
-| Language | TypeScript |
-| Styling | Tailwind CSS |
+| --- | --- |
+| Frontend | Vue 3 + TypeScript + Tailwind CSS |
 | Backend | FastAPI |
 | Database | PostgreSQL |
 | Cache | Redis |
-| ORM | SQLAlchemy |
-| Migration | Alembic |
-| AI | OpenAI + Qwen |
+| AI | OpenAI / Qwen |
 | Knowledge | RAG |
 | Deployment | Docker |
 
 ---
 
-# Documentation
+## Documentation
 
-## Product
+See the **docs/** directory for:
 
-- 📖 [Vision](docs/01-vision.md)
-- 🧩 [Product Specification](docs/02-product.md)
-- 🧠 [Domain Model](docs/03-domain-model.md)
-
-## Architecture
-
-- 🏛️ [System Architecture](docs/04-system-architecture.md)
-- 🗄️ [Database Design](docs/05-database.md)
-- ⚙️ [Backend Architecture](docs/06-backend-architecture.md)
-- 🎨 [Frontend Architecture](docs/07-frontend-architecture.md)
-- 🤖 [AI Architecture](docs/08-ai-architecture.md)
-- 🌐 [API Design](docs/09-api.md)
-- 🔒 [Security](docs/11-security.md)
-- 🚀 [Deployment](docs/12-deployment.md)
-
-## Planning
-
-- 🗺️ [Roadmap](docs/10-roadmap.md)
+- Vision
+- Product Specification
+- Domain Model
+- System Architecture
+- Database Design
+- Backend Architecture
+- Frontend Architecture
+- AI Architecture
+- API Design
+- Roadmap
+- Security
+- Deployment
 
 ---
 
-# Repository Structure
+## Repository Structure
 
 ```text
 xerbs-os/
-
 ├── backend/
-│
 ├── frontend/
-│
 ├── docs/
-│   ├── README.md
-│   ├── 01-vision.md
-│   ├── 02-product.md
-│   ├── 03-domain-model.md
-│   ├── 04-system-architecture.md
-│   ├── 05-database.md
-│   ├── 06-backend-architecture.md
-│   ├── 07-frontend-architecture.md
-│   ├── 08-ai-architecture.md
-│   ├── 09-api.md
-│   ├── 10-roadmap.md
-│   ├── 11-security.md
-│   ├── 12-deployment.md
-│   ├── diagrams/
-│   ├── assets/
-│   └── adr/
-│
 ├── infra/
-│
 ├── tests/
-│
-├── .github/
-│
-├── docker-compose.yml
-│
-└── README.md
+├── docker/
+├── scripts/
+├── README.md
+└── docker-compose.yml
 ```
 
 ---
 
-# Development Status
+## Roadmap
 
-| Module | Progress |
-|----------|:-------:|
-| Product Design | ██████████ 100% |
-| Domain Model | ██████████ 100% |
-| System Architecture | ██████████ 100% |
-| Database Design | ██████████ 100% |
-| Backend Architecture | ██████████ 100% |
-| Frontend Architecture | ██████████ 100% |
-| AI Architecture | ██████████ 100% |
-| API Design | ████████░░ 80% |
-| Security | ███████░░░ 70% |
-| Deployment | ██████░░░░ 60% |
-| Backend Development | ██░░░░░░░░ 20% |
-| Frontend Development | ██░░░░░░░░ 20% |
-| AI Engine | █░░░░░░░░░ 10% |
+- Build the Diagnosis Engine
+- Complete the Formula Engine
+- Launch Health Memory
+- Release the first Developer Preview
+- Open-source the platform
 
 ---
 
-# Roadmap
+## Contributing
 
-### Phase 1 — Architecture
-
-- Product Design
-- Domain Model
-- System Architecture
-- Database Design
-
-### Phase 2 — Core Platform
-
-- AI Diagnosis
-- Formula Engine
-- Health Memory
-- REST API
-
-### Phase 3 — Intelligent Care
-
-- Daily Treatment Tracking
-- AI Health Coach
-- Formula Optimization
-- Knowledge Graph
-
-### Phase 4 — Ecosystem
-
-- Clinic Platform
-- Mobile App
-- Public API
-- Multi-language Support
+Contributions are welcome after the first public release.
 
 ---
 
-# Design Principles
+## License
 
-- AI-first but clinically grounded
-- Personalized treatment over generic recommendations
-- Continuous care instead of one-time diagnosis
-- Explainable AI decisions
-- Long-term Health Memory
-- Modular architecture
-- Privacy and security by design
+Released under the MIT License upon first public release.
 
 ---
 
-# License
+## Current Status
 
-This project is currently under active development.
+Xerbs OS is under active development.
 
-The source code will be released under the **MIT License** upon its first public release.
-
----
-
-# Contributing
-
-Community contributions are welcome after the first public release.
-
-Please review the documentation under the **docs/** directory before submitting issues or pull requests.
-
----
-
-# Project Status
-
-🚧 Xerbs OS is currently under active development.
-
-The product vision, architecture, database design, backend architecture, frontend architecture, and AI architecture have been completed.
-
-Implementation of the AI diagnosis engine, personalized formula engine, health memory system, and REST API is currently underway.
-
-Our long-term vision is to build the world's leading AI operating system for personalized herbal healthcare.
+The architecture is complete, and implementation of the Diagnosis Engine, Formula Engine, Care Engine, and Health Memory Engine is underway.
