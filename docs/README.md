@@ -1,30 +1,26 @@
-xerbs-os/
-
-README.md
-
 docs/
-│
 ├── README.md
-├── 01-Vision.md
-├── 02-Product.md
-├── 03-Domain-Model.md
-├── 04-System-Architecture.md
-├── 05-Database.md
-├── 06-API.md
-├── 07-AI-Architecture.md
-├── 08-Frontend.md
-├── 09-Roadmap.md
+├── 01-vision.md
+├── 02-product.md
+├── 03-domain-model.md
+├── 04-system-architecture.md
+├── 05-database.md
+├── 06-backend-architecture.md
+├── 07-frontend-architecture.md
+├── 08-ai-architecture.md
+├── 09-api.md
+├── 10-roadmap.md
 │
 ├── adr/
-│     ├── ADR-001-Project-Architecture.md
-│     ├── ADR-002-Database.md
-│     └── ADR-003-AI-Agents.md
+│   ├── ADR-001-project-architecture.md
+│   ├── ADR-002-database.md
+│   └── ADR-003-ai-agents.md
 │
 ├── diagrams/
-│     ├── system.drawio
-│     ├── database.drawio
-│     └── workflow.drawio
+│   ├── system.drawio
+│   ├── database.drawio
+│   └── workflow.drawio
 │
 └── assets/
-      ├── images/
-      └── icons/
+    ├── images/
+    └── icons/
