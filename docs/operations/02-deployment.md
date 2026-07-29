@@ -1,4 +1,4 @@
-# 12 Deployment
+# 02-deployment.md
 
 ## 1. Deployment Goals
 
