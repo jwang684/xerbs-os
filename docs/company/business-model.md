@@ -46,7 +46,7 @@ Xerbs addresses these challenges through an integrated healthcare ecosystem that
 - Personalized herbal products
 - Professional consultation
 - Continuous health management
-- Intelligent health insights
+- Personalized health guidance
 - Long-term Health Memory
 
 Each interaction contributes to a continuously improving understanding of the customer.
