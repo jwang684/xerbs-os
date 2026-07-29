@@ -1,5 +1,11 @@
-company-blueprint.md
-brand-guidelines.md
-business-model.md
-customer-journey.md
-products-services.md
+# Company Documentation
+
+This section contains the strategic documents that define the Xerbs company.
+
+## Documents
+
+- Company Blueprint
+- Brand Guidelines
+- Business Model
+- Products & Services
+- Customer Journey
