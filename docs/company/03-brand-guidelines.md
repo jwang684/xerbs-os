@@ -9,35 +9,55 @@
 
 # Purpose
 
-Define the Xerbs brand identity and ensure a consistent experience across all products, services, and communications.
+This document defines the Xerbs brand identity and establishes principles that ensure a consistent experience across every customer touchpoint.
+
+The Xerbs brand extends beyond visual design. It represents the company's philosophy, values, communication style, and commitment to personalized healthcare.
+
+This document complements the Company Blueprint by explaining how Xerbs presents itself to the world.
 
 ---
 
 # Brand Positioning
 
-Who we are.
+Xerbs is a personalized herbal healthcare company dedicated to improving long-term health through personalized products, continuous health management, and professional consultation.
 
----
-
-# Mission
-
-(引用 Company Blueprint)
-
----
-
-# Vision
-
-(引用 Company Blueprint)
+Our brand represents trust, personalization, and continuous care.
 
 ---
 
 # Brand Philosophy
 
-Health is personal.
+Healthcare should never feel generic.
 
-Healthcare should adapt to people.
+Every individual deserves care that reflects their unique health history, goals, and needs.
 
-Technology should empower care.
+Technology should make healthcare more personal—not more complicated.
+
+Herbal medicine should be accessible, understandable, and trusted.
+
+---
+
+# Mission
+
+To make personalized herbal healthcare more accessible, continuous, and trusted.
+
+---
+
+# Vision
+
+A future where every person receives healthcare uniquely designed for them.
+
+---
+
+# Brand Promise
+
+Every interaction with Xerbs should help customers feel:
+
+- Understood
+- Supported
+- Confident
+- Informed
+- Cared for
 
 ---
 
@@ -45,69 +65,140 @@ Technology should empower care.
 
 Xerbs is:
 
-- Professional
-- Trustworthy
-- Warm
-- Intelligent
-- Calm
-- Modern
+Professional
+
+Trustworthy
+
+Calm
+
+Warm
+
+Modern
+
+Knowledgeable
+
+Thoughtful
+
+Optimistic
 
 ---
 
 # Core Values
 
-- Personalization
-- Trust
-- Scientific Rigor
-- Herbal Expertise
-- Long-Term Thinking
-- Continuous Improvement
+## Personalization
+
+Every recommendation should be tailored to the individual.
+
+---
+
+## Trust
+
+Trust is earned through transparency, consistency, and professionalism.
+
+---
+
+## Herbal Expertise
+
+We respect both traditional herbal wisdom and modern evidence-informed practice.
+
+---
+
+## Continuous Care
+
+Healthcare is an ongoing relationship rather than isolated visits.
+
+---
+
+## Long-Term Thinking
+
+We prioritize sustainable health improvements over short-term solutions.
 
 ---
 
 # Voice & Tone
 
-Use:
+## Our Voice
 
-- Clear
-- Friendly
-- Professional
-- Reassuring
+Professional
 
-Avoid:
+Friendly
 
-- Hype
-- Fear-based marketing
-- Medical exaggeration
-- Technical jargon without explanation
+Clear
+
+Reassuring
+
+Respectful
+
+Educational
+
+---
+
+## Avoid
+
+Fear-based marketing
+
+Medical exaggeration
+
+Miracle claims
+
+Aggressive sales language
+
+Overly technical terminology without explanation
 
 ---
 
 # Visual Identity
 
-(Logos, colors, typography, iconography)
+Visual elements should communicate:
+
+Simplicity
+
+Professionalism
+
+Natural wellness
+
+Modern healthcare
+
+Consistency
+
+Visual specifications are maintained separately within the design system.
 
 ---
 
-# Customer Promise
+# Customer Experience Principles
 
-Every interaction should help customers feel:
+Every interaction should answer:
 
-- Understood
-- Supported
-- Confident
-- Informed
+Does this increase trust?
+
+Does this improve understanding?
+
+Does this feel personalized?
+
+Does this reduce complexity?
+
+Does this create confidence?
 
 ---
 
 # Brand Principles
 
-Every design, product, and service should answer:
+Everything Xerbs creates should reflect the following principles:
 
-Does it improve trust?
+Personalization over standardization.
 
-Does it improve personalization?
+Relationships over transactions.
 
-Does it simplify healthcare?
+Guidance over marketing.
 
-Does it feel like Xerbs?
+Trust over persuasion.
+
+Long-term health over short-term sales.
+
+---
+
+# Closing Statement
+
+The Xerbs brand is not defined by logos or colors alone.
+
+It is defined by every experience that helps a customer feel understood, supported, and confident in their healthcare journey.
