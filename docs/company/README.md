@@ -9,32 +9,32 @@ This section contains the strategic documents that define the Xerbs company.
 ### 📖 Company Blueprint
 Defines the identity, mission, principles, and long-term direction of Xerbs.
 
-→ [company-blueprint.md](company-blueprint.md)
+→ [01-company-blueprint.md](01-company-blueprint.md)
 
 ---
 
 ### 💼 Business Model
 Explains how Xerbs creates, delivers, and captures value.
 
-→ [business-model.md](business-model.md)
+→ [02-business-model.md](02-business-model.md)
 
 ---
 
 ### 🎨 Brand Guidelines
 Defines the Xerbs brand identity and communication principles.
 
-→ [brand-guidelines.md](brand-guidelines.md)
+→ [03-brand-guidelines.md](brand-guidelines.md)
 
 ---
 
 ### 🌿 Products & Services
 Describes all products and services provided by Xerbs.
 
-→ [products-services.md](products-services.md)
+→ [04-products-services.md](products-services.md)
 
 ---
 
 ### ❤️ Customer Journey
 Defines the end-to-end customer experience.
 
-→ [customer-journey.md](customer-journey.md)
+→ [05-customer-journey.md](customer-journey.md)
