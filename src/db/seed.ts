@@ -12,7 +12,7 @@ config({ path: ".env.local" });
  */
 async function main() {
   const { db } = await import("./index");
-  const { organizationMembers, organizations, users } = await import(
+  const { organizationMembers, organizations, user } = await import(
     "./schema"
   );
 
@@ -27,8 +27,8 @@ async function main() {
     })
     .returning();
 
-  const [user] = await db
-    .insert(users)
+  const [demoUser] = await db
+    .insert(user)
     .values({
       // Deterministic id so re-seeding is stable (Better Auth would generate
       // this in real signups).
@@ -38,7 +38,7 @@ async function main() {
       emailVerified: true,
     })
     .onConflictDoUpdate({
-      target: users.email,
+      target: user.email,
       set: { name: "Dr. Demo Practitioner", emailVerified: true },
     })
     .returning();
@@ -47,7 +47,7 @@ async function main() {
     .insert(organizationMembers)
     .values({
       organizationId: org.id,
-      userId: user.id,
+      userId: demoUser.id,
       role: "owner",
       title: "L.Ac.",
     })
@@ -58,7 +58,7 @@ async function main() {
     .returning();
 
   console.log("  organization:", { id: org.id, slug: org.slug });
-  console.log("  user:        ", { id: user.id, email: user.email });
+  console.log("  user:        ", { id: demoUser.id, email: demoUser.email });
   console.log("  membership:  ", { id: member.id, role: member.role });
   console.log("Done.");
 }

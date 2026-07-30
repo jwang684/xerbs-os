@@ -9,13 +9,14 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "db:up": "docker compose --env-file .env.local up -d",
-    "db:down": "docker compose down",
+    "db:down": "docker compose --env-file .env.local down",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
+    "better-auth": "^1.6.25",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.12",
     "postgres": "^3.4.9",
