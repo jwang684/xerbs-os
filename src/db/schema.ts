@@ -170,6 +170,7 @@ export const visits = pgTable(
   (t) => [
     index("visits_org_idx").on(t.organizationId),
     index("visits_patient_idx").on(t.patientId),
+    index("visits_provider_idx").on(t.providerMemberId),
   ],
 );
 
@@ -197,7 +198,11 @@ export const questionnaireResponses = pgTable(
       .defaultNow(),
     ...timestamps,
   },
-  (t) => [index("questionnaire_responses_visit_idx").on(t.visitId)],
+  (t) => [
+    index("questionnaire_responses_visit_idx").on(t.visitId),
+    index("questionnaire_responses_org_idx").on(t.organizationId),
+    index("questionnaire_responses_patient_idx").on(t.patientId),
+  ],
 );
 
 /** A TCM syndrome-pattern diagnosis made during a visit (one row per pattern). */
@@ -227,7 +232,12 @@ export const diagnoses = pgTable(
     ),
     ...timestamps,
   },
-  (t) => [index("diagnoses_visit_idx").on(t.visitId)],
+  (t) => [
+    index("diagnoses_visit_idx").on(t.visitId),
+    index("diagnoses_org_idx").on(t.organizationId),
+    index("diagnoses_patient_idx").on(t.patientId),
+    index("diagnoses_created_by_idx").on(t.createdByMemberId),
+  ],
 );
 
 /** An herbal formula prescribed during a visit. */
@@ -267,6 +277,9 @@ export const prescriptions = pgTable(
   (t) => [
     index("prescriptions_visit_idx").on(t.visitId),
     index("prescriptions_patient_idx").on(t.patientId),
+    index("prescriptions_org_idx").on(t.organizationId),
+    index("prescriptions_diagnosis_idx").on(t.diagnosisId),
+    index("prescriptions_prescribed_by_idx").on(t.prescribedByMemberId),
   ],
 );
 
