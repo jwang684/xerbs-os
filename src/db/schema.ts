@@ -1,0 +1,297 @@
+import { sql } from "drizzle-orm";
+import {
+  boolean,
+  date,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  real,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
+
+/**
+ * Sprint 1 — complete MVP schema.
+ *
+ * Scope: the minimum needed to run a personalized herbal-medicine visit end to
+ * end inside a multi-tenant B2B platform:
+ *
+ *   organization → members (staff logins) → patients → visits
+ *   visit → questionnaire response → diagnosis → prescription
+ *
+ * Deliberately excluded (future sprints): health memory, outcomes, daily
+ * checks, RAG/embeddings, inventory, billing, scheduling, CRM, analytics.
+ *
+ * Extensibility rules followed so those can be added without breaking changes:
+ *   - Every tenant-owned row carries `organization_id` (future row-level
+ *     security / per-tenant scoping needs no migration).
+ *   - Free-form clinical payloads (questionnaire answers, formula items) are
+ *     `jsonb`, so fields can be added without altering table structure.
+ *   - Controlled vocabularies are pgEnums; new values append, existing rows
+ *     stay valid.
+ *   - Future tables (outcomes, daily_checks, …) reference these by id; nothing
+ *     here needs to change to add them.
+ */
+
+// ── Reusable audit columns ──────────────────────────────────────────────────
+const timestamps = {
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+};
+
+// ── Enums ───────────────────────────────────────────────────────────────────
+export const memberRole = pgEnum("member_role", [
+  "owner",
+  "admin",
+  "practitioner",
+  "staff",
+]);
+
+export const patientSex = pgEnum("patient_sex", [
+  "male",
+  "female",
+  "other",
+  "unknown",
+]);
+
+export const visitStatus = pgEnum("visit_status", [
+  "in_progress",
+  "completed",
+  "cancelled",
+]);
+
+export const diagnosisSource = pgEnum("diagnosis_source", [
+  "ai",
+  "clinician",
+]);
+
+export const prescriptionStatus = pgEnum("prescription_status", [
+  "draft",
+  "active",
+  "completed",
+  "cancelled",
+]);
+
+// ── Tenancy ─────────────────────────────────────────────────────────────────
+
+/** A tenant: a clinic / practice using Xerbs OS. */
+export const organizations = pgTable("organizations", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  ...timestamps,
+});
+
+/**
+ * A platform account. Managed by Better Auth — columns mirror Better Auth's
+ * expected `user` model (text id, email, emailVerified, image). Auth companion
+ * tables (session / account / verification) are added when auth is wired up.
+ */
+export const users = pgTable("users", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").notNull().default(false),
+  image: text("image"),
+  ...timestamps,
+});
+
+/** Join of a user to an organization, with their role in that org. */
+export const organizationMembers = pgTable(
+  "organization_members",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    role: memberRole("role").notNull().default("practitioner"),
+    // Professional credential, e.g. "L.Ac.", "DAOM". Optional.
+    title: text("title"),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("organization_members_org_user_uq").on(
+      t.organizationId,
+      t.userId,
+    ),
+    index("organization_members_user_idx").on(t.userId),
+  ],
+);
+
+// ── Clinical core ───────────────────────────────────────────────────────────
+
+/** A person receiving care at an organization (distinct from a login user). */
+export const patients = pgTable(
+  "patients",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    fullName: text("full_name").notNull(),
+    dateOfBirth: date("date_of_birth"),
+    sex: patientSex("sex").notNull().default("unknown"),
+    email: text("email"),
+    phone: text("phone"),
+    ...timestamps,
+  },
+  (t) => [index("patients_org_idx").on(t.organizationId)],
+);
+
+/** One clinical encounter (consultation) for a patient. */
+export const visits = pgTable(
+  "visits",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    patientId: uuid("patient_id")
+      .notNull()
+      .references(() => patients.id, { onDelete: "cascade" }),
+    // The practitioner who conducted the visit (nullable / set null on delete).
+    providerMemberId: uuid("provider_member_id").references(
+      () => organizationMembers.id,
+      { onDelete: "set null" },
+    ),
+    status: visitStatus("status").notNull().default("in_progress"),
+    chiefComplaint: text("chief_complaint"),
+    startedAt: timestamp("started_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [
+    index("visits_org_idx").on(t.organizationId),
+    index("visits_patient_idx").on(t.patientId),
+  ],
+);
+
+/** Intake questionnaire answers captured for a visit. */
+export const questionnaireResponses = pgTable(
+  "questionnaire_responses",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    visitId: uuid("visit_id")
+      .notNull()
+      .references(() => visits.id, { onDelete: "cascade" }),
+    patientId: uuid("patient_id")
+      .notNull()
+      .references(() => patients.id, { onDelete: "cascade" }),
+    // Flexible payload so new questions never require a migration.
+    answers: jsonb("answers")
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    submittedAt: timestamp("submitted_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    ...timestamps,
+  },
+  (t) => [index("questionnaire_responses_visit_idx").on(t.visitId)],
+);
+
+/** A TCM syndrome-pattern diagnosis made during a visit (one row per pattern). */
+export const diagnoses = pgTable(
+  "diagnoses",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    visitId: uuid("visit_id")
+      .notNull()
+      .references(() => visits.id, { onDelete: "cascade" }),
+    patientId: uuid("patient_id")
+      .notNull()
+      .references(() => patients.id, { onDelete: "cascade" }),
+    // e.g. "Liver Qi Stagnation".
+    pattern: text("pattern").notNull(),
+    rationale: text("rationale"),
+    // 0..1 model confidence, when produced by AI.
+    confidence: real("confidence"),
+    source: diagnosisSource("source").notNull().default("clinician"),
+    isPrimary: boolean("is_primary").notNull().default(false),
+    createdByMemberId: uuid("created_by_member_id").references(
+      () => organizationMembers.id,
+      { onDelete: "set null" },
+    ),
+    ...timestamps,
+  },
+  (t) => [index("diagnoses_visit_idx").on(t.visitId)],
+);
+
+/** An herbal formula prescribed during a visit. */
+export const prescriptions = pgTable(
+  "prescriptions",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    visitId: uuid("visit_id")
+      .notNull()
+      .references(() => visits.id, { onDelete: "cascade" }),
+    patientId: uuid("patient_id")
+      .notNull()
+      .references(() => patients.id, { onDelete: "cascade" }),
+    // The diagnosis this formula treats (nullable / set null on delete).
+    diagnosisId: uuid("diagnosis_id").references(() => diagnoses.id, {
+      onDelete: "set null",
+    }),
+    prescribedByMemberId: uuid("prescribed_by_member_id").references(
+      () => organizationMembers.id,
+      { onDelete: "set null" },
+    ),
+    formulaName: text("formula_name").notNull(),
+    therapeuticPrinciple: text("therapeutic_principle"),
+    // [{ herb, grams, unit }, …] — flexible so formula composition can evolve.
+    items: jsonb("items")
+      .$type<Array<{ herb: string; grams: number; unit?: string }>>()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    dosageInstructions: text("dosage_instructions"),
+    durationDays: integer("duration_days"),
+    status: prescriptionStatus("status").notNull().default("active"),
+    ...timestamps,
+  },
+  (t) => [
+    index("prescriptions_visit_idx").on(t.visitId),
+    index("prescriptions_patient_idx").on(t.patientId),
+  ],
+);
+
+// ── Inferred types ──────────────────────────────────────────────────────────
+export type Organization = typeof organizations.$inferSelect;
+export type NewOrganization = typeof organizations.$inferInsert;
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type OrganizationMember = typeof organizationMembers.$inferSelect;
+export type NewOrganizationMember = typeof organizationMembers.$inferInsert;
+export type Patient = typeof patients.$inferSelect;
+export type NewPatient = typeof patients.$inferInsert;
+export type Visit = typeof visits.$inferSelect;
+export type NewVisit = typeof visits.$inferInsert;
+export type QuestionnaireResponse = typeof questionnaireResponses.$inferSelect;
+export type NewQuestionnaireResponse =
+  typeof questionnaireResponses.$inferInsert;
+export type Diagnosis = typeof diagnoses.$inferSelect;
+export type NewDiagnosis = typeof diagnoses.$inferInsert;
+export type Prescription = typeof prescriptions.$inferSelect;
+export type NewPrescription = typeof prescriptions.$inferInsert;
