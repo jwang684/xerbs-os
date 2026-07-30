@@ -1,0 +1,40 @@
+# Local development infrastructure for Xerbs OS.
+#
+# Credentials are NOT hardcoded here — they are interpolated from `.env.local`.
+# Start with:   npm run db:up      (wraps `docker compose --env-file .env.local up -d`)
+# Stop with:    npm run db:down
+#
+# Only PostgreSQL's own credentials are passed into its container; application
+# secrets (OpenAI, Better Auth) never enter these containers.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: xerbs-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env.local}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env.local}
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env.local}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: xerbs-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
