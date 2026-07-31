@@ -1,6 +1,5 @@
 import { sql } from "drizzle-orm";
 import {
-  boolean,
   date,
   index,
   integer,
@@ -74,11 +73,6 @@ export const visitStatus = pgEnum("visit_status", [
   "open",
   "completed",
   "cancelled",
-]);
-
-export const diagnosisSource = pgEnum("diagnosis_source", [
-  "ai",
-  "clinician",
 ]);
 
 export const prescriptionStatus = pgEnum("prescription_status", [
@@ -224,7 +218,12 @@ export const questionnaireResponses = pgTable(
   ],
 );
 
-/** A TCM syndrome-pattern diagnosis made during a visit (one row per pattern). */
+/**
+ * An AI-generated diagnosis for a visit. Immutable after creation (no
+ * updated_at): each generation is a permanent record storing both the
+ * structured result and the original LLM response. A visit may have multiple
+ * diagnoses over time (regeneration keeps history).
+ */
 export const diagnoses = pgTable(
   "diagnoses",
   {
@@ -235,27 +234,37 @@ export const diagnoses = pgTable(
     visitId: uuid("visit_id")
       .notNull()
       .references(() => visits.id, { onDelete: "cascade" }),
+    // The questionnaire the diagnosis was derived from.
+    questionnaireId: uuid("questionnaire_id").references(
+      () => questionnaireResponses.id,
+      { onDelete: "set null" },
+    ),
     patientId: uuid("patient_id")
       .notNull()
       .references(() => patients.id, { onDelete: "cascade" }),
-    // e.g. "Liver Qi Stagnation".
-    pattern: text("pattern").notNull(),
-    rationale: text("rationale"),
-    // 0..1 model confidence, when produced by AI.
+    // AI provenance.
+    provider: text("provider").notNull(),
+    model: text("model").notNull(),
+    promptVersion: text("prompt_version").notNull(),
+    reasoning: text("reasoning"),
+    // Parsed, structured diagnosis (patterns + summary).
+    structuredResult: jsonb("structured_result")
+      .$type<Record<string, unknown>>()
+      .notNull(),
+    // The original, unmodified LLM response.
+    rawResponse: jsonb("raw_response").$type<unknown>().notNull(),
+    // 0..1 overall confidence, when provided by the model.
     confidence: real("confidence"),
-    source: diagnosisSource("source").notNull().default("clinician"),
-    isPrimary: boolean("is_primary").notNull().default(false),
-    createdByMemberId: uuid("created_by_member_id").references(
-      () => organizationMembers.id,
-      { onDelete: "set null" },
-    ),
-    ...timestamps,
+    disclaimer: text("disclaimer").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     index("diagnoses_visit_idx").on(t.visitId),
     index("diagnoses_org_idx").on(t.organizationId),
     index("diagnoses_patient_idx").on(t.patientId),
-    index("diagnoses_created_by_idx").on(t.createdByMemberId),
+    index("diagnoses_questionnaire_idx").on(t.questionnaireId),
   ],
 );
 

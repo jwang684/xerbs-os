@@ -16,6 +16,7 @@ herbal-healthcare platform — and records which phases are complete.
 | ORM / migrations | Drizzle ORM + drizzle-kit |
 | Auth | Better Auth (email/password) |
 | Validation | Zod |
+| AI | OpenAI Responses API (behind a provider interface) |
 | Tests | Vitest (integration, against real Postgres) |
 
 ## 3. Phase status
@@ -28,6 +29,7 @@ herbal-healthcare platform — and records which phases are complete.
 | 4 | Patient vertical slice (CRUD REST API, soft delete, search) | ✅ Complete |
 | 5 | Visit vertical slice (CRUD REST API, filtering, pagination) | ✅ Complete |
 | 6 | Questionnaire domain (versioned JSON, 1:1 with visit) | ✅ Complete |
+| 7 | Diagnosis domain (AI-generated, immutable, provider-abstracted) | ✅ Complete |
 
 ## 4. Data model (MVP schema)
 
@@ -42,8 +44,10 @@ Multi-tenant foundation and clinical core:
 - **questionnaire_responses** — one questionnaire per visit (unique `visit_id`);
   generic JSON content validated against a versioned definition
   (`schema_version`).
-- **diagnoses, prescriptions** — schema present; CRUD not yet implemented
-  (later phases).
+- **diagnoses** — AI-generated, immutable diagnosis per generation; stores the
+  structured result and the original LLM response, plus AI provenance
+  (provider, model, promptVersion). A visit may have multiple over time.
+- **prescriptions** — schema present; CRUD not yet implemented (later phase).
 
 Every tenant-owned row carries `organization_id`. Foreign-key columns are
 indexed. Free-form clinical payloads use `jsonb`; controlled vocabularies use
@@ -88,9 +92,26 @@ Postgres enums.
   version, and unknown versions are rejected.
 - No delete in this phase.
 
+### Diagnosis API (AI-generated, immutable, one per generation)
+- `POST /api/visits/:id/diagnosis` — generate a diagnosis from the visit's
+  questionnaire (write roles). Returns the stored record.
+- `GET /api/visits/:id/diagnosis` — list the visit's diagnoses (newest first).
+- Immutable: no update or delete.
+- Fields: `visitId`, `questionnaireId`, `provider`, `model`, `promptVersion`,
+  `reasoning`, `structuredResult`, `rawResponse`, `confidence`, `disclaimer`,
+  `createdAt`.
+
+### AI provider abstraction
+- The service depends only on a `DiagnosisProvider` interface; the OpenAI
+  Responses API implementation is the sole file importing the OpenAI SDK.
+- `AI_PROVIDER` selects the provider (`openai` | `fake`); future providers
+  (Anthropic, Azure OpenAI, local) implement the same interface with no
+  service-layer changes.
+- The diagnosis service consumes only the Questionnaire; it does not prescribe.
+
 ## 6. Out of scope for Sprint 1
 
-Diagnosis and Prescription CRUD; AI functionality; health
+Prescription CRUD and generation; AI beyond diagnosis; health
 memory; outcomes; daily checks; RAG/embeddings; inventory; billing; scheduling;
 CRM; analytics; and the patient/visit frontend UI.
 

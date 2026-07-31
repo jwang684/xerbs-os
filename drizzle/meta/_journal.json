@@ -36,6 +36,20 @@
       "when": 1785507211069,
       "tag": "0004_careful_warhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785509851208,
+      "tag": "0005_steep_stick",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785509972089,
+      "tag": "0006_wet_hercules",
+      "breakpoints": true
     }
   ]
 }
