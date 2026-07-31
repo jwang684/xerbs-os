@@ -185,7 +185,12 @@ export const visits = pgTable(
   ],
 );
 
-/** Intake questionnaire answers captured for a visit. */
+/**
+ * Intake questionnaire for a visit. Exactly one questionnaire per visit
+ * (unique visit_id). Content is stored as generic JSON in `answers`; the
+ * `schema_version` selects which versioned definition validated it, so future
+ * questionnaire definitions evolve without database schema changes.
+ */
 export const questionnaireResponses = pgTable(
   "questionnaire_responses",
   {
@@ -199,6 +204,8 @@ export const questionnaireResponses = pgTable(
     patientId: uuid("patient_id")
       .notNull()
       .references(() => patients.id, { onDelete: "cascade" }),
+    // Version of the questionnaire definition this content was validated against.
+    schemaVersion: integer("schema_version").notNull().default(1),
     // Flexible payload so new questions never require a migration.
     answers: jsonb("answers")
       .$type<Record<string, unknown>>()
@@ -210,7 +217,8 @@ export const questionnaireResponses = pgTable(
     ...timestamps,
   },
   (t) => [
-    index("questionnaire_responses_visit_idx").on(t.visitId),
+    // Unique: one questionnaire per visit.
+    uniqueIndex("questionnaire_responses_visit_idx").on(t.visitId),
     index("questionnaire_responses_org_idx").on(t.organizationId),
     index("questionnaire_responses_patient_idx").on(t.patientId),
   ],

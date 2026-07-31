@@ -46,6 +46,12 @@ export class NotFoundError extends AppError {
   }
 }
 
+export class ConflictError extends AppError {
+  constructor(message = "Resource already exists") {
+    super(message, 409, "conflict");
+  }
+}
+
 /** Converts any thrown value into a JSON error Response. */
 export function toErrorResponse(error: unknown): Response {
   if (error instanceof AppError) {
