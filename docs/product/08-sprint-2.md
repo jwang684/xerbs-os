@@ -174,3 +174,37 @@ Out of scope (unchanged): drag-and-drop, billing, notifications, SOAP, dashboard
 - Browser smoke: login → calendar (week view shows the appointment) → click →
   appointment detail.
 - lint, typecheck, production build pass.
+
+## Phase 6 — SOAP Notes vertical slice
+
+**Status: Complete.**
+
+Clinical SOAP notes, one per visit, with immutable version history and an
+autosave-friendly API.
+
+### What changed
+- **Schema** (migration `0013`, append-only): `soap_notes` (one per visit —
+  unique `visit_id`; S/O/A/P text, `version`) and `soap_note_revisions`
+  (immutable snapshots, unique `(soap_note_id, version)`, `author_id`).
+- **Repository**: `findByVisit`, transactional `create` (note + revision v1),
+  transactional `update` (row-locked: bump version, update note, append
+  revision), `remove`, `listRevisions`.
+- **Service**: one-per-visit conflict, visit-in-org check, autosave `update`
+  (partial section merge; empty patch is a no-op — no revision). Authorization
+  follows the Visit rules (reads any member; writes owner/admin/practitioner;
+  staff read-only) via `assertCanWrite`.
+- **REST**: `GET/POST/PATCH/DELETE /api/visits/[id]/soap` and
+  `GET /api/visits/[id]/soap/revisions`.
+
+Existing AI Diagnosis is unchanged.
+
+Out of scope (unchanged): AI-generated SOAP, billing, dashboard, notifications.
+
+### Verified
+- Integration tests (87 total; 9 new): create + one-per-visit conflict, reads
+  (staff), immutable autosave versioning + no-op guard, revision history,
+  Visit-authorization matrix, visit-in-org + validation, delete cascade,
+  organization isolation.
+- HTTP endpoint tests (21): CRUD, autosave versions, revisions (newest first),
+  no-op, 401/409/422/404, staff read-only (403 on writes), delete cascade.
+- lint, typecheck, production build pass.

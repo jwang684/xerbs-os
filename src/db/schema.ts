@@ -439,6 +439,75 @@ export const appointments = pgTable(
   ],
 );
 
+/**
+ * The current SOAP note for a visit (one per visit). Section content is plain
+ * text / markdown. `version` increments on each save; every save also appends an
+ * immutable row to soap_note_revisions.
+ */
+export const soapNotes = pgTable(
+  "soap_notes",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    visitId: uuid("visit_id")
+      .notNull()
+      .references(() => visits.id, { onDelete: "cascade" }),
+    patientId: uuid("patient_id")
+      .notNull()
+      .references(() => patients.id, { onDelete: "cascade" }),
+    subjective: text("subjective").notNull().default(""),
+    objective: text("objective").notNull().default(""),
+    assessment: text("assessment").notNull().default(""),
+    plan: text("plan").notNull().default(""),
+    version: integer("version").notNull().default(1),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("soap_notes_visit_uq").on(t.visitId),
+    index("soap_notes_org_idx").on(t.organizationId),
+    index("soap_notes_patient_idx").on(t.patientId),
+  ],
+);
+
+/** Immutable snapshot of a SOAP note at a given version (edit history). */
+export const soapNoteRevisions = pgTable(
+  "soap_note_revisions",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    soapNoteId: uuid("soap_note_id")
+      .notNull()
+      .references(() => soapNotes.id, { onDelete: "cascade" }),
+    visitId: uuid("visit_id")
+      .notNull()
+      .references(() => visits.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    subjective: text("subjective").notNull().default(""),
+    objective: text("objective").notNull().default(""),
+    assessment: text("assessment").notNull().default(""),
+    plan: text("plan").notNull().default(""),
+    authorId: text("author_id").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("soap_note_revisions_note_version_uq").on(
+      t.soapNoteId,
+      t.version,
+    ),
+    index("soap_note_revisions_note_idx").on(t.soapNoteId),
+    index("soap_note_revisions_visit_idx").on(t.visitId),
+    index("soap_note_revisions_org_idx").on(t.organizationId),
+  ],
+);
+
 // ── Inferred types ──────────────────────────────────────────────────────────
 export type Organization = typeof organizations.$inferSelect;
 export type NewOrganization = typeof organizations.$inferInsert;
@@ -452,6 +521,10 @@ export type ProviderProfile = typeof providerProfiles.$inferSelect;
 export type NewProviderProfile = typeof providerProfiles.$inferInsert;
 export type Appointment = typeof appointments.$inferSelect;
 export type NewAppointment = typeof appointments.$inferInsert;
+export type SoapNote = typeof soapNotes.$inferSelect;
+export type NewSoapNote = typeof soapNotes.$inferInsert;
+export type SoapNoteRevision = typeof soapNoteRevisions.$inferSelect;
+export type NewSoapNoteRevision = typeof soapNoteRevisions.$inferInsert;
 export type Patient = typeof patients.$inferSelect;
 export type NewPatient = typeof patients.$inferInsert;
 export type PatientUpdate = Partial<

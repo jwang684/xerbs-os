@@ -158,6 +158,27 @@ versioned definition (`schemaVersion`).
   string, number, boolean, string array, or null.
 - Unknown `schemaVersion` → 422. No delete.
 
+## SOAP Notes
+
+One SOAP note per visit (Subjective / Objective / Assessment / Plan; plain
+text/markdown). Each save appends an immutable revision.
+
+| Method | Path | Body | Success |
+|---|---|---|---|
+| GET | `/api/visits/:id/soap` | — | 200 `{ data: SoapNote }` (404 if none) |
+| POST | `/api/visits/:id/soap` | `{ subjective?, objective?, assessment?, plan? }` | 201 `{ data }` (409 if exists) |
+| PATCH | `/api/visits/:id/soap` | any subset of sections | 200 `{ data }` (autosave; bumps `version`) |
+| DELETE | `/api/visits/:id/soap` | — | 200 `{ data }` (note + revisions) |
+| GET | `/api/visits/:id/soap/revisions` | — | 200 `{ items, total }` (newest first) |
+
+- **Autosave**: `PATCH` merges the provided sections, increments `version`, and
+  appends a revision; an empty patch is a no-op (no new revision).
+- **Version history**: revisions are immutable snapshots (`version`,
+  S/O/A/P, `authorId`, `createdAt`).
+- **Authorization** follows the Visit rules: reads for any member; writes
+  (POST/PATCH/DELETE) for owner/admin/practitioner (staff read-only). The visit
+  must belong to the caller's organization.
+
 ## Diagnosis
 
 AI-generated and immutable. A visit may have many diagnoses over time; exactly
