@@ -71,7 +71,7 @@ export const patientSex = pgEnum("patient_sex", [
 ]);
 
 export const visitStatus = pgEnum("visit_status", [
-  "in_progress",
+  "open",
   "completed",
   "cancelled",
 ]);
@@ -152,7 +152,7 @@ export const patients = pgTable(
   ],
 );
 
-/** One clinical encounter (consultation) for a patient. */
+/** One clinical encounter (consultation) belonging to exactly one patient. */
 export const visits = pgTable(
   "visits",
   {
@@ -163,23 +163,25 @@ export const visits = pgTable(
     patientId: uuid("patient_id")
       .notNull()
       .references(() => patients.id, { onDelete: "cascade" }),
-    // The practitioner who conducted the visit (nullable / set null on delete).
-    providerMemberId: uuid("provider_member_id").references(
-      () => organizationMembers.id,
-      { onDelete: "set null" },
-    ),
-    status: visitStatus("status").notNull().default("in_progress"),
+    // The practitioner (organization member) conducting the visit. Nullable so a
+    // visit can be recorded before a provider is assigned; set null if the
+    // member is later removed.
+    providerId: uuid("provider_id").references(() => organizationMembers.id, {
+      onDelete: "set null",
+    }),
+    status: visitStatus("status").notNull().default("open"),
     chiefComplaint: text("chief_complaint"),
-    startedAt: timestamp("started_at", { withTimezone: true })
+    // When the encounter took place (defaults to creation time).
+    visitDate: timestamp("visit_date", { withTimezone: true })
       .notNull()
       .defaultNow(),
-    completedAt: timestamp("completed_at", { withTimezone: true }),
+    notes: text("notes"),
     ...timestamps,
   },
   (t) => [
     index("visits_org_idx").on(t.organizationId),
     index("visits_patient_idx").on(t.patientId),
-    index("visits_provider_idx").on(t.providerMemberId),
+    index("visits_provider_idx").on(t.providerId),
   ],
 );
 

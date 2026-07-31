@@ -1,9 +1,8 @@
-import type { ZodType } from "zod";
-
 import type { Patient } from "@/db/schema";
 
 import { assertCanWrite, type AuthContext } from "../auth/authz";
-import { NotFoundError, ValidationError } from "../http/errors";
+import { NotFoundError } from "../http/errors";
+import { validate } from "../http/validate";
 import {
   patientRepository,
   type ListPatientsResult,
@@ -14,14 +13,6 @@ import {
   patientIdSchema,
   updatePatientSchema,
 } from "./patient.schema";
-
-function validate<T>(schema: ZodType<T>, data: unknown): T {
-  const result = schema.safeParse(data);
-  if (!result.success) {
-    throw new ValidationError("Validation failed", result.error.issues);
-  }
-  return result.data;
-}
 
 /**
  * Patient business logic. Enforces authorization (write roles) and input
