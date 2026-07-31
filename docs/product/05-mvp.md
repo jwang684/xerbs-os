@@ -30,6 +30,7 @@ herbal-healthcare platform — and records which phases are complete.
 | 5 | Visit vertical slice (CRUD REST API, filtering, pagination) | ✅ Complete |
 | 6 | Questionnaire domain (versioned JSON, 1:1 with visit) | ✅ Complete |
 | 7 | Diagnosis domain (AI-generated, immutable, provider-abstracted) | ✅ Complete |
+| 8 | Active diagnosis + Prescription domain (AI-generated, immutable) | ✅ Complete |
 
 ## 4. Data model (MVP schema)
 
@@ -45,9 +46,12 @@ Multi-tenant foundation and clinical core:
   generic JSON content validated against a versioned definition
   (`schema_version`).
 - **diagnoses** — AI-generated, immutable diagnosis per generation; stores the
-  structured result and the original LLM response, plus AI provenance
-  (provider, model, promptVersion). A visit may have multiple over time.
-- **prescriptions** — schema present; CRUD not yet implemented (later phase).
+  structured result and the original LLM response, plus AI provenance. A visit
+  may have multiple over time, with exactly one marked active (`is_active`,
+  enforced by a partial unique index).
+- **prescriptions** — AI-generated, immutable; belongs to exactly one diagnosis
+  (generated from the active diagnosis's assessment); stores the structured
+  prescription, raw response, and AI provenance.
 
 Every tenant-owned row carries `organization_id`. Foreign-key columns are
 indexed. Free-form clinical payloads use `jsonb`; controlled vocabularies use
@@ -109,9 +113,27 @@ Postgres enums.
   service-layer changes.
 - The diagnosis service consumes only the Questionnaire; it does not prescribe.
 
+### Active diagnosis
+- A visit keeps its full immutable diagnosis history; exactly one is active.
+- Creating a diagnosis makes it active (deactivating the prior) atomically.
+- `POST /api/visits/:id/diagnosis/:diagnosisId/activate` re-activates a
+  historical diagnosis (write roles). Clinical content stays immutable; only
+  the active marker changes.
+
+### Prescription API (AI-generated, immutable, from the active diagnosis)
+- `POST /api/visits/:id/prescription` — generate a prescription from the visit's
+  **active diagnosis** (write roles); 400 if there is no active diagnosis.
+- `GET /api/visits/:id/prescription` — list prescriptions (newest first).
+- Immutable: no update or delete. Belongs to exactly one diagnosis.
+- Fields: `diagnosisId`, `provider`, `model`, `promptVersion`,
+  `structuredResult`, `rawResponse`, `disclaimer`, `createdAt`.
+- Its AI lives in a **separate** provider layer (`src/server/prescriptions/ai`)
+  that takes only the structured assessment; the diagnosis AI layer knows
+  nothing about prescriptions, and vice versa.
+
 ## 6. Out of scope for Sprint 1
 
-Prescription CRUD and generation; AI beyond diagnosis; health
+AI beyond diagnosis and prescription; health
 memory; outcomes; daily checks; RAG/embeddings; inventory; billing; scheduling;
 CRM; analytics; and the patient/visit frontend UI.
 

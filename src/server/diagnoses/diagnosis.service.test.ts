@@ -114,16 +114,48 @@ describe("diagnosisService", () => {
     ).rejects.toBeInstanceOf(BadRequestError);
   });
 
-  it("keeps immutable history — multiple diagnoses per visit", async () => {
+  it("keeps immutable history and one active diagnosis per visit", async () => {
     const first = await diagnosisService.createForVisit(ctxA, visitA2);
+    expect(first.isActive).toBe(true);
+
+    // Creating another keeps the first (history) but makes the new one active.
     const second = await diagnosisService.createForVisit(ctxA, visitA2);
-    expect(first.id).not.toBe(second.id);
+    expect(second.id).not.toBe(first.id);
+    expect(second.isActive).toBe(true);
 
     const list = await diagnosisService.listByVisit(ctxA, visitA2);
-    const ids = list.map((d) => d.id);
-    expect(ids).toContain(first.id);
-    expect(ids).toContain(second.id);
-    expect(list.length).toBeGreaterThanOrEqual(2);
+    expect(list.map((d) => d.id)).toEqual(
+      expect.arrayContaining([first.id, second.id]),
+    );
+    const active = list.filter((d) => d.isActive);
+    expect(active).toHaveLength(1);
+    expect(active[0].id).toBe(second.id);
+  });
+
+  it("can re-activate a historical diagnosis", async () => {
+    const first = await diagnosisService.createForVisit(ctxA, visitWithQ);
+    const second = await diagnosisService.createForVisit(ctxA, visitWithQ);
+    expect(second.isActive).toBe(true);
+
+    const reactivated = await diagnosisService.activate(
+      ctxA,
+      visitWithQ,
+      first.id,
+    );
+    expect(reactivated.isActive).toBe(true);
+
+    const list = await diagnosisService.listByVisit(ctxA, visitWithQ);
+    const active = list.filter((d) => d.isActive);
+    expect(active).toHaveLength(1);
+    expect(active[0].id).toBe(first.id);
+
+    // Cross-org and unknown activation are rejected.
+    await expect(
+      diagnosisService.activate(ctxB, visitWithQ, first.id),
+    ).rejects.toBeInstanceOf(NotFoundError);
+    await expect(
+      diagnosisService.activate(ctxAStaff, visitWithQ, first.id),
+    ).rejects.toBeInstanceOf(ForbiddenError);
   });
 
   it("404s for an unknown or cross-org visit", async () => {

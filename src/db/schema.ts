@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   date,
   index,
   integer,
@@ -71,13 +72,6 @@ export const patientSex = pgEnum("patient_sex", [
 
 export const visitStatus = pgEnum("visit_status", [
   "open",
-  "completed",
-  "cancelled",
-]);
-
-export const prescriptionStatus = pgEnum("prescription_status", [
-  "draft",
-  "active",
   "completed",
   "cancelled",
 ]);
@@ -256,6 +250,10 @@ export const diagnoses = pgTable(
     // 0..1 overall confidence, when provided by the model.
     confidence: real("confidence"),
     disclaimer: text("disclaimer").notNull(),
+    // The active diagnosis for the visit. Clinical content stays immutable;
+    // only this marker moves. At most one active diagnosis per visit (enforced
+    // by the partial unique index below).
+    isActive: boolean("is_active").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -265,10 +263,19 @@ export const diagnoses = pgTable(
     index("diagnoses_org_idx").on(t.organizationId),
     index("diagnoses_patient_idx").on(t.patientId),
     index("diagnoses_questionnaire_idx").on(t.questionnaireId),
+    // At most one active diagnosis per visit.
+    uniqueIndex("diagnoses_active_per_visit_uq")
+      .on(t.visitId)
+      .where(sql`${t.isActive}`),
   ],
 );
 
-/** An herbal formula prescribed during a visit. */
+/**
+ * An AI-generated herbal prescription. Immutable after creation. Belongs to
+ * exactly one diagnosis and is generated from that diagnosis's structured
+ * clinical assessment. Stores the structured prescription and the original LLM
+ * response. A diagnosis may have multiple prescriptions over time (history).
+ */
 export const prescriptions = pgTable(
   "prescriptions",
   {
@@ -276,38 +283,36 @@ export const prescriptions = pgTable(
     organizationId: uuid("organization_id")
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
+    // The diagnosis this prescription treats.
+    diagnosisId: uuid("diagnosis_id")
+      .notNull()
+      .references(() => diagnoses.id, { onDelete: "cascade" }),
     visitId: uuid("visit_id")
       .notNull()
       .references(() => visits.id, { onDelete: "cascade" }),
     patientId: uuid("patient_id")
       .notNull()
       .references(() => patients.id, { onDelete: "cascade" }),
-    // The diagnosis this formula treats (nullable / set null on delete).
-    diagnosisId: uuid("diagnosis_id").references(() => diagnoses.id, {
-      onDelete: "set null",
-    }),
-    prescribedByMemberId: uuid("prescribed_by_member_id").references(
-      () => organizationMembers.id,
-      { onDelete: "set null" },
-    ),
-    formulaName: text("formula_name").notNull(),
-    therapeuticPrinciple: text("therapeutic_principle"),
-    // [{ herb, grams, unit }, …] — flexible so formula composition can evolve.
-    items: jsonb("items")
-      .$type<Array<{ herb: string; grams: number; unit?: string }>>()
+    // AI provenance.
+    provider: text("provider").notNull(),
+    model: text("model").notNull(),
+    promptVersion: text("prompt_version").notNull(),
+    // Parsed, structured prescription (formula + herbs + instructions).
+    structuredResult: jsonb("structured_result")
+      .$type<Record<string, unknown>>()
+      .notNull(),
+    // The original, unmodified LLM response.
+    rawResponse: jsonb("raw_response").$type<unknown>().notNull(),
+    disclaimer: text("disclaimer").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
-      .default(sql`'[]'::jsonb`),
-    dosageInstructions: text("dosage_instructions"),
-    durationDays: integer("duration_days"),
-    status: prescriptionStatus("status").notNull().default("active"),
-    ...timestamps,
+      .defaultNow(),
   },
   (t) => [
     index("prescriptions_visit_idx").on(t.visitId),
     index("prescriptions_patient_idx").on(t.patientId),
     index("prescriptions_org_idx").on(t.organizationId),
     index("prescriptions_diagnosis_idx").on(t.diagnosisId),
-    index("prescriptions_prescribed_by_idx").on(t.prescribedByMemberId),
   ],
 );
 
