@@ -17,6 +17,7 @@ herbal-healthcare platform — and records which phases are complete.
 | Auth | Better Auth (email/password) |
 | Validation | Zod |
 | AI | OpenAI Responses API (behind a provider interface) |
+| Frontend | React client components (thin client over the REST API) |
 | Tests | Vitest (integration, against real Postgres) |
 
 ## 3. Phase status
@@ -31,6 +32,7 @@ herbal-healthcare platform — and records which phases are complete.
 | 6 | Questionnaire domain (versioned JSON, 1:1 with visit) | ✅ Complete |
 | 7 | Diagnosis domain (AI-generated, immutable, provider-abstracted) | ✅ Complete |
 | 8 | Active diagnosis + Prescription domain (AI-generated, immutable) | ✅ Complete |
+| 9 | Frontend vertical slice (login → prescription workflow) | ✅ Complete |
 
 ## 4. Data model (MVP schema)
 
@@ -131,11 +133,26 @@ Postgres enums.
   that takes only the structured assessment; the diagnosis AI layer knows
   nothing about prescriptions, and vice versa.
 
+### Frontend (thin client)
+- Pages: `/login`, `/patients` (list + search + create), `/patients/[id]`
+  (detail + visits + create visit), `/visits/[id]` (hub + status), and the
+  workflow steps `/visits/[id]/questionnaire`, `/diagnosis`, `/prescription`.
+- Proven end-to-end: **login → patient → visit → questionnaire → diagnosis →
+  prescription**.
+- Thin client: pages call the REST API only; no business logic or validation is
+  duplicated client-side. All rules and validation stay in the backend. Focus is
+  auth, navigation, data loading, forms, error handling, and loading states —
+  not UI polish.
+- Auth is cookie-based (Better Auth); authenticated routes redirect to `/login`
+  when there is no session. Org scoping is inferred from the user's membership.
+- There is no self-service sign-up page (Login only); provider accounts are
+  provisioned out-of-band.
+
 ## 6. Out of scope for Sprint 1
 
-AI beyond diagnosis and prescription; health
+AI beyond diagnosis and prescription; self-service sign-up; UI polish; health
 memory; outcomes; daily checks; RAG/embeddings; inventory; billing; scheduling;
-CRM; analytics; and the patient/visit frontend UI.
+CRM; and analytics.
 
 ## 7. Quality gates
 
