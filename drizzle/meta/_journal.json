@@ -15,6 +15,13 @@
       "when": 1785454748341,
       "tag": "0001_common_prism",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785455747566,
+      "tag": "0002_low_havok",
+      "breakpoints": true
     }
   ]
 }

@@ -138,9 +138,18 @@ export const patients = pgTable(
     sex: patientSex("sex").notNull().default("unknown"),
     email: text("email"),
     phone: text("phone"),
+    // Soft delete: null = active, non-null = deleted at that time. Clinical
+    // records are never hard-deleted; queries filter on `deleted_at IS NULL`.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
     ...timestamps,
   },
-  (t) => [index("patients_org_idx").on(t.organizationId)],
+  (t) => [
+    index("patients_org_idx").on(t.organizationId),
+    // Partial index accelerating the common "active patients in an org" query.
+    index("patients_org_active_idx")
+      .on(t.organizationId)
+      .where(sql`${t.deletedAt} is null`),
+  ],
 );
 
 /** One clinical encounter (consultation) for a patient. */
@@ -292,6 +301,9 @@ export type OrganizationMember = typeof organizationMembers.$inferSelect;
 export type NewOrganizationMember = typeof organizationMembers.$inferInsert;
 export type Patient = typeof patients.$inferSelect;
 export type NewPatient = typeof patients.$inferInsert;
+export type PatientUpdate = Partial<
+  Omit<NewPatient, "id" | "organizationId" | "createdAt" | "updatedAt">
+>;
 export type Visit = typeof visits.$inferSelect;
 export type NewVisit = typeof visits.$inferInsert;
 export type QuestionnaireResponse = typeof questionnaireResponses.$inferSelect;

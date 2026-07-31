@@ -23,3 +23,8 @@ if (process.env.NODE_ENV !== "production") {
 
 export const db = drizzle(client, { schema });
 export { schema };
+
+/** Closes the underlying connection pool. Use in scripts/tests for clean exit. */
+export async function closeDb(): Promise<void> {
+  await client.end();
+}
