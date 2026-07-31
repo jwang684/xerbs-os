@@ -37,6 +37,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             Xerbs OS
           </Link>
           <nav className="flex gap-3 text-sm text-zinc-600">
+            <Link href="/dashboard" className="hover:underline">
+              Dashboard
+            </Link>
             <Link href="/patients" className="hover:underline">
               Patients
             </Link>

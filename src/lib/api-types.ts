@@ -125,6 +125,24 @@ export interface CalendarResult {
   groups: CalendarGroup[];
 }
 
+export interface DashboardWidgets {
+  todaysAppointments: number;
+  waitingPatients: number;
+  checkedInPatients: number;
+  openVisits: number;
+  completedVisits: number;
+  pendingSoap: number;
+  pendingDiagnosis: number;
+  pendingPrescription: number;
+}
+
+export interface DashboardResult {
+  date: string;
+  providerId: string | null;
+  widgets: DashboardWidgets;
+  todaysAppointments: Appointment[];
+}
+
 export interface ListResult<T> {
   items: T[];
   total: number;

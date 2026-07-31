@@ -208,3 +208,42 @@ Out of scope (unchanged): AI-generated SOAP, billing, dashboard, notifications.
 - HTTP endpoint tests (21): CRUD, autosave versions, revisions (newest first),
   no-op, 401/409/422/404, staff read-only (403 on writes), delete cascade.
 - lint, typecheck, production build pass.
+
+## Phase 7 — Clinical Dashboard vertical slice
+
+**Status: Complete.**
+
+A read-only clinical dashboard that aggregates existing entities
+(repository → service → REST + minimal frontend). **No migration** — it only
+counts and lists what other domains already own; no business logic is
+duplicated.
+
+### What changed
+- **Backend**: `GET /api/dashboard?date=&providerId=` returns aggregated
+  `widgets` plus today's appointment list (returned directly, not wrapped).
+  Widgets: today's appointments, waiting, checked-in, open visits, completed
+  visits, and pending SOAP / diagnosis / prescription. Added
+  `dashboard.repository.ts` (`todaysAppointments`, `countVisitsByStatus`,
+  `countPending` via `NOT EXISTS`, `memberIdForUser`), `dashboard.service.ts`
+  (composes the widgets + provider-scope resolution), and `dashboard.schema.ts`.
+- **Scope / authorization**: owner/admin/staff see the whole organization with an
+  optional `providerId` filter (unknown provider → 400); a practitioner always
+  sees only their own dashboard. Appointment widgets filter by provider profile;
+  visit widgets by the mapped organization member. The day window is `[00:00,
+  next 00:00)` UTC around `date` (default today).
+- **Frontend** (minimal, no charts): `/dashboard` page — a card grid of the eight
+  widgets, a today's-appointments table (linking to the appointment detail), and
+  a date + provider filter. Header nav gains a Dashboard link. Times shown in UTC.
+
+Out of scope (unchanged): billing, notifications, analytics, reports.
+
+### Verified
+- Integration tests (97 total; 10 new): owner org-wide aggregates, appointment
+  ordering, staff read parity, practitioner own-only scope, provider filter,
+  provider-without-member → zero visits, unknown provider → 400, organization
+  isolation, default-to-today, query validation.
+- HTTP endpoint tests (17): 401 unauth, empty dashboard, seed
+  patient/provider/appointment → waiting count, check-in → checked-in + open
+  visit + pending SOAP/Dx/Rx, add SOAP → pending drops, provider filter,
+  unknown provider 400, invalid date 422.
+- lint, typecheck, production build pass.

@@ -210,3 +210,40 @@ visit's **active** diagnosis.
   `structuredResult`, `rawResponse`, `disclaimer`, `createdAt` (plus denormalized
   `visitId`, `patientId`, `organizationId`).
 - `structuredResult`: `{ formulaName, herbs: [{ name, dosage }], instructions, durationDays }`.
+
+## Dashboard
+
+Read-only aggregation over existing entities (no new tables). Returns only
+counts plus today's appointment list — no business logic is duplicated.
+
+| Method | Path | Query | Success |
+|---|---|---|---|
+| GET | `/api/dashboard` | `date=YYYY-MM-DD`, `providerId=` | 200 (unwrapped `DashboardResult`) |
+
+Response shape (returned directly, not wrapped in `{ data }`):
+
+```
+{
+  date: "YYYY-MM-DD",
+  providerId: string | null,   // the provider the view is scoped to, if any
+  widgets: {
+    todaysAppointments, waitingPatients, checkedInPatients,
+    openVisits, completedVisits,
+    pendingSoap, pendingDiagnosis, pendingPrescription   // all numbers
+  },
+  todaysAppointments: Appointment[]   // ordered by start time
+}
+```
+
+- **Day window**: `date` (default today) defines `[00:00, next 00:00)` UTC for the
+  appointment widgets. `waitingPatients`/`checkedInPatients` are today's
+  appointments in `scheduled`/`checked_in`.
+- **Visit widgets**: `openVisits`/`completedVisits` count visits by status;
+  `pending*` count non-cancelled visits missing that artifact (SOAP note,
+  diagnosis, or prescription).
+- **Scope / authorization**: owner/admin/staff see the whole organization and may
+  pass `providerId` to filter (unknown provider → 400). A practitioner always
+  sees only their own dashboard (their provider profile's appointments and the
+  visits assigned to their membership); the `providerId` filter is ignored for
+  them. Appointment widgets filter by provider profile; visit widgets by the
+  corresponding organization member.
