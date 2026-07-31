@@ -14,6 +14,14 @@ import type { AuthContext, MemberRole } from "./authz";
 /**
  * Resolves the authenticated user and the organization they are acting within.
  *
+ * This is the SINGLE seam where the active organization is chosen. Everything
+ * downstream (services, repositories, route handlers) consumes the resulting
+ * AuthContext and never sees how the org was determined. To move org selection
+ * fully into the session later (e.g. Better Auth's organization plugin exposing
+ * `session.activeOrganizationId`), change ONLY this function — the header-based
+ * path below is a Sprint-1 stopgap and can be removed without touching any
+ * other layer.
+ *
  * - 401 if there is no valid session.
  * - 403 if the user has no organization membership (or none matching the
  *   requested organization).
