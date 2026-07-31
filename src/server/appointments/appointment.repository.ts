@@ -3,6 +3,8 @@ import { and, asc, eq, gt, gte, lt, lte, ne, notInArray, sql } from "drizzle-orm
 import { db } from "@/db";
 import {
   appointments,
+  organizationMembers,
+  providerProfiles,
   visits,
   type Appointment,
   type Visit,
@@ -177,11 +179,42 @@ export const appointmentRepository = {
         .returning();
       if (!appointment) return null;
 
+      // Inherit the appointment's provider on the visit. The visit's providerId
+      // references organization_members, while the appointment references a
+      // provider_profile — map profile -> member by the shared user within the
+      // organization (null if that user is no longer a member).
+      const [profile] = await tx
+        .select({ userId: providerProfiles.userId })
+        .from(providerProfiles)
+        .where(
+          and(
+            eq(providerProfiles.id, appointment.providerId),
+            eq(providerProfiles.organizationId, organizationId),
+          ),
+        )
+        .limit(1);
+
+      let providerMemberId: string | null = null;
+      if (profile) {
+        const [member] = await tx
+          .select({ id: organizationMembers.id })
+          .from(organizationMembers)
+          .where(
+            and(
+              eq(organizationMembers.organizationId, organizationId),
+              eq(organizationMembers.userId, profile.userId),
+            ),
+          )
+          .limit(1);
+        providerMemberId = member?.id ?? null;
+      }
+
       const [visit] = await tx
         .insert(visits)
         .values({
           organizationId,
           patientId: appointment.patientId,
+          providerId: providerMemberId,
           appointmentId: appointment.id,
         })
         .returning();

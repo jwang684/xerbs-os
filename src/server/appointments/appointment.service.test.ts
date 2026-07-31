@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import { inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { closeDb, db } from "@/db";
@@ -354,6 +354,18 @@ describe("appointmentService — check-in", () => {
     expect(visit.patientId).toBe(patientA);
     expect(visit.organizationId).toBe(orgA);
     expect(visit.status).toBe("open");
+
+    // Visit inherits the appointment's provider, mapped profile -> member.
+    const [member] = await db
+      .select({ id: organizationMembers.id })
+      .from(organizationMembers)
+      .where(
+        and(
+          eq(organizationMembers.organizationId, orgA),
+          eq(organizationMembers.userId, ctxPract1.userId),
+        ),
+      );
+    expect(visit.providerId).toBe(member.id);
 
     // Duplicate check-in is rejected (status is no longer scheduled).
     await expect(
