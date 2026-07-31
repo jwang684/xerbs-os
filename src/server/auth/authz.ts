@@ -30,3 +30,14 @@ export function assertCanWrite(ctx: AuthContext): void {
     throw new ForbiddenError("Your role does not permit modifying patient records");
   }
 }
+
+export function isOwnerOrAdmin(role: MemberRole): boolean {
+  return role === "owner" || role === "admin";
+}
+
+/** Throws ForbiddenError unless the caller is an organization owner or admin. */
+export function assertOwnerOrAdmin(ctx: AuthContext): void {
+  if (!isOwnerOrAdmin(ctx.role)) {
+    throw new ForbiddenError("Requires owner or admin role");
+  }
+}

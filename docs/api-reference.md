@@ -75,6 +75,24 @@ A visit belongs to exactly one patient.
 - `patientId` is immutable after creation. `providerId` must be a member of the
   same organization. No delete in Sprint 1.
 
+## Providers
+
+Provider profiles: one per organization member (unique org + member).
+
+| Method | Path | Body / Query | Success |
+|---|---|---|---|
+| POST | `/api/providers` | `{ userId, title?, specialty?, licenseNumber?, npi?, avatarUrl?, signatureUrl?, bio?, workingHours?, isActive? }` | 201 `{ data: Provider }` |
+| GET | `/api/providers` | `?isActive=&limit=&offset=` | 200 `{ items: Provider[], total }` |
+| GET | `/api/providers/:id` | — | 200 `{ data: Provider }` |
+| PATCH | `/api/providers/:id` | provider fields (no `userId`) | 200 `{ data: Provider }` |
+
+- **Authorization**: create → owner/admin only; update → owner/admin (any) or
+  practitioner (own profile only); read/list → any member (staff included).
+- The target `userId` must be a member of the caller's organization (else 400).
+  A duplicate profile for a member is 409.
+- `npi` is 10 digits; `avatarUrl`/`signatureUrl` are URLs; `workingHours` is
+  `{ [day]: [{ start: "HH:MM", end: "HH:MM" }] }`. No delete — use `isActive`.
+
 ## Questionnaire
 
 Exactly one questionnaire per visit; content is generic JSON validated against a

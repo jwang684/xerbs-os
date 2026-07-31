@@ -40,3 +40,37 @@ solution, mapped onto the existing schema so no clinical foreign keys changed
   protection); browsers send it automatically.
 - Roles are stored as `text`; allowed values are enforced in the application
   layer and via the plugin's access control.
+
+## Phase 2 — Provider Management vertical slice
+
+**Status: Complete.**
+
+A provider-profile domain following the existing architecture (repository →
+service → REST), fully tenant-scoped through `getAuthContext`.
+
+### What changed
+- **Schema** (migration `0010`, append-only): `provider_profiles`
+  (`id`, `userId`, `organizationId`, `title`, `specialty`, `licenseNumber`,
+  `npi`, `avatarUrl`, `signatureUrl`, `bio`, `workingHours` jsonb, `isActive`,
+  `createdAt`, `updatedAt`). Unique `(organization_id, user_id)` → one profile
+  per member; FK indexes.
+- **Repository** (`provider.repository.ts`): org-scoped create/findById/
+  findByUser/update/list + an `isMember` check.
+- **Service** (`provider.service.ts`): Zod validation and authorization —
+  create is owner/admin only and requires the target user to be a member;
+  update is owner/admin (any) or practitioner (own only); read/list is open to
+  any member (staff read-only). One-per-member enforced (409).
+- **REST**: `GET/POST /api/providers`, `GET/PATCH /api/providers/[id]`. No
+  delete — deactivate via `isActive`.
+- **Authz helpers**: `assertOwnerOrAdmin` / `isOwnerOrAdmin` in `authz.ts`.
+
+Out of scope (unchanged): scheduling, calendar/appointments, billing, and
+management frontend pages.
+
+### Verified
+- Integration tests (57 total; 11 new): CRUD, one-per-member conflict,
+  member-must-belong-to-org, the full role matrix (owner/admin any,
+  practitioner own-only, staff read-only), organization isolation, validation.
+- HTTP endpoint tests: 401 unauth; owner create/read/list/update; 409 duplicate;
+  400 non-member; 422 validation; staff read 200 / create 403.
+- lint, typecheck, production build pass.

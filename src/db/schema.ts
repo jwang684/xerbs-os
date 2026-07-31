@@ -144,6 +144,47 @@ export const invitations = pgTable(
   ],
 );
 
+/**
+ * A provider's profile within an organization. Exactly one per organization
+ * member (unique organization_id + user_id). The member must belong to the
+ * organization.
+ */
+export const providerProfiles = pgTable(
+  "provider_profiles",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    title: text("title"),
+    specialty: text("specialty"),
+    licenseNumber: text("license_number"),
+    npi: text("npi"),
+    avatarUrl: text("avatar_url"),
+    signatureUrl: text("signature_url"),
+    bio: text("bio"),
+    // Weekly availability: { monday: [{ start, end }], … }. Flexible JSON so the
+    // shape can evolve without a migration.
+    workingHours:
+      jsonb("working_hours").$type<
+        Record<string, Array<{ start: string; end: string }>>
+      >(),
+    isActive: boolean("is_active").notNull().default(true),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("provider_profiles_org_user_uq").on(
+      t.organizationId,
+      t.userId,
+    ),
+    index("provider_profiles_org_idx").on(t.organizationId),
+    index("provider_profiles_user_idx").on(t.userId),
+  ],
+);
+
 // ── Clinical core ───────────────────────────────────────────────────────────
 
 /** A person receiving care at an organization (distinct from a login user). */
@@ -358,6 +399,8 @@ export type OrganizationMember = typeof organizationMembers.$inferSelect;
 export type NewOrganizationMember = typeof organizationMembers.$inferInsert;
 export type Invitation = typeof invitations.$inferSelect;
 export type NewInvitation = typeof invitations.$inferInsert;
+export type ProviderProfile = typeof providerProfiles.$inferSelect;
+export type NewProviderProfile = typeof providerProfiles.$inferInsert;
 export type Patient = typeof patients.$inferSelect;
 export type NewPatient = typeof patients.$inferInsert;
 export type PatientUpdate = Partial<
