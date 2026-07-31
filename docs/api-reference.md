@@ -8,9 +8,13 @@ the endpoints as implemented in Sprint 1.
 - **Auth**: every application endpoint requires a valid Better Auth session
   cookie. The caller must be a member of an organization; requests are always
   scoped to that organization.
-- **Active organization**: resolved from the user's membership. If the user
-  belongs to multiple organizations, send an `x-organization-id` header;
-  otherwise the single membership is used.
+- **Active organization**: resolved solely from the session
+  (`session.activeOrganizationId`, managed by the Better Auth organization
+  plugin). It defaults to the user's first membership on sign-in and is changed
+  via `POST /api/auth/organization/set-active`. There is no organization header.
+  Organization/membership/invitation management is provided by the plugin under
+  `/api/auth/organization/*` (create, list, set-active, invite-member,
+  accept-invitation, list-members, update-member-role, remove-member, …).
 - **Authorization**: reads are allowed for any member; writes
   (POST/PATCH/DELETE) require role `owner`, `admin`, or `practitioner` (`staff`
   is read-only).

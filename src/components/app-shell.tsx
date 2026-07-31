@@ -6,6 +6,8 @@ import { useEffect, type ReactNode } from "react";
 
 import { signOut, useSession } from "@/lib/auth-client";
 
+import { OrgSwitcher } from "./org-switcher";
+
 /**
  * Wraps authenticated pages: guards the route (redirects to /login when there is
  * no session) and renders the header + navigation. Thin — no business logic.
@@ -34,6 +36,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           Xerbs OS
         </Link>
         <div className="flex items-center gap-4 text-sm text-zinc-600">
+          <OrgSwitcher />
           <span>{session.user.email}</span>
           <button
             type="button"

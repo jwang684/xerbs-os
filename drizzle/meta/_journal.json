@@ -64,6 +64,13 @@
       "when": 1785511188088,
       "tag": "0008_stormy_stingray",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1785519950783,
+      "tag": "0009_special_hawkeye",
+      "breakpoints": true
     }
   ]
 }

@@ -56,12 +56,9 @@ const timestamps = {
 };
 
 // ── Enums ───────────────────────────────────────────────────────────────────
-export const memberRole = pgEnum("member_role", [
-  "owner",
-  "admin",
-  "practitioner",
-  "staff",
-]);
+// Note: organization member roles are stored as `text` (not a pgEnum) because
+// the Better Auth organization plugin writes role strings. Allowed values
+// (owner | admin | practitioner | staff) are enforced in the application layer.
 
 export const patientSex = pgEnum("patient_sex", [
   "male",
@@ -78,15 +75,25 @@ export const visitStatus = pgEnum("visit_status", [
 
 // ── Tenancy ─────────────────────────────────────────────────────────────────
 
-/** A tenant: a clinic / practice using Xerbs OS. */
+/**
+ * A tenant: a clinic / practice. Managed by the Better Auth organization plugin
+ * (mapped to this table via a `modelName` override). `logo` and `metadata` are
+ * plugin fields; `updated_at` is ours.
+ */
 export const organizations = pgTable("organizations", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
+  logo: text("logo"),
+  metadata: text("metadata"),
   ...timestamps,
 });
 
-/** Join of a user to an organization, with their role in that org. */
+/**
+ * Membership of a user in an organization, with their role. Managed by the
+ * Better Auth organization plugin (mapped via `modelName`). `role` is text
+ * (owner | admin | practitioner | staff, enforced in the app); `title` is ours.
+ */
 export const organizationMembers = pgTable(
   "organization_members",
   {
@@ -97,7 +104,7 @@ export const organizationMembers = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    role: memberRole("role").notNull().default("practitioner"),
+    role: text("role").notNull().default("practitioner"),
     // Professional credential, e.g. "L.Ac.", "DAOM". Optional.
     title: text("title"),
     ...timestamps,
@@ -108,6 +115,32 @@ export const organizationMembers = pgTable(
       t.userId,
     ),
     index("organization_members_user_idx").on(t.userId),
+  ],
+);
+
+/** Organization invitations (Better Auth organization plugin). */
+export const invitations = pgTable(
+  "invitations",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: text("role"),
+    status: text("status").notNull().default("pending"),
+    inviterId: text("inviter_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    teamId: text("team_id"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("invitations_org_idx").on(t.organizationId),
+    index("invitations_email_idx").on(t.email),
   ],
 );
 
@@ -323,6 +356,8 @@ export type User = typeof user.$inferSelect;
 export type NewUser = typeof user.$inferInsert;
 export type OrganizationMember = typeof organizationMembers.$inferSelect;
 export type NewOrganizationMember = typeof organizationMembers.$inferInsert;
+export type Invitation = typeof invitations.$inferSelect;
+export type NewInvitation = typeof invitations.$inferInsert;
 export type Patient = typeof patients.$inferSelect;
 export type NewPatient = typeof patients.$inferInsert;
 export type PatientUpdate = Partial<

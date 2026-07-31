@@ -1,33 +1,26 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { db } from "@/db";
 import { organizationMembers } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
-import {
-  BadRequestError,
-  ForbiddenError,
-  UnauthorizedError,
-} from "../http/errors";
+import { ForbiddenError, UnauthorizedError } from "../http/errors";
 import type { AuthContext, MemberRole } from "./authz";
 
 /**
  * Resolves the authenticated user and the organization they are acting within.
  *
- * This is the SINGLE seam where the active organization is chosen. Everything
- * downstream (services, repositories, route handlers) consumes the resulting
- * AuthContext and never sees how the org was determined. To move org selection
- * fully into the session later (e.g. Better Auth's organization plugin exposing
- * `session.activeOrganizationId`), change ONLY this function — the header-based
- * path below is a Sprint-1 stopgap and can be removed without touching any
- * other layer.
+ * The active organization comes solely from the authenticated session
+ * (`session.activeOrganizationId`, managed by the Better Auth organization
+ * plugin). It is set to the user's first membership on sign-in and changed via
+ * the plugin's set-active endpoint. There is no client-provided header.
+ *
+ * Membership is still verified here, so a session's active organization can only
+ * resolve to an org the user actually belongs to (tenant isolation).
  *
  * - 401 if there is no valid session.
- * - 403 if the user has no organization membership (or none matching the
- *   requested organization).
- * - The target organization is taken from the `x-organization-id` header; if
- *   omitted and the user belongs to exactly one organization, that one is used.
- *   Otherwise a 400 asks the caller to disambiguate.
+ * - 403 if the session has no active organization, or the user is not a member
+ *   of it.
  */
 export async function getAuthContext(req: Request): Promise<AuthContext> {
   const session = await auth.api.getSession({ headers: req.headers });
@@ -35,34 +28,29 @@ export async function getAuthContext(req: Request): Promise<AuthContext> {
     throw new UnauthorizedError();
   }
 
-  const memberships = await db
-    .select()
-    .from(organizationMembers)
-    .where(eq(organizationMembers.userId, session.user.id));
-
-  if (memberships.length === 0) {
-    throw new ForbiddenError("User has no organization membership");
+  const organizationId = session.session.activeOrganizationId;
+  if (!organizationId) {
+    throw new ForbiddenError("No active organization for this session");
   }
 
-  const requestedOrg = req.headers.get("x-organization-id");
-  const membership = requestedOrg
-    ? memberships.find((m) => m.organizationId === requestedOrg)
-    : memberships.length === 1
-      ? memberships[0]
-      : undefined;
+  const [membership] = await db
+    .select()
+    .from(organizationMembers)
+    .where(
+      and(
+        eq(organizationMembers.userId, session.user.id),
+        eq(organizationMembers.organizationId, organizationId),
+      ),
+    )
+    .limit(1);
 
   if (!membership) {
-    if (requestedOrg) {
-      throw new ForbiddenError("Not a member of the requested organization");
-    }
-    throw new BadRequestError(
-      "User belongs to multiple organizations; set the x-organization-id header",
-    );
+    throw new ForbiddenError("Not a member of the active organization");
   }
 
   return {
     userId: session.user.id,
-    organizationId: membership.organizationId,
+    organizationId,
     membershipId: membership.id,
     role: membership.role as MemberRole,
   };
