@@ -1,7 +1,12 @@
 import { and, asc, eq, gt, gte, lt, lte, ne, notInArray, sql } from "drizzle-orm";
 
 import { db } from "@/db";
-import { appointments, type Appointment } from "@/db/schema";
+import {
+  appointments,
+  visits,
+  type Appointment,
+  type Visit,
+} from "@/db/schema";
 
 export type CreateAppointmentData = Omit<
   typeof appointments.$inferInsert,
@@ -145,5 +150,43 @@ export const appointmentRepository = {
       .where(and(...conds))
       .limit(1);
     return Boolean(row);
+  },
+
+  /**
+   * Atomically checks in a scheduled appointment: flips its status to
+   * `checked_in` and creates the linked visit — in a single transaction. The
+   * status guard makes this idempotent-safe: a non-scheduled appointment yields
+   * null (no visit created). The unique index on visits.appointment_id is a
+   * backstop against duplicate visits.
+   */
+  async checkIn(
+    organizationId: string,
+    appointmentId: string,
+  ): Promise<{ appointment: Appointment; visit: Visit } | null> {
+    return db.transaction(async (tx) => {
+      const [appointment] = await tx
+        .update(appointments)
+        .set({ status: "checked_in" })
+        .where(
+          and(
+            eq(appointments.organizationId, organizationId),
+            eq(appointments.id, appointmentId),
+            eq(appointments.status, "scheduled"),
+          ),
+        )
+        .returning();
+      if (!appointment) return null;
+
+      const [visit] = await tx
+        .insert(visits)
+        .values({
+          organizationId,
+          patientId: appointment.patientId,
+          appointmentId: appointment.id,
+        })
+        .returning();
+
+      return { appointment, visit };
+    });
   },
 };

@@ -239,6 +239,12 @@ export const visits = pgTable(
     providerId: uuid("provider_id").references(() => organizationMembers.id, {
       onDelete: "set null",
     }),
+    // The appointment this visit was created from (via check-in), if any. At
+    // most one visit per appointment (unique); set null if the appointment is
+    // deleted. Visits created directly (clinical workflow) leave this null.
+    appointmentId: uuid("appointment_id").references(() => appointments.id, {
+      onDelete: "set null",
+    }),
     status: visitStatus("status").notNull().default("open"),
     chiefComplaint: text("chief_complaint"),
     // When the encounter took place (defaults to creation time).
@@ -252,6 +258,8 @@ export const visits = pgTable(
     index("visits_org_idx").on(t.organizationId),
     index("visits_patient_idx").on(t.patientId),
     index("visits_provider_idx").on(t.providerId),
+    // One visit per appointment (multiple NULLs allowed for direct visits).
+    uniqueIndex("visits_appointment_id_uq").on(t.appointmentId),
   ],
 );
 

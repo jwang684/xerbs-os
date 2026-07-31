@@ -337,3 +337,80 @@ describe("appointmentService — list/filter + isolation", () => {
     expect(listB.items.some((a) => a.id === inA.id)).toBe(false);
   });
 });
+
+describe("appointmentService — check-in", () => {
+  it("checks in a scheduled appointment and creates a linked visit", async () => {
+    const appt = await appointmentService.create(ctxOwner, {
+      patientId: patientA,
+      providerId: providerA,
+      ...slot(),
+    });
+    const { appointment, visit } = await appointmentService.checkIn(
+      ctxOwner,
+      appt.id,
+    );
+    expect(appointment.status).toBe("checked_in");
+    expect(visit.appointmentId).toBe(appt.id);
+    expect(visit.patientId).toBe(patientA);
+    expect(visit.organizationId).toBe(orgA);
+    expect(visit.status).toBe("open");
+
+    // Duplicate check-in is rejected (status is no longer scheduled).
+    await expect(
+      appointmentService.checkIn(ctxOwner, appt.id),
+    ).rejects.toBeInstanceOf(ConflictError);
+  });
+
+  it("only scheduled appointments can be checked in", async () => {
+    const appt = await appointmentService.create(ctxOwner, {
+      patientId: patientA,
+      providerId: providerA,
+      ...slot(),
+    });
+    await appointmentService.update(ctxOwner, appt.id, { status: "cancelled" });
+    await expect(
+      appointmentService.checkIn(ctxOwner, appt.id),
+    ).rejects.toBeInstanceOf(ConflictError);
+  });
+
+  it("staff may check in; practitioner only their own appointment", async () => {
+    // Staff allowed.
+    const a1 = await appointmentService.create(ctxOwner, {
+      patientId: patientA,
+      providerId: providerA,
+      ...slot(),
+    });
+    const r1 = await appointmentService.checkIn(ctxStaff, a1.id);
+    expect(r1.visit.appointmentId).toBe(a1.id);
+
+    // Practitioner may check in their own provider's appointment.
+    const a2 = await appointmentService.create(ctxOwner, {
+      patientId: patientA,
+      providerId: providerA,
+      ...slot(),
+    });
+    const r2 = await appointmentService.checkIn(ctxPract1, a2.id);
+    expect(r2.appointment.status).toBe("checked_in");
+
+    // ...but not another provider's.
+    const a3 = await appointmentService.create(ctxOwner, {
+      patientId: patientA,
+      providerId: providerB,
+      ...slot(),
+    });
+    await expect(
+      appointmentService.checkIn(ctxPract1, a3.id),
+    ).rejects.toBeInstanceOf(ForbiddenError);
+  });
+
+  it("does not check in appointments from another organization", async () => {
+    const appt = await appointmentService.create(ctxOwner, {
+      patientId: patientA,
+      providerId: providerA,
+      ...slot(),
+    });
+    await expect(appointmentService.checkIn(ctxB, appt.id)).rejects.toBeInstanceOf(
+      NotFoundError,
+    );
+  });
+});

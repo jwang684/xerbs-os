@@ -107,3 +107,33 @@ notifications.
 - HTTP endpoint tests (18): CRUD, filters (provider/patient/date range), overlap
   409, 422 time validation, 400 unknown patient, staff delete 403, owner delete.
 - lint, typecheck, production build pass.
+
+## Phase 4 — Appointment Check-in workflow
+
+**Status: Complete.**
+
+Checking in an appointment transactionally creates the linked visit, exactly
+once: `Appointment → Check In → Visit`.
+
+### What changed
+- **Schema** (migration `0012`, append-only): `visits.appointment_id`
+  (FK → appointments, `SET NULL`) with a **unique index** so an appointment maps
+  to at most one visit (direct visits keep it null).
+- **Repository**: `appointmentRepository.checkIn` runs a single transaction —
+  flips the appointment to `checked_in` (guarded by `status = scheduled` for
+  atomic duplicate prevention) and inserts the linked visit.
+- **Service**: `appointmentService.checkIn` — authorization (owner/admin/staff,
+  or the assigned practitioner), only-scheduled validation, duplicate rejection.
+- **REST**: `POST /api/appointments/[id]/check-in` → 201 `{ data: { appointment, visit } }`.
+- The visit is a normal visit (`status = open`, `patientId` from the
+  appointment, `appointmentId` set); the existing clinical workflow is unchanged.
+
+Out of scope (unchanged): calendar UI, billing, SOAP, notifications.
+
+### Verified
+- Integration tests (72 total; 4 new): check-in creates a linked visit and sets
+  `checked_in`; duplicate rejected; only scheduled may check in; staff allowed,
+  practitioner own-only; organization isolation.
+- HTTP endpoint tests (9): check-in 201 (+ linked, reachable visit), duplicate
+  409, cancelled 409, staff 201, exactly one visit per appointment.
+- lint, typecheck, production build pass.

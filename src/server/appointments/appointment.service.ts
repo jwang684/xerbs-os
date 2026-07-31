@@ -1,4 +1,4 @@
-import type { Appointment } from "@/db/schema";
+import type { Appointment, Visit } from "@/db/schema";
 
 import type { AuthContext } from "../auth/authz";
 import {
@@ -186,6 +186,48 @@ export const appointmentService = {
 
     await appointmentRepository.remove(ctx.organizationId, appointmentId);
     return existing;
+  },
+
+  /**
+   * Checks in a scheduled appointment, creating its linked visit (transactional,
+   * exactly once). Allowed for owner/admin/staff, and for the practitioner
+   * assigned to the appointment. Only `scheduled` appointments may be checked in.
+   */
+  async checkIn(
+    ctx: AuthContext,
+    id: string,
+  ): Promise<{ appointment: Appointment; visit: Visit }> {
+    const appointmentId = validate(appointmentIdParamSchema, id);
+    const existing = await appointmentRepository.findById(
+      ctx.organizationId,
+      appointmentId,
+    );
+    if (!existing) {
+      throw new NotFoundError("Appointment not found");
+    }
+
+    if (ctx.role === "practitioner") {
+      const own = await ownProviderId(ctx);
+      if (existing.providerId !== own) {
+        throw new ForbiddenError("Not your appointment");
+      }
+    }
+
+    if (existing.status !== "scheduled") {
+      throw new ConflictError(
+        "Only scheduled appointments can be checked in",
+      );
+    }
+
+    const result = await appointmentRepository.checkIn(
+      ctx.organizationId,
+      appointmentId,
+    );
+    if (!result) {
+      // Lost a race: the appointment is no longer scheduled.
+      throw new ConflictError("Appointment is no longer scheduled");
+    }
+    return result;
   },
 
   async list(

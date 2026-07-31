@@ -104,6 +104,20 @@ Appointments between a patient and a provider (provider profile).
 | GET | `/api/appointments/:id` | — | 200 `{ data: Appointment }` |
 | PATCH | `/api/appointments/:id` | `{ startTime?, endTime?, status?, notes? }` | 200 `{ data: Appointment }` |
 | DELETE | `/api/appointments/:id` | — | 200 `{ data: Appointment }` (hard delete) |
+| POST | `/api/appointments/:id/check-in` | — | 201 `{ data: { appointment, visit } }` |
+
+### Check-in
+
+`POST /api/appointments/:id/check-in` transitions a **scheduled** appointment to
+`checked_in` and creates the linked visit — atomically, exactly once:
+
+- Only `scheduled` appointments can be checked in (else 409); a second check-in
+  is rejected (409).
+- The created visit carries `appointmentId` (unique — one visit per
+  appointment), the appointment's `patientId`, and `status = open`; it then
+  follows the normal visit clinical workflow.
+- **Authorization**: owner/admin/staff, or the practitioner assigned to the
+  appointment.
 
 - `status` ∈ `scheduled | checked_in | completed | cancelled | no_show`.
 - **Validation**: `endTime` > `startTime`; `patientId`/`providerId` must belong
