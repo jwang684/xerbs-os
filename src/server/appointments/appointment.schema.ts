@@ -43,6 +43,17 @@ export const listAppointmentsQuerySchema = z.object({
 
 export const appointmentIdParamSchema = z.uuid("Invalid appointment id");
 
+export const calendarViewValues = ["day", "week", "month"] as const;
+
+export const calendarQuerySchema = z.object({
+  view: z.enum(calendarViewValues),
+  date: z.iso.date(), // anchor date (YYYY-MM-DD), interpreted in UTC
+  providerId: z.uuid().optional(),
+});
+
+export type CalendarView = (typeof calendarViewValues)[number];
+export type CalendarQuery = z.infer<typeof calendarQuerySchema>;
+
 export type CreateAppointmentInput = z.infer<typeof createAppointmentSchema>;
 export type UpdateAppointmentInput = z.infer<typeof updateAppointmentSchema>;
 export type ListAppointmentsQuery = z.infer<typeof listAppointmentsQuerySchema>;

@@ -137,3 +137,40 @@ Out of scope (unchanged): calendar UI, billing, SOAP, notifications.
 - HTTP endpoint tests (9): check-in 201 (+ linked, reachable visit), duplicate
   409, cancelled 409, staff 201, exactly one visit per appointment.
 - lint, typecheck, production build pass.
+
+### Follow-up adjustment
+Check-in now inherits the appointment's provider: it maps the appointment's
+`provider_profile` to the corresponding `organization_members` record (by shared
+user within the org) and sets `visit.providerId` (null if that user is no longer
+a member). Rest of the workflow unchanged.
+
+## Phase 5 — Appointment Calendar vertical slice
+
+**Status: Complete.**
+
+A read-only calendar over appointments (backend-first + minimal frontend). No
+migration required.
+
+### What changed
+- **Backend**: `GET /api/appointments/calendar?view=day|week|month&date=&providerId=`
+  returns appointments in the window grouped by day
+  (`{ view, from, to, groups: [{ date, appointments }] }`). Range is computed
+  from view + UTC anchor date (day; Monday-start week; calendar month). Optional
+  provider filter; practitioners are restricted to their own appointments.
+  Added `calendarQuerySchema`, `appointmentRepository.findInRange`, and
+  `appointmentService.getCalendar`.
+- **Frontend** (minimal, read-only): `/calendar` page with day/week/month views,
+  prev/today/next navigation, and a provider filter; appointments link to a
+  read-only `/appointments/[id]` detail page. Header nav gains Patients +
+  Calendar links. Times are shown in UTC.
+
+Out of scope (unchanged): drag-and-drop, billing, notifications, SOAP, dashboard.
+
+### Verified
+- Integration tests (78 total; 6 new): day/week/month ranges, grouping,
+  provider filter, practitioner restriction, query validation.
+- HTTP endpoint tests (11): day/week/month windows, grouping counts, provider
+  filter, 422 invalid view, 401 unauth.
+- Browser smoke: login → calendar (week view shows the appointment) → click →
+  appointment detail.
+- lint, typecheck, production build pass.

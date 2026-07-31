@@ -84,6 +84,47 @@ export interface Prescription {
   createdAt: string;
 }
 
+export interface ProviderProfile {
+  id: string;
+  userId: string;
+  organizationId: string;
+  title: string | null;
+  specialty: string | null;
+  isActive: boolean;
+}
+
+export type AppointmentStatus =
+  | "scheduled"
+  | "checked_in"
+  | "completed"
+  | "cancelled"
+  | "no_show";
+
+export interface Appointment {
+  id: string;
+  organizationId: string;
+  patientId: string;
+  providerId: string;
+  startTime: string;
+  endTime: string;
+  status: AppointmentStatus;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CalendarGroup {
+  date: string;
+  appointments: Appointment[];
+}
+
+export interface CalendarResult {
+  view: "day" | "week" | "month";
+  from: string;
+  to: string;
+  groups: CalendarGroup[];
+}
+
 export interface ListResult<T> {
   items: T[];
   total: number;

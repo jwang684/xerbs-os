@@ -106,6 +106,20 @@ Appointments between a patient and a provider (provider profile).
 | DELETE | `/api/appointments/:id` | — | 200 `{ data: Appointment }` (hard delete) |
 | POST | `/api/appointments/:id/check-in` | — | 201 `{ data: { appointment, visit } }` |
 
+### Calendar
+
+`GET /api/appointments/calendar?view=day|week|month&date=YYYY-MM-DD&providerId=`
+returns the appointments in the window, grouped by day:
+
+```
+{ view, from, to, groups: [ { date: "YYYY-MM-DD", appointments: [...] } ] }
+```
+
+- `view` + `date` (UTC anchor) determine the window: day = that day; week =
+  Monday-start week containing the date; month = the calendar month.
+- Optional `providerId` filter; practitioners are restricted to their own
+  appointments. Ranges and grouping are UTC.
+
 ### Check-in
 
 `POST /api/appointments/:id/check-in` transitions a **scheduled** appointment to

@@ -127,6 +127,33 @@ export const appointmentRepository = {
   },
 
   /**
+   * All appointments whose startTime falls in [from, to), optionally for one
+   * provider, ordered by startTime. Used by the calendar (bounded range, so no
+   * pagination).
+   */
+  async findInRange(
+    organizationId: string,
+    {
+      providerId,
+      from,
+      to,
+    }: { providerId?: string; from: Date; to: Date },
+  ): Promise<Appointment[]> {
+    const filters = [
+      eq(appointments.organizationId, organizationId),
+      gte(appointments.startTime, from),
+      lt(appointments.startTime, to),
+    ];
+    if (providerId) filters.push(eq(appointments.providerId, providerId));
+
+    return db
+      .select()
+      .from(appointments)
+      .where(and(...filters))
+      .orderBy(asc(appointments.startTime));
+  },
+
+  /**
    * True if the provider already has a non-cancelled appointment overlapping
    * [start, end). `excludeId` skips a specific appointment (for updates).
    */

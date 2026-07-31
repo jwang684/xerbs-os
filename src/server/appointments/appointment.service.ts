@@ -17,10 +17,50 @@ import {
 } from "./appointment.repository";
 import {
   appointmentIdParamSchema,
+  type CalendarView,
+  calendarQuerySchema,
   createAppointmentSchema,
   listAppointmentsQuerySchema,
   updateAppointmentSchema,
 } from "./appointment.schema";
+
+export interface CalendarGroup {
+  date: string; // YYYY-MM-DD (UTC)
+  appointments: Appointment[];
+}
+
+export interface CalendarResult {
+  view: CalendarView;
+  from: string;
+  to: string;
+  groups: CalendarGroup[];
+}
+
+/** Half-open [from, to) range for a view anchored at `dateStr` (UTC). */
+function calendarRange(
+  view: CalendarView,
+  dateStr: string,
+): { from: Date; to: Date } {
+  const start = new Date(`${dateStr}T00:00:00.000Z`);
+  if (view === "day") {
+    const to = new Date(start);
+    to.setUTCDate(to.getUTCDate() + 1);
+    return { from: start, to };
+  }
+  if (view === "week") {
+    const offset = (start.getUTCDay() + 6) % 7; // days since Monday
+    const from = new Date(start);
+    from.setUTCDate(from.getUTCDate() - offset);
+    const to = new Date(from);
+    to.setUTCDate(to.getUTCDate() + 7);
+    return { from, to };
+  }
+  const from = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
+  const to = new Date(
+    Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1),
+  );
+  return { from, to };
+}
 
 /** The provider-profile id for a practitioner, or null if they have none. */
 async function ownProviderId(ctx: AuthContext): Promise<string | null> {
@@ -257,5 +297,43 @@ export const appointmentService = {
       limit,
       offset,
     });
+  },
+
+  /**
+   * Calendar view: appointments within a day/week/month window (anchored at
+   * `date`, UTC), grouped by day and ordered by time. Optional provider filter;
+   * practitioners are restricted to their own appointments.
+   */
+  async getCalendar(ctx: AuthContext, query: unknown): Promise<CalendarResult> {
+    const { view, date, providerId } = validate(calendarQuerySchema, query);
+    const { from, to } = calendarRange(view, date);
+
+    let effectiveProviderId = providerId;
+    if (ctx.role === "practitioner") {
+      const own = await ownProviderId(ctx);
+      if (!own) {
+        return { view, from: from.toISOString(), to: to.toISOString(), groups: [] };
+      }
+      effectiveProviderId = own;
+    }
+
+    const items = await appointmentRepository.findInRange(ctx.organizationId, {
+      providerId: effectiveProviderId,
+      from,
+      to,
+    });
+
+    const map = new Map<string, Appointment[]>();
+    for (const appt of items) {
+      const key = appt.startTime.toISOString().slice(0, 10);
+      const bucket = map.get(key);
+      if (bucket) bucket.push(appt);
+      else map.set(key, [appt]);
+    }
+    const groups = [...map.entries()]
+      .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+      .map(([groupDate, appointments]) => ({ date: groupDate, appointments }));
+
+    return { view, from: from.toISOString(), to: to.toISOString(), groups };
   },
 };

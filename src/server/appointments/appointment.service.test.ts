@@ -426,3 +426,92 @@ describe("appointmentService — check-in", () => {
     );
   });
 });
+
+describe("appointmentService — calendar", () => {
+  const ids: Record<string, string> = {};
+  const DAY = 86400000;
+
+  const allIds = (r: { groups: { appointments: { id: string }[] }[] }) =>
+    r.groups.flatMap((g) => g.appointments.map((a) => a.id));
+
+  beforeAll(async () => {
+    const mk = async (providerId: string, start: string, end: string) =>
+      (
+        await appointmentService.create(ctxOwner, {
+          patientId: patientA,
+          providerId,
+          startTime: new Date(start),
+          endTime: new Date(end),
+        })
+      ).id;
+    ids.c1 = await mk(providerA, "2033-06-15T09:00:00Z", "2033-06-15T10:00:00Z");
+    ids.c2 = await mk(providerA, "2033-06-15T11:00:00Z", "2033-06-15T12:00:00Z");
+    ids.c3 = await mk(providerA, "2033-06-16T09:00:00Z", "2033-06-16T10:00:00Z");
+    ids.c4 = await mk(providerA, "2033-06-27T09:00:00Z", "2033-06-27T10:00:00Z");
+    ids.c5 = await mk(providerA, "2033-07-10T09:00:00Z", "2033-07-10T10:00:00Z");
+    ids.c6 = await mk(providerB, "2033-06-15T09:00:00Z", "2033-06-15T10:00:00Z");
+  });
+
+  it("day view groups appointments and excludes other days", async () => {
+    const r = await appointmentService.getCalendar(ctxOwner, {
+      view: "day",
+      date: "2033-06-15",
+    });
+    expect(r.view).toBe("day");
+    expect(new Date(r.to).getTime() - new Date(r.from).getTime()).toBe(DAY);
+    const g = r.groups.find((x) => x.date === "2033-06-15");
+    expect(g?.appointments).toHaveLength(3); // c1, c2, c6
+    expect(r.groups.some((x) => x.date === "2033-06-16")).toBe(false);
+  });
+
+  it("filters by provider", async () => {
+    const r = await appointmentService.getCalendar(ctxOwner, {
+      view: "day",
+      date: "2033-06-15",
+      providerId: providerA,
+    });
+    const g = r.groups.find((x) => x.date === "2033-06-15");
+    expect(g?.appointments).toHaveLength(2); // c1, c2 only
+    expect(allIds(r)).not.toContain(ids.c6);
+  });
+
+  it("week view spans 7 days", async () => {
+    const r = await appointmentService.getCalendar(ctxOwner, {
+      view: "week",
+      date: "2033-06-15",
+    });
+    expect(new Date(r.to).getTime() - new Date(r.from).getTime()).toBe(7 * DAY);
+    expect(allIds(r)).toContain(ids.c1); // anchor day is within the week
+    expect(allIds(r)).not.toContain(ids.c4); // 12 days later, outside
+  });
+
+  it("month view spans the calendar month", async () => {
+    const r = await appointmentService.getCalendar(ctxOwner, {
+      view: "month",
+      date: "2033-06-15",
+    });
+    const flat = allIds(r);
+    expect(flat).toContain(ids.c1);
+    expect(flat).toContain(ids.c4); // same month
+    expect(flat).not.toContain(ids.c5); // July
+  });
+
+  it("restricts practitioners to their own appointments", async () => {
+    const r = await appointmentService.getCalendar(ctxPract1, {
+      view: "day",
+      date: "2033-06-15",
+    });
+    const flat = allIds(r);
+    expect(flat).toContain(ids.c1); // providerA is ctxPract1's own
+    expect(flat).not.toContain(ids.c6); // providerB
+  });
+
+  it("validates the query", async () => {
+    await expect(
+      appointmentService.getCalendar(ctxOwner, { view: "year", date: "2033-06-15" }),
+    ).rejects.toBeInstanceOf(ValidationError);
+    await expect(
+      appointmentService.getCalendar(ctxOwner, { view: "day", date: "nope" }),
+    ).rejects.toBeInstanceOf(ValidationError);
+  });
+});
