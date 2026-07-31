@@ -73,6 +73,14 @@ export const visitStatus = pgEnum("visit_status", [
   "cancelled",
 ]);
 
+export const appointmentStatus = pgEnum("appointment_status", [
+  "scheduled",
+  "checked_in",
+  "completed",
+  "cancelled",
+  "no_show",
+]);
+
 // ── Tenancy ─────────────────────────────────────────────────────────────────
 
 /**
@@ -390,6 +398,39 @@ export const prescriptions = pgTable(
   ],
 );
 
+/**
+ * A scheduled appointment between a patient and a provider. `provider_id`
+ * references a provider profile. No overlapping active appointments for the same
+ * provider (enforced in the service).
+ */
+export const appointments = pgTable(
+  "appointments",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    patientId: uuid("patient_id")
+      .notNull()
+      .references(() => patients.id, { onDelete: "cascade" }),
+    providerId: uuid("provider_id")
+      .notNull()
+      .references(() => providerProfiles.id, { onDelete: "cascade" }),
+    startTime: timestamp("start_time", { withTimezone: true }).notNull(),
+    endTime: timestamp("end_time", { withTimezone: true }).notNull(),
+    status: appointmentStatus("status").notNull().default("scheduled"),
+    notes: text("notes"),
+    ...timestamps,
+  },
+  (t) => [
+    index("appointments_org_idx").on(t.organizationId),
+    index("appointments_patient_idx").on(t.patientId),
+    index("appointments_provider_idx").on(t.providerId),
+    // Accelerates overlap checks and provider/date-range listing.
+    index("appointments_provider_start_idx").on(t.providerId, t.startTime),
+  ],
+);
+
 // ── Inferred types ──────────────────────────────────────────────────────────
 export type Organization = typeof organizations.$inferSelect;
 export type NewOrganization = typeof organizations.$inferInsert;
@@ -401,6 +442,8 @@ export type Invitation = typeof invitations.$inferSelect;
 export type NewInvitation = typeof invitations.$inferInsert;
 export type ProviderProfile = typeof providerProfiles.$inferSelect;
 export type NewProviderProfile = typeof providerProfiles.$inferInsert;
+export type Appointment = typeof appointments.$inferSelect;
+export type NewAppointment = typeof appointments.$inferInsert;
 export type Patient = typeof patients.$inferSelect;
 export type NewPatient = typeof patients.$inferInsert;
 export type PatientUpdate = Partial<

@@ -74,3 +74,36 @@ management frontend pages.
 - HTTP endpoint tests: 401 unauth; owner create/read/list/update; 409 duplicate;
   400 non-member; 422 validation; staff read 200 / create 403.
 - lint, typecheck, production build pass.
+
+## Phase 3 — Appointment Management vertical slice
+
+**Status: Complete.**
+
+Appointment scheduling (repository → service → REST), tenant-scoped, building on
+the Phase 2 provider profiles (`appointment.providerId` → `provider_profiles.id`).
+
+### What changed
+- **Schema** (migration `0011`, append-only): `appointment_status` enum
+  (`scheduled | checked_in | completed | cancelled | no_show`) and the
+  `appointments` table (`organizationId`, `patientId`, `providerId`, `startTime`,
+  `endTime`, `status`, `notes`, timestamps). Indexes on org/patient/provider and
+  a `(provider_id, start_time)` index for overlap + date-range queries.
+- **Repository/service/Zod**: CRUD + list with filters (provider, patient, date
+  range) and pagination. Validation: `endTime` > `startTime`; patient and
+  provider must belong to the org; no overlapping non-cancelled appointment for
+  the same provider (cancelled/no-show free the slot).
+- **REST**: `GET/POST /api/appointments`, `GET/PATCH/DELETE /api/appointments/[id]`.
+- **Authorization**: owner/admin full CRUD; staff create/read/update but not
+  delete; practitioner CRUD only for their own provider's appointments (their
+  list is restricted accordingly).
+
+Out of scope (unchanged): calendar UI, drag/drop, visit creation, billing,
+notifications.
+
+### Verified
+- Integration tests (68 total; 11 new): create/validation (time ordering,
+  overlap incl. cancelled-frees-slot), cross-entity/org checks, full authz
+  matrix, list filters + practitioner restriction, organization isolation.
+- HTTP endpoint tests (18): CRUD, filters (provider/patient/date range), overlap
+  409, 422 time validation, 400 unknown patient, staff delete 403, owner delete.
+- lint, typecheck, production build pass.

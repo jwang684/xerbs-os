@@ -93,6 +93,28 @@ Provider profiles: one per organization member (unique org + member).
 - `npi` is 10 digits; `avatarUrl`/`signatureUrl` are URLs; `workingHours` is
   `{ [day]: [{ start: "HH:MM", end: "HH:MM" }] }`. No delete — use `isActive`.
 
+## Appointments
+
+Appointments between a patient and a provider (provider profile).
+
+| Method | Path | Body / Query | Success |
+|---|---|---|---|
+| POST | `/api/appointments` | `{ patientId, providerId, startTime, endTime, status?, notes? }` | 201 `{ data: Appointment }` |
+| GET | `/api/appointments` | `?providerId=&patientId=&from=&to=&limit=&offset=` | 200 `{ items, total }` (by startTime) |
+| GET | `/api/appointments/:id` | — | 200 `{ data: Appointment }` |
+| PATCH | `/api/appointments/:id` | `{ startTime?, endTime?, status?, notes? }` | 200 `{ data: Appointment }` |
+| DELETE | `/api/appointments/:id` | — | 200 `{ data: Appointment }` (hard delete) |
+
+- `status` ∈ `scheduled | checked_in | completed | cancelled | no_show`.
+- **Validation**: `endTime` > `startTime`; `patientId`/`providerId` must belong
+  to the caller's organization (else 400); no overlapping non-cancelled
+  appointment for the same provider (else 409).
+- **Authorization**: owner/admin full CRUD; staff create/read/update but **not
+  delete**; practitioner CRUD only for appointments assigned to their own
+  provider profile (and their list is restricted to those).
+- `from`/`to` filter by `startTime` (inclusive). Patient/provider assignment is
+  immutable on update.
+
 ## Questionnaire
 
 Exactly one questionnaire per visit; content is generic JSON validated against a
