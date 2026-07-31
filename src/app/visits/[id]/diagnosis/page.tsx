@@ -7,12 +7,12 @@ import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { Button, Card, ErrorBox, Loading } from "@/components/ui";
 import { api, ApiError } from "@/lib/api";
-import type { DataResult, Diagnosis } from "@/lib/api-types";
+import type { Diagnosis, ListResult } from "@/lib/api-types";
 import { useLoad } from "@/lib/use-load";
 
 export default function DiagnosisPage() {
   const { id } = useParams<{ id: string }>();
-  const diagnoses = useLoad<DataResult<Diagnosis[]>>(
+  const diagnoses = useLoad<ListResult<Diagnosis>>(
     () => api.get(`/api/visits/${id}/diagnosis`),
     [id],
   );
@@ -56,14 +56,14 @@ export default function DiagnosisPage() {
         {diagnoses.loading && <Loading />}
         {diagnoses.error && <ErrorBox message={diagnoses.error} />}
 
-        {diagnoses.data && diagnoses.data.data.length === 0 && (
+        {diagnoses.data && diagnoses.data.items.length === 0 && (
           <p className="text-sm text-zinc-500">
             No diagnoses yet. Generate one (requires a questionnaire).
           </p>
         )}
 
         <div className="space-y-3">
-          {diagnoses.data?.data.map((d) => (
+          {diagnoses.data?.items.map((d) => (
             <Card key={d.id}>
               <div className="mb-2 flex items-center justify-between">
                 <span className="text-sm font-semibold text-zinc-800">

@@ -7,12 +7,12 @@ import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { Button, Card, ErrorBox, Loading } from "@/components/ui";
 import { api, ApiError } from "@/lib/api";
-import type { DataResult, Prescription } from "@/lib/api-types";
+import type { ListResult, Prescription } from "@/lib/api-types";
 import { useLoad } from "@/lib/use-load";
 
 export default function PrescriptionPage() {
   const { id } = useParams<{ id: string }>();
-  const prescriptions = useLoad<DataResult<Prescription[]>>(
+  const prescriptions = useLoad<ListResult<Prescription>>(
     () => api.get(`/api/visits/${id}/prescription`),
     [id],
   );
@@ -53,14 +53,14 @@ export default function PrescriptionPage() {
         {prescriptions.loading && <Loading />}
         {prescriptions.error && <ErrorBox message={prescriptions.error} />}
 
-        {prescriptions.data && prescriptions.data.data.length === 0 && (
+        {prescriptions.data && prescriptions.data.items.length === 0 && (
           <p className="text-sm text-zinc-500">
             No prescriptions yet. Generate one (requires an active diagnosis).
           </p>
         )}
 
         <div className="space-y-3">
-          {prescriptions.data?.data.map((p) => (
+          {prescriptions.data?.items.map((p) => (
             <Card key={p.id}>
               <div className="mb-2 font-semibold text-zinc-800">
                 {p.structuredResult.formulaName}

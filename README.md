@@ -1,160 +1,149 @@
 # Xerbs OS
 
-<p align="center">
-<img src="https://img.shields.io/badge/status-active%20development-blue">
-<img src="https://img.shields.io/badge/backend-FastAPI-009688">
-<img src="https://img.shields.io/badge/frontend-Vue3-42b883">
-<img src="https://img.shields.io/badge/database-PostgreSQL-blue">
-<img src="https://img.shields.io/badge/AI-OpenAI%20%7C%20Qwen-orange">
-<img src="https://img.shields.io/badge/license-MIT-green">
-</p>
+**The AI operating system for personalized herbal healthcare** — from intake to
+AI-assisted diagnosis to an AI-generated herbal prescription.
 
-<h2 align="center">The AI Operating System for Personalized Herbal Healthcare</h2>
+> **Status: Sprint 1 — Release Candidate 1.** The end-to-end clinical workflow
+> is implemented and verified. See the
+> [Sprint 1 Release Report](docs/product/07-sprint-1-release-report.md).
 
-<p align="center">
-From diagnosis to personalized herbal treatment, continuous care, and lifelong Health Memory.
-</p>
-
----
-
-<p align="center">
-<img src="docs/assets/architecture-overview.svg" width="1000" alt="Architecture Overview">
-</p>
-
-## Why Xerbs?
-
-Healthcare today is fragmented.
-
-- AI assistants answer questions.
-- Electronic health records store information.
-- Treatment plans rarely improve over time.
-- Herbal knowledge is difficult to personalize at scale.
-
-**Xerbs OS unifies diagnosis, formula intelligence, treatment management, and lifelong health memory into one continuous care platform.**
-
----
-
-## Core Engines
-
-| Engine | Responsibility |
-| --- | --- |
-| 🩺 Diagnosis Engine | AI-powered syndrome differentiation and clinical reasoning |
-| 🌿 Formula Engine | Personalized herbal formula generation |
-| 📈 Care Engine | Continuous treatment planning and follow-up |
-| 🧠 Health Memory Engine | Long-term patient context and learning |
-
----
-
-## Treatment Lifecycle
+## Workflow
 
 ```mermaid
 flowchart LR
-Symptoms --> Diagnosis
-Diagnosis --> Formula
-Formula --> Treatment
-Treatment --> Care
-Care --> Memory
-Memory --> BetterDiagnosis
+  Login --> Patient --> Visit --> Questionnaire --> Diagnosis --> Prescription
 ```
 
-> **Every treatment makes the next diagnosis smarter.**
+Each visit collects a questionnaire, an AI **diagnosis** is generated from it
+(one is marked *active*), and an AI **prescription** is generated from the active
+diagnosis. Diagnoses and prescriptions are immutable; history is preserved.
 
----
+## Tech stack (as built)
 
-## High-Level Architecture
+| Concern | Choice |
+|---|---|
+| Framework | Next.js 16 (App Router, Turbopack), React 19, TypeScript |
+| Database | PostgreSQL 16 (Docker) |
+| Cache (provisioned) | Redis 7 (Docker) |
+| ORM / migrations | Drizzle ORM + drizzle-kit |
+| Auth | Better Auth (email/password, cookie sessions) |
+| Validation | Zod |
+| AI | OpenAI Responses API, behind a provider interface (with a `fake` provider) |
+| Tests | Vitest (integration, against real Postgres) |
+| Styling | Tailwind CSS v4 |
 
-```mermaid
-graph TD
-User --> Frontend
-Frontend --> API
-API --> Diagnosis
-API --> Formula
-API --> Care
-Diagnosis --> Memory
-Formula --> Memory
-Care --> Memory
-Memory --> PostgreSQL
-Memory --> RAG
-RAG --> OpenAI
-RAG --> Qwen
+## Prerequisites
+
+- **Docker Desktop** (for PostgreSQL + Redis)
+- **Node.js 20+** and npm
+
+## Setup
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Configure environment
+cp .env.example .env.local
+#    Then edit .env.local — set POSTGRES_PASSWORD + a matching DATABASE_URL,
+#    a BETTER_AUTH_SECRET (openssl rand -base64 32), and (optionally) an
+#    OPENAI_API_KEY. Leave AI_PROVIDER=fake to run without a real key.
+
+# 3. Start Postgres + Redis
+npm run db:up
+
+# 4. Apply migrations and seed the demo organization + provider
+npm run db:migrate
+npm run db:seed
+
+# 5. Run the app
+npm run dev        # http://localhost:3000
 ```
 
----
+### Signing in
 
-## Technology Stack
+There is no self-service sign-up page in Sprint 1 (Login only); provider
+accounts are provisioned out-of-band. To create a login for the demo
+organization while the dev server is running:
 
-| Layer | Technology |
-| --- | --- |
-| Frontend | Vue 3 + TypeScript + Tailwind CSS |
-| Backend | FastAPI |
-| Database | PostgreSQL |
-| Cache | Redis |
-| AI | OpenAI / Qwen |
-| Knowledge | RAG |
-| Deployment | Docker |
+```bash
+# Create a credentialed user
+curl -s -X POST http://localhost:3000/api/auth/sign-up/email \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Demo Provider","email":"demo@xerbs.example","password":"DemoPass!123"}'
 
----
+# Grant that user membership in the seeded demo organization
+docker exec xerbs-postgres psql -U xerbs -d xerbs -c "INSERT INTO organization_members (organization_id, user_id, role) SELECT o.id, u.id, 'practitioner' FROM organizations o, \"user\" u WHERE o.slug='xerbs-demo-clinic' AND u.email='demo@xerbs.example' ON CONFLICT DO NOTHING;"
+```
+
+Then sign in at `/login` with `demo@xerbs.example` / `DemoPass!123`.
+
+## Environment variables
+
+| Variable | Purpose |
+|---|---|
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | Postgres container credentials |
+| `DATABASE_URL` | Connection string used by Drizzle (must match the three above) |
+| `REDIS_URL` | Redis connection (provisioned; unused in Sprint 1) |
+| `BETTER_AUTH_SECRET` | Better Auth signing secret |
+| `BETTER_AUTH_URL` | Base URL for Better Auth (e.g. `http://localhost:3000`) |
+| `AI_PROVIDER` | `openai` or `fake` (deterministic, no network) |
+| `OPENAI_API_KEY` / `OPENAI_MODEL` | OpenAI credentials (needed when `AI_PROVIDER=openai`) |
+
+`.env.local` is gitignored and must never be committed.
+
+## Scripts
+
+| Script | Description |
+|---|---|
+| `npm run dev` | Start the Next.js dev server |
+| `npm run build` | Production build |
+| `npm run lint` / `npm run typecheck` | ESLint / `tsc --noEmit` |
+| `npm run test` | Run the Vitest integration suite |
+| `npm run db:up` / `db:down` | Start / stop Postgres + Redis |
+| `npm run db:generate` | Generate a Drizzle migration from the schema |
+| `npm run db:migrate` | Apply migrations |
+| `npm run db:seed` | Seed the demo organization + provider |
+| `npm run db:studio` | Open Drizzle Studio |
+
+## Testing
+
+Integration tests run against the live Docker Postgres and exercise the service
+and repository layers (CRUD, soft delete, versioned validation, immutability,
+active-diagnosis, organization isolation, authorization) plus the OpenAI
+providers via a mocked client:
+
+```bash
+npm run db:up      # database must be running
+npm run test
+```
+
+## Project structure
+
+```text
+src/
+  app/                     # Next.js App Router
+    api/                   #   REST route handlers (thin: auth → service → response)
+    login, patients, visits#   thin-client UI pages
+  components/              # shared UI (AppShell auth guard, primitives)
+  db/                      # Drizzle schema, client, seed, generated auth-schema
+  lib/                     # auth (Better Auth), api client, hooks, types
+  server/                  # backend domains (no HTTP concerns)
+    auth/                  #   getAuthContext (session → org + role), authz
+    http/                  #   error types, request/validation helpers
+    patients/ visits/ questionnaires/ diagnoses/ prescriptions/
+                           #   each: repository + service (+ ai/ for AI domains)
+drizzle/                   # SQL migrations + snapshots
+docs/                      # product, architecture, and API documentation
+```
 
 ## Documentation
 
-See the **docs/** directory for:
-
-- Vision
-- Product Specification
-- Domain Model
-- System Architecture
-- Database Design
-- Backend Architecture
-- Frontend Architecture
-- AI Architecture
-- API Design
-- Roadmap
-- Security
-- Deployment
-
----
-
-## Repository Structure
-
-```text
-xerbs-os/
-├── backend/
-├── frontend/
-├── docs/
-├── infra/
-├── tests/
-├── docker/
-├── scripts/
-├── README.md
-└── docker-compose.yml
-```
-
----
-
-## Roadmap
-
-- Build the Diagnosis Engine
-- Complete the Formula Engine
-- Launch Health Memory
-- Release the first Developer Preview
-- Open-source the platform
-
----
-
-## Contributing
-
-Contributions are welcome after the first public release.
-
----
+- [API Reference](docs/api-reference.md)
+- [Implemented Architecture](docs/architecture/07-implemented-architecture.md)
+- [MVP Scope & Status](docs/product/05-mvp.md)
+- [Sprint 1 Release Report](docs/product/07-sprint-1-release-report.md)
 
 ## License
 
 Released under the MIT License upon first public release.
-
----
-
-## Current Status
-
-Xerbs OS is under active development.
-
-The architecture is complete, and implementation of the Diagnosis Engine, Formula Engine, Care Engine, and Health Memory Engine is underway.

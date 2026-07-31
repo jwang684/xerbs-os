@@ -11,7 +11,7 @@ export async function GET(req: Request, { params }: RouteContext) {
     const ctx = await getAuthContext(req);
     const { id } = await params;
     const prescriptions = await prescriptionService.listByVisit(ctx, id);
-    return Response.json({ data: prescriptions });
+    return Response.json({ items: prescriptions, total: prescriptions.length });
   } catch (error) {
     return toErrorResponse(error);
   }
