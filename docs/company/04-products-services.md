@@ -1,189 +1,145 @@
-# Xerbs Products & Services
+# Xerbs Product
 
-> Version: 1.0
-> Status: Draft
-> Owner: Xerbs
-> Last Updated: 2026-07-29
+## User Journey
 
----
+Visitor
 
-# Purpose
+↓
 
-This document defines the products and services offered by Xerbs.
+Assessment
 
-It establishes a unified view of the Xerbs ecosystem and serves as the foundation for product development, customer experience, operations, and technology.
+↓
 
----
+AI Analysis
 
-# Product Philosophy
+↓
 
-Xerbs does not simply sell herbal products.
+Practitioner Review
 
-We deliver personalized healthcare experiences.
+↓
 
-Every product and service exists to support long-term health through personalization, continuity, and professional care.
+Personalized Formula
 
----
+↓
 
-# The Xerbs Ecosystem
+Checkout
 
-The Xerbs ecosystem consists of four interconnected pillars:
+↓
 
-1. Physical Products
-2. Professional Services
-3. Digital Experience
-4. Intelligent Platform
+Supplier
 
-Together, these pillars provide a continuous and personalized healthcare journey.
+↓
 
----
+Shipment
 
-# Physical Products
+↓
 
-## Personalized Herbal Capsules
+Follow-up
 
-Customized herbal capsules formulated for each individual.
+↓
+
+Health Improvement
 
 ---
 
-## Personalized Herbal Granules
+# Consumer Platform
 
-Concentrated herbal granules prepared according to personalized prescriptions.
+Pages
 
----
-
-## Personalized Herbal Powder
-
-Powder-based formulations designed for flexible dosing.
-
----
-
-## Personalized Herbal Tea
-
-Customized herbal tea blends for long-term wellness.
+- Home
+- Assessment
+- Products
+- Product Detail
+- Cart
+- Checkout
+- Orders
+- Health Timeline
+- Follow-up
 
 ---
 
-## Future Product Categories
+# Clinic OS
 
-Potential future offerings include:
+Modules
 
-- Functional nutrition
-- Preventive wellness products
-- Personalized supplements
-- Smart wellness devices
-
----
-
-# Professional Services
-
-## Personalized Health Assessment
-
-Comprehensive evaluation of an individual's health condition.
-
----
-
-## Professional Consultation
-
-Personalized consultation with qualified practitioners.
+- Organization
+- Provider
+- Patient
+- Appointment
+- Calendar
+- Visit
+- Questionnaire
+- SOAP
+- Diagnosis
+- Prescription
+- Dashboard
 
 ---
 
-## Formula Optimization
+# Supplier Platform
 
-Continuous adjustment of herbal formulations based on customer progress.
+Modules
 
----
-
-## Follow-up Care
-
-Regular follow-up to monitor outcomes and optimize care.
-
----
-
-## Long-Term Health Management
-
-Ongoing healthcare guidance focused on prevention and continuous improvement.
+- Incoming Orders
+- Production
+- Shipping
+- Tracking
 
 ---
 
-# Digital Experience
+# Product Lines
 
-Digital services enhance customer convenience and continuity of care.
+## Personalized Formula
 
-Examples include:
+Workflow
 
-- Patient Portal
-- Health Reports
-- Appointment Management
-- Treatment History
-- Progress Tracking
-- Notifications
-- Secure Messaging
+Assessment
 
----
+↓
 
-# Intelligent Platform
+AI
 
-The Xerbs ecosystem is powered internally by Xerbs OS.
+↓
 
-Customers interact with Xerbs.
+Doctor Review
 
-Xerbs OS supports the organization behind the scenes.
+↓
 
-Core platform capabilities include:
+Purchase
 
-- Health Assessment
-- Formula Intelligence
-- Health Memory
-- Treatment Management
-- Clinical Decision Support
-- Workflow Automation
+↓
+
+Supplier
+
+↓
+
+Shipment
 
 ---
 
-# Integration
+## Wellness Products
 
-Every product and service should contribute to one continuous healthcare experience.
+Direct Purchase
 
-Rather than isolated offerings, each interaction should strengthen the customer's long-term health journey.
+Examples
 
----
-
-# Future Expansion
-
-As Xerbs grows, new offerings may include:
-
-- Family healthcare
-- Preventive wellness programs
-- Corporate health services
-- International personalized healthcare
-- Clinical partnerships
-
-All future products and services should remain aligned with the principles defined in the Company Blueprint.
+- Sleep
+- Stress
+- Digestion
+- Energy
+- Recovery
+- Immunity
 
 ---
 
-# Success Principles
+# Future
 
-Every Xerbs offering should:
+Health Timeline
 
-Improve personalization.
+AI Follow-up
 
-Increase customer trust.
+Subscription
 
-Support long-term health.
+Health Programs
 
-Integrate seamlessly into the Xerbs ecosystem.
-
-Deliver measurable value.
-
----
-
-# Closing Statement
-
-Products are how customers experience Xerbs.
-
-Services are how Xerbs builds relationships.
-
-Together, they create a personalized healthcare ecosystem centered on long-term care rather than one-time transactions.
+Marketplace
