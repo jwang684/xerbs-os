@@ -67,6 +67,19 @@ export const patientSex = pgEnum("patient_sex", [
   "unknown",
 ]);
 
+/**
+ * A patient's postal address. Stored as flexible JSON (per the schema's
+ * extensibility convention) and editable by the patient via the portal.
+ */
+export type PatientAddress = {
+  line1?: string;
+  line2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+};
+
 export const visitStatus = pgEnum("visit_status", [
   "open",
   "completed",
@@ -208,6 +221,13 @@ export const patients = pgTable(
     sex: patientSex("sex").notNull().default("unknown"),
     email: text("email"),
     phone: text("phone"),
+    // Structured postal address, patient-editable via the portal.
+    address: jsonb("address").$type<PatientAddress>(),
+    // Portal link: the Better Auth user this patient can sign in as. Nullable —
+    // clinic-created patients have no linked account until claimed. NOT unique:
+    // one person (user) may be a patient at several clinics, so multiple rows
+    // can share a user_id. Set null if the user is deleted.
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
     // Soft delete: null = active, non-null = deleted at that time. Clinical
     // records are never hard-deleted; queries filter on `deleted_at IS NULL`.
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
@@ -219,6 +239,8 @@ export const patients = pgTable(
     index("patients_org_active_idx")
       .on(t.organizationId)
       .where(sql`${t.deletedAt} is null`),
+    // Portal: resolve a signed-in user's patient record(s).
+    index("patients_user_idx").on(t.userId),
   ],
 );
 

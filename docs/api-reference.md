@@ -247,3 +247,41 @@ Response shape (returned directly, not wrapped in `{ data }`):
   visits assigned to their membership); the `providerId` filter is ignored for
   them. Appointment widgets filter by provider profile; visit widgets by the
   corresponding organization member.
+
+## Patient Portal (Sprint 3)
+
+The consumer-facing, **read-only** side (plus editing one's own contact info).
+These endpoints are **organization-agnostic**: they resolve the patient from the
+authenticated user, not from the active organization.
+
+- **Auth**: a valid Better Auth session whose user is linked to at least one
+  active `patients` row (`patients.user_id`). 401 if no session; **403** if the
+  account has no linked patient record.
+- **Active record / selector**: a user may be a patient at several clinics
+  (`user_id` is not unique). Every endpoint operates on a single **active
+  record**, defaulting to the caller's (normally only) record. An optional
+  `?patientId=` selects among the caller's *own* records; it is validated against
+  the session-resolved set (an id the caller does not own → **404**), so it is
+  never an authorization bypass. Data is never aggregated across records.
+
+| Method | Path | Body / Query | Success |
+|---|---|---|---|
+| GET | `/api/patient/profile` | `?patientId=` | 200 `{ data: PatientProfile }` |
+| PATCH | `/api/patient/profile` | `{ email?, phone?, address? }`, `?patientId=` | 200 `{ data: PatientProfile }` |
+| GET | `/api/patient/dashboard` | `?patientId=` | 200 `{ data: PatientDashboard }` |
+| GET | `/api/patient/visits` | `?patientId=` | 200 `{ items: PatientVisit[], total }` |
+| GET | `/api/patient/visits/:id` | `?patientId=` | 200 `{ data: PatientVisitDetail }` (404 if not the caller's) |
+| GET | `/api/patient/diagnoses` | `?patientId=` | 200 `{ items, total }` |
+| GET | `/api/patient/prescriptions` | `?patientId=` | 200 `{ items, total }` |
+
+- **Profile**: `PatientProfile` = `{ userId, name, email, activePatientId,
+  records: [{ patientId, organizationId, organizationName, fullName,
+  dateOfBirth, sex }], contact: { email, phone, address } }`. `name`/`dateOfBirth`
+  and all clinical data are read-only (clinic-managed); PATCH changes only
+  `email`/`phone`/`address` on the **active** record (`null` clears a field).
+- **Visit detail** bundles the visit plus its SOAP note, diagnoses, and
+  prescriptions.
+- **Prescriptions** carry a derived `status`: the newest is `active`, older ones
+  `past` (there is no lifecycle column yet).
+- `/api/patient/dashboard` returns the upcoming appointment, active prescription,
+  most recent diagnosis and visit, and a `followUps` placeholder (`[]`).

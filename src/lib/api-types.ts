@@ -151,3 +151,94 @@ export interface ListResult<T> {
 export interface DataResult<T> {
   data: T;
 }
+
+// ── Patient portal (Sprint 3) ────────────────────────────────────────────────
+
+export interface PatientAddress {
+  line1?: string;
+  line2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+}
+
+export interface SoapNote {
+  id: string;
+  visitId: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PatientProfileRecord {
+  patientId: string;
+  organizationId: string;
+  organizationName: string | null;
+  fullName: string;
+  dateOfBirth: string | null;
+  sex: string;
+}
+
+export interface PatientProfile {
+  userId: string;
+  name: string;
+  email: string;
+  activePatientId: string;
+  records: PatientProfileRecord[];
+  contact: {
+    email: string | null;
+    phone: string | null;
+    address: PatientAddress | null;
+  };
+}
+
+export interface PatientVisitListItem {
+  id: string;
+  organizationId: string;
+  organizationName: string | null;
+  providerName: string | null;
+  status: string;
+  visitDate: string;
+  chiefComplaint: string | null;
+  notes: string | null;
+}
+
+export interface PatientAppointment {
+  id: string;
+  organizationName: string | null;
+  providerName: string | null;
+  status: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface PatientDiagnosisItem extends Diagnosis {
+  organizationName: string | null;
+}
+
+export interface PatientPrescriptionItem extends Prescription {
+  organizationName: string | null;
+  status: "active" | "past";
+}
+
+export interface PatientDashboard {
+  name: string;
+  activePatientId: string;
+  upcomingAppointment: PatientAppointment | null;
+  activePrescription: PatientPrescriptionItem | null;
+  recentDiagnosis: PatientDiagnosisItem | null;
+  recentVisit: PatientVisitListItem | null;
+  followUps: string[];
+}
+
+export interface PatientVisitDetail {
+  visit: PatientVisitListItem;
+  soap: SoapNote | null;
+  diagnoses: Diagnosis[];
+  prescriptions: Prescription[];
+}
