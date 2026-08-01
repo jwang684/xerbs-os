@@ -29,6 +29,9 @@ export const session = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    // Added by the Better Auth organization plugin: the active organization for
+    // this session. Holds an organization id (uuid) as text.
+    activeOrganizationId: text("active_organization_id"),
   },
   (table) => [index("session_userId_idx").on(table.userId)],
 );

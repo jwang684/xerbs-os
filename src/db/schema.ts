@@ -56,12 +56,9 @@ const timestamps = {
 };
 
 // ── Enums ───────────────────────────────────────────────────────────────────
-export const memberRole = pgEnum("member_role", [
-  "owner",
-  "admin",
-  "practitioner",
-  "staff",
-]);
+// Note: organization member roles are stored as `text` (not a pgEnum) because
+// the Better Auth organization plugin writes role strings. Allowed values
+// (owner | admin | practitioner | staff) are enforced in the application layer.
 
 export const patientSex = pgEnum("patient_sex", [
   "male",
@@ -76,17 +73,35 @@ export const visitStatus = pgEnum("visit_status", [
   "cancelled",
 ]);
 
+export const appointmentStatus = pgEnum("appointment_status", [
+  "scheduled",
+  "checked_in",
+  "completed",
+  "cancelled",
+  "no_show",
+]);
+
 // ── Tenancy ─────────────────────────────────────────────────────────────────
 
-/** A tenant: a clinic / practice using Xerbs OS. */
+/**
+ * A tenant: a clinic / practice. Managed by the Better Auth organization plugin
+ * (mapped to this table via a `modelName` override). `logo` and `metadata` are
+ * plugin fields; `updated_at` is ours.
+ */
 export const organizations = pgTable("organizations", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
+  logo: text("logo"),
+  metadata: text("metadata"),
   ...timestamps,
 });
 
-/** Join of a user to an organization, with their role in that org. */
+/**
+ * Membership of a user in an organization, with their role. Managed by the
+ * Better Auth organization plugin (mapped via `modelName`). `role` is text
+ * (owner | admin | practitioner | staff, enforced in the app); `title` is ours.
+ */
 export const organizationMembers = pgTable(
   "organization_members",
   {
@@ -97,7 +112,7 @@ export const organizationMembers = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    role: memberRole("role").notNull().default("practitioner"),
+    role: text("role").notNull().default("practitioner"),
     // Professional credential, e.g. "L.Ac.", "DAOM". Optional.
     title: text("title"),
     ...timestamps,
@@ -108,6 +123,73 @@ export const organizationMembers = pgTable(
       t.userId,
     ),
     index("organization_members_user_idx").on(t.userId),
+  ],
+);
+
+/** Organization invitations (Better Auth organization plugin). */
+export const invitations = pgTable(
+  "invitations",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: text("role"),
+    status: text("status").notNull().default("pending"),
+    inviterId: text("inviter_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    teamId: text("team_id"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("invitations_org_idx").on(t.organizationId),
+    index("invitations_email_idx").on(t.email),
+  ],
+);
+
+/**
+ * A provider's profile within an organization. Exactly one per organization
+ * member (unique organization_id + user_id). The member must belong to the
+ * organization.
+ */
+export const providerProfiles = pgTable(
+  "provider_profiles",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    title: text("title"),
+    specialty: text("specialty"),
+    licenseNumber: text("license_number"),
+    npi: text("npi"),
+    avatarUrl: text("avatar_url"),
+    signatureUrl: text("signature_url"),
+    bio: text("bio"),
+    // Weekly availability: { monday: [{ start, end }], … }. Flexible JSON so the
+    // shape can evolve without a migration.
+    workingHours:
+      jsonb("working_hours").$type<
+        Record<string, Array<{ start: string; end: string }>>
+      >(),
+    isActive: boolean("is_active").notNull().default(true),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("provider_profiles_org_user_uq").on(
+      t.organizationId,
+      t.userId,
+    ),
+    index("provider_profiles_org_idx").on(t.organizationId),
+    index("provider_profiles_user_idx").on(t.userId),
   ],
 );
 
@@ -157,6 +239,12 @@ export const visits = pgTable(
     providerId: uuid("provider_id").references(() => organizationMembers.id, {
       onDelete: "set null",
     }),
+    // The appointment this visit was created from (via check-in), if any. At
+    // most one visit per appointment (unique); set null if the appointment is
+    // deleted. Visits created directly (clinical workflow) leave this null.
+    appointmentId: uuid("appointment_id").references(() => appointments.id, {
+      onDelete: "set null",
+    }),
     status: visitStatus("status").notNull().default("open"),
     chiefComplaint: text("chief_complaint"),
     // When the encounter took place (defaults to creation time).
@@ -170,6 +258,8 @@ export const visits = pgTable(
     index("visits_org_idx").on(t.organizationId),
     index("visits_patient_idx").on(t.patientId),
     index("visits_provider_idx").on(t.providerId),
+    // One visit per appointment (multiple NULLs allowed for direct visits).
+    uniqueIndex("visits_appointment_id_uq").on(t.appointmentId),
   ],
 );
 
@@ -316,6 +406,108 @@ export const prescriptions = pgTable(
   ],
 );
 
+/**
+ * A scheduled appointment between a patient and a provider. `provider_id`
+ * references a provider profile. No overlapping active appointments for the same
+ * provider (enforced in the service).
+ */
+export const appointments = pgTable(
+  "appointments",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    patientId: uuid("patient_id")
+      .notNull()
+      .references(() => patients.id, { onDelete: "cascade" }),
+    providerId: uuid("provider_id")
+      .notNull()
+      .references(() => providerProfiles.id, { onDelete: "cascade" }),
+    startTime: timestamp("start_time", { withTimezone: true }).notNull(),
+    endTime: timestamp("end_time", { withTimezone: true }).notNull(),
+    status: appointmentStatus("status").notNull().default("scheduled"),
+    notes: text("notes"),
+    ...timestamps,
+  },
+  (t) => [
+    index("appointments_org_idx").on(t.organizationId),
+    index("appointments_patient_idx").on(t.patientId),
+    index("appointments_provider_idx").on(t.providerId),
+    // Accelerates overlap checks and provider/date-range listing.
+    index("appointments_provider_start_idx").on(t.providerId, t.startTime),
+  ],
+);
+
+/**
+ * The current SOAP note for a visit (one per visit). Section content is plain
+ * text / markdown. `version` increments on each save; every save also appends an
+ * immutable row to soap_note_revisions.
+ */
+export const soapNotes = pgTable(
+  "soap_notes",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    visitId: uuid("visit_id")
+      .notNull()
+      .references(() => visits.id, { onDelete: "cascade" }),
+    patientId: uuid("patient_id")
+      .notNull()
+      .references(() => patients.id, { onDelete: "cascade" }),
+    subjective: text("subjective").notNull().default(""),
+    objective: text("objective").notNull().default(""),
+    assessment: text("assessment").notNull().default(""),
+    plan: text("plan").notNull().default(""),
+    version: integer("version").notNull().default(1),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("soap_notes_visit_uq").on(t.visitId),
+    index("soap_notes_org_idx").on(t.organizationId),
+    index("soap_notes_patient_idx").on(t.patientId),
+  ],
+);
+
+/** Immutable snapshot of a SOAP note at a given version (edit history). */
+export const soapNoteRevisions = pgTable(
+  "soap_note_revisions",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    soapNoteId: uuid("soap_note_id")
+      .notNull()
+      .references(() => soapNotes.id, { onDelete: "cascade" }),
+    visitId: uuid("visit_id")
+      .notNull()
+      .references(() => visits.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    subjective: text("subjective").notNull().default(""),
+    objective: text("objective").notNull().default(""),
+    assessment: text("assessment").notNull().default(""),
+    plan: text("plan").notNull().default(""),
+    authorId: text("author_id").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("soap_note_revisions_note_version_uq").on(
+      t.soapNoteId,
+      t.version,
+    ),
+    index("soap_note_revisions_note_idx").on(t.soapNoteId),
+    index("soap_note_revisions_visit_idx").on(t.visitId),
+    index("soap_note_revisions_org_idx").on(t.organizationId),
+  ],
+);
+
 // ── Inferred types ──────────────────────────────────────────────────────────
 export type Organization = typeof organizations.$inferSelect;
 export type NewOrganization = typeof organizations.$inferInsert;
@@ -323,6 +515,16 @@ export type User = typeof user.$inferSelect;
 export type NewUser = typeof user.$inferInsert;
 export type OrganizationMember = typeof organizationMembers.$inferSelect;
 export type NewOrganizationMember = typeof organizationMembers.$inferInsert;
+export type Invitation = typeof invitations.$inferSelect;
+export type NewInvitation = typeof invitations.$inferInsert;
+export type ProviderProfile = typeof providerProfiles.$inferSelect;
+export type NewProviderProfile = typeof providerProfiles.$inferInsert;
+export type Appointment = typeof appointments.$inferSelect;
+export type NewAppointment = typeof appointments.$inferInsert;
+export type SoapNote = typeof soapNotes.$inferSelect;
+export type NewSoapNote = typeof soapNotes.$inferInsert;
+export type SoapNoteRevision = typeof soapNoteRevisions.$inferSelect;
+export type NewSoapNoteRevision = typeof soapNoteRevisions.$inferInsert;
 export type Patient = typeof patients.$inferSelect;
 export type NewPatient = typeof patients.$inferInsert;
 export type PatientUpdate = Partial<

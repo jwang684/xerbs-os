@@ -8,9 +8,13 @@ the endpoints as implemented in Sprint 1.
 - **Auth**: every application endpoint requires a valid Better Auth session
   cookie. The caller must be a member of an organization; requests are always
   scoped to that organization.
-- **Active organization**: resolved from the user's membership. If the user
-  belongs to multiple organizations, send an `x-organization-id` header;
-  otherwise the single membership is used.
+- **Active organization**: resolved solely from the session
+  (`session.activeOrganizationId`, managed by the Better Auth organization
+  plugin). It defaults to the user's first membership on sign-in and is changed
+  via `POST /api/auth/organization/set-active`. There is no organization header.
+  Organization/membership/invitation management is provided by the plugin under
+  `/api/auth/organization/*` (create, list, set-active, invite-member,
+  accept-invitation, list-members, update-member-role, remove-member, …).
 - **Authorization**: reads are allowed for any member; writes
   (POST/PATCH/DELETE) require role `owner`, `admin`, or `practitioner` (`staff`
   is read-only).
@@ -71,6 +75,74 @@ A visit belongs to exactly one patient.
 - `patientId` is immutable after creation. `providerId` must be a member of the
   same organization. No delete in Sprint 1.
 
+## Providers
+
+Provider profiles: one per organization member (unique org + member).
+
+| Method | Path | Body / Query | Success |
+|---|---|---|---|
+| POST | `/api/providers` | `{ userId, title?, specialty?, licenseNumber?, npi?, avatarUrl?, signatureUrl?, bio?, workingHours?, isActive? }` | 201 `{ data: Provider }` |
+| GET | `/api/providers` | `?isActive=&limit=&offset=` | 200 `{ items: Provider[], total }` |
+| GET | `/api/providers/:id` | — | 200 `{ data: Provider }` |
+| PATCH | `/api/providers/:id` | provider fields (no `userId`) | 200 `{ data: Provider }` |
+
+- **Authorization**: create → owner/admin only; update → owner/admin (any) or
+  practitioner (own profile only); read/list → any member (staff included).
+- The target `userId` must be a member of the caller's organization (else 400).
+  A duplicate profile for a member is 409.
+- `npi` is 10 digits; `avatarUrl`/`signatureUrl` are URLs; `workingHours` is
+  `{ [day]: [{ start: "HH:MM", end: "HH:MM" }] }`. No delete — use `isActive`.
+
+## Appointments
+
+Appointments between a patient and a provider (provider profile).
+
+| Method | Path | Body / Query | Success |
+|---|---|---|---|
+| POST | `/api/appointments` | `{ patientId, providerId, startTime, endTime, status?, notes? }` | 201 `{ data: Appointment }` |
+| GET | `/api/appointments` | `?providerId=&patientId=&from=&to=&limit=&offset=` | 200 `{ items, total }` (by startTime) |
+| GET | `/api/appointments/:id` | — | 200 `{ data: Appointment }` |
+| PATCH | `/api/appointments/:id` | `{ startTime?, endTime?, status?, notes? }` | 200 `{ data: Appointment }` |
+| DELETE | `/api/appointments/:id` | — | 200 `{ data: Appointment }` (hard delete) |
+| POST | `/api/appointments/:id/check-in` | — | 201 `{ data: { appointment, visit } }` |
+
+### Calendar
+
+`GET /api/appointments/calendar?view=day|week|month&date=YYYY-MM-DD&providerId=`
+returns the appointments in the window, grouped by day:
+
+```
+{ view, from, to, groups: [ { date: "YYYY-MM-DD", appointments: [...] } ] }
+```
+
+- `view` + `date` (UTC anchor) determine the window: day = that day; week =
+  Monday-start week containing the date; month = the calendar month.
+- Optional `providerId` filter; practitioners are restricted to their own
+  appointments. Ranges and grouping are UTC.
+
+### Check-in
+
+`POST /api/appointments/:id/check-in` transitions a **scheduled** appointment to
+`checked_in` and creates the linked visit — atomically, exactly once:
+
+- Only `scheduled` appointments can be checked in (else 409); a second check-in
+  is rejected (409).
+- The created visit carries `appointmentId` (unique — one visit per
+  appointment), the appointment's `patientId`, and `status = open`; it then
+  follows the normal visit clinical workflow.
+- **Authorization**: owner/admin/staff, or the practitioner assigned to the
+  appointment.
+
+- `status` ∈ `scheduled | checked_in | completed | cancelled | no_show`.
+- **Validation**: `endTime` > `startTime`; `patientId`/`providerId` must belong
+  to the caller's organization (else 400); no overlapping non-cancelled
+  appointment for the same provider (else 409).
+- **Authorization**: owner/admin full CRUD; staff create/read/update but **not
+  delete**; practitioner CRUD only for appointments assigned to their own
+  provider profile (and their list is restricted to those).
+- `from`/`to` filter by `startTime` (inclusive). Patient/provider assignment is
+  immutable on update.
+
 ## Questionnaire
 
 Exactly one questionnaire per visit; content is generic JSON validated against a
@@ -85,6 +157,27 @@ versioned definition (`schemaVersion`).
 - `answers` (v1): `{ responses: [{ questionId, value }] }` where `value` is a
   string, number, boolean, string array, or null.
 - Unknown `schemaVersion` → 422. No delete.
+
+## SOAP Notes
+
+One SOAP note per visit (Subjective / Objective / Assessment / Plan; plain
+text/markdown). Each save appends an immutable revision.
+
+| Method | Path | Body | Success |
+|---|---|---|---|
+| GET | `/api/visits/:id/soap` | — | 200 `{ data: SoapNote }` (404 if none) |
+| POST | `/api/visits/:id/soap` | `{ subjective?, objective?, assessment?, plan? }` | 201 `{ data }` (409 if exists) |
+| PATCH | `/api/visits/:id/soap` | any subset of sections | 200 `{ data }` (autosave; bumps `version`) |
+| DELETE | `/api/visits/:id/soap` | — | 200 `{ data }` (note + revisions) |
+| GET | `/api/visits/:id/soap/revisions` | — | 200 `{ items, total }` (newest first) |
+
+- **Autosave**: `PATCH` merges the provided sections, increments `version`, and
+  appends a revision; an empty patch is a no-op (no new revision).
+- **Version history**: revisions are immutable snapshots (`version`,
+  S/O/A/P, `authorId`, `createdAt`).
+- **Authorization** follows the Visit rules: reads for any member; writes
+  (POST/PATCH/DELETE) for owner/admin/practitioner (staff read-only). The visit
+  must belong to the caller's organization.
 
 ## Diagnosis
 
@@ -117,3 +210,40 @@ visit's **active** diagnosis.
   `structuredResult`, `rawResponse`, `disclaimer`, `createdAt` (plus denormalized
   `visitId`, `patientId`, `organizationId`).
 - `structuredResult`: `{ formulaName, herbs: [{ name, dosage }], instructions, durationDays }`.
+
+## Dashboard
+
+Read-only aggregation over existing entities (no new tables). Returns only
+counts plus today's appointment list — no business logic is duplicated.
+
+| Method | Path | Query | Success |
+|---|---|---|---|
+| GET | `/api/dashboard` | `date=YYYY-MM-DD`, `providerId=` | 200 (unwrapped `DashboardResult`) |
+
+Response shape (returned directly, not wrapped in `{ data }`):
+
+```
+{
+  date: "YYYY-MM-DD",
+  providerId: string | null,   // the provider the view is scoped to, if any
+  widgets: {
+    todaysAppointments, waitingPatients, checkedInPatients,
+    openVisits, completedVisits,
+    pendingSoap, pendingDiagnosis, pendingPrescription   // all numbers
+  },
+  todaysAppointments: Appointment[]   // ordered by start time
+}
+```
+
+- **Day window**: `date` (default today) defines `[00:00, next 00:00)` UTC for the
+  appointment widgets. `waitingPatients`/`checkedInPatients` are today's
+  appointments in `scheduled`/`checked_in`.
+- **Visit widgets**: `openVisits`/`completedVisits` count visits by status;
+  `pending*` count non-cancelled visits missing that artifact (SOAP note,
+  diagnosis, or prescription).
+- **Scope / authorization**: owner/admin/staff see the whole organization and may
+  pass `providerId` to filter (unknown provider → 400). A practitioner always
+  sees only their own dashboard (their provider profile's appointments and the
+  visits assigned to their membership); the `providerId` filter is ignored for
+  them. Appointment widgets filter by provider profile; visit widgets by the
+  corresponding organization member.
