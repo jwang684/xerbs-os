@@ -1,40 +1,111 @@
-# Company Documentation
+# Xerbs
 
-This section contains the strategic documents that define the Xerbs company.
+## Vision
 
----
+Build the world's leading AI-powered personalized herbal medicine platform.
 
-## Documents
+Xerbs combines AI, licensed practitioners, and trusted fulfillment partners into one continuous healthcare platform.
 
-### 📖 Company Blueprint
-Defines the identity, mission, principles, and long-term direction of Xerbs.
+Our goal is not to sell herbal medicine.
 
-→ [01-company-blueprint.md](01-company-blueprint.md)
-
----
-
-### 💼 Business Model
-Explains how Xerbs creates, delivers, and captures value.
-
-→ [02-business-model.md](02-business-model.md)
+Our goal is to deliver continuous personalized care.
 
 ---
 
-### 🎨 Brand Guidelines
-Defines the Xerbs brand identity and communication principles.
+# Product Ecosystem
 
-→ [03-brand-guidelines.md](brand-guidelines.md)
+Consumer Platform
+
+↓
+
+AI Assessment
+
+↓
+
+Licensed Practitioner Review
+
+↓
+
+Personalized Formula
+
+↓
+
+Checkout
+
+↓
+
+Supplier Fulfillment
+
+↓
+
+Follow-up
+
+↓
+
+Continuous Health Improvement
 
 ---
 
-### 🌿 Products & Services
-Describes all products and services provided by Xerbs.
+# Platforms
 
-→ [04-products-services.md](products-services.md)
+## Consumer Platform
+
+The customer-facing experience.
+
+Responsible for:
+
+- Landing Website
+- AI Assessment
+- Wellness Store
+- Personalized Formula
+- Orders
+- Follow-up
+- Health Timeline
 
 ---
 
-### ❤️ Customer Journey
-Defines the end-to-end customer experience.
+## Xerbs OS
 
-→ [05-customer-journey.md](customer-journey.md)
+Internal clinical platform.
+
+Responsible for:
+
+- Patient Management
+- Providers
+- Appointments
+- Visits
+- SOAP Notes
+- AI Diagnosis
+- Prescription Review
+- Dashboard
+
+---
+
+## Supplier Network
+
+Responsible for:
+
+- Order Fulfillment
+- Production
+- Shipping
+- Tracking
+
+---
+
+# Core Principles
+
+1. AI assists practitioners.
+
+2. Licensed practitioners approve clinical decisions.
+
+3. Personalized care is better than generic treatment.
+
+4. Continuous follow-up is more valuable than one-time diagnosis.
+
+5. Every feature should improve patient outcomes.
+
+---
+
+# Long-term Goal
+
+Build the Health Memory Platform for continuous personalized healthcare.
