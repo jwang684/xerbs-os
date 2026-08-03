@@ -1,7 +1,5 @@
 import type { KnowledgeBundle } from "./Knowledge";
-
-/** Outputs produced by modules, keyed by module name. */
-export type ModuleResults = Record<string, unknown>;
+import type { ModuleResults } from "./Results";
 
 /**
  * The single shared execution object threaded through every AI module.

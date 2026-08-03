@@ -1,21 +1,23 @@
 import { StubKnowledgeLoader } from "../knowledge/KnowledgeLoader";
 import type { ExecutableModule, ModuleServices } from "../modules/BaseModule";
-import { InMemoryTemplateStore, PromptBuilder } from "../prompts/PromptBuilder";
+import { PromptBuilder } from "../prompts/PromptBuilder";
+import { FileTemplateLoader } from "../prompts/TemplateLoader";
 import { ProviderRegistry } from "../providers/ProviderRegistry";
 import type { AIContext } from "../types/AIContext";
 import { SchemaValidator } from "../utils/SchemaValidator";
 
 /**
  * Builds a default set of module services (empty provider registry, stub
- * knowledge loader, empty template store, validator). Any piece can be
- * overridden — this is the wiring point for real providers/knowledge/templates.
+ * knowledge loader, filesystem-backed prompt builder, validator). Any piece can
+ * be overridden. Prefer {@link import("../bootstrap").createAIEngine} at the app
+ * boundary; this stays low-level so tests can inject fakes.
  */
 export function createDefaultServices(
   overrides: Partial<ModuleServices> = {},
 ): ModuleServices {
   return {
     knowledge: overrides.knowledge ?? new StubKnowledgeLoader(),
-    prompts: overrides.prompts ?? new PromptBuilder(new InMemoryTemplateStore()),
+    prompts: overrides.prompts ?? new PromptBuilder(new FileTemplateLoader()),
     providers: overrides.providers ?? new ProviderRegistry(),
     validator: overrides.validator ?? new SchemaValidator(),
   };

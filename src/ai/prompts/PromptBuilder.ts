@@ -1,17 +1,6 @@
 import type { AIContext } from "../types/AIContext";
 import type { KnowledgeBundle } from "../types/Knowledge";
-
-/** A named prompt template. Template text is supplied by callers, not here. */
-export interface PromptTemplate {
-  key: string;
-  /** Template body with `{{dotted.path}}` placeholders. */
-  template: string;
-}
-
-/** Where {@link PromptBuilder} looks up templates by key. */
-export interface TemplateStore {
-  get(key: string): PromptTemplate | undefined;
-}
+import type { TemplateLoader } from "./TemplateLoader";
 
 /** Inputs available to a template when building a prompt. */
 export interface PromptInput {
@@ -21,34 +10,20 @@ export interface PromptInput {
   variables?: Record<string, unknown>;
 }
 
-/** A simple in-memory template store. Starts empty; ships no templates. */
-export class InMemoryTemplateStore implements TemplateStore {
-  private readonly templates = new Map<string, PromptTemplate>();
-
-  register(template: PromptTemplate): this {
-    this.templates.set(template.key, template);
-    return this;
-  }
-
-  get(key: string): PromptTemplate | undefined {
-    return this.templates.get(key);
-  }
-}
-
 /**
- * Builds a final prompt string by looking up a template and injecting values
- * from the {@link AIContext}, loaded knowledge, and module variables.
+ * Builds a final prompt string: it loads a named template through a
+ * {@link TemplateLoader} and injects values from the {@link AIContext}, loaded
+ * knowledge, and module variables.
  *
- * It owns no prompt text and no medical knowledge — only the mechanics of
- * template lookup and `{{path}}` substitution. Missing variables fail fast so a
- * malformed prompt is never sent to a provider.
+ * It owns no prompt text and no medical knowledge — only template lookup (via
+ * the loader) and `{{dotted.path}}` substitution. Missing variables fail fast so
+ * a malformed prompt is never sent to a provider.
  */
 export class PromptBuilder {
-  constructor(private readonly store: TemplateStore) {}
+  constructor(private readonly loader: TemplateLoader) {}
 
-  build(templateKey: string, input: PromptInput): string {
-    const template = this.store.get(templateKey);
-    if (!template) throw new Error(`Prompt template not found: ${templateKey}`);
+  build(templateName: string, input: PromptInput): string {
+    const template = this.loader.load(templateName);
 
     const scope: Record<string, unknown> = {
       ...(input.variables ?? {}),
@@ -57,13 +32,13 @@ export class PromptBuilder {
       results: input.context.results,
     };
 
-    return template.template.replace(
+    return template.replace(
       /\{\{\s*([\w.]+)\s*\}\}/g,
       (_match, path: string) => {
         const value = getPath(scope, path);
         if (value === undefined || value === null) {
           throw new Error(
-            `Missing prompt variable "${path}" for template "${templateKey}"`,
+            `Missing prompt variable "${path}" for template "${templateName}"`,
           );
         }
         return typeof value === "string" ? value : JSON.stringify(value);

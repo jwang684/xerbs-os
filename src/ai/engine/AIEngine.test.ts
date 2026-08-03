@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
+import { createAIEngine } from "../bootstrap";
 import { StubKnowledgeLoader } from "../knowledge/KnowledgeLoader";
 import { BaseModule, ModuleExecutionError } from "../modules/BaseModule";
 import type { AIProvider, GenerateRequest } from "../providers/AIProvider";
 import { ProviderRegistry } from "../providers/ProviderRegistry";
-import { InMemoryTemplateStore, PromptBuilder } from "../prompts/PromptBuilder";
+import { PromptBuilder } from "../prompts/PromptBuilder";
+import {
+  FileTemplateLoader,
+  InMemoryTemplateLoader,
+} from "../prompts/TemplateLoader";
 import { createAIContext } from "../types/AIContext";
 import type { KnowledgeRequest } from "../types/Knowledge";
 import { SchemaValidator } from "../utils/SchemaValidator";
@@ -42,7 +47,7 @@ class ScoreModule extends BaseModule<{ score: number }> {
 function servicesWith(provider: AIProvider, template: string) {
   return createDefaultServices({
     prompts: new PromptBuilder(
-      new InMemoryTemplateStore().register({ key: "score", template }),
+      new InMemoryTemplateLoader().register("score", template),
     ),
     providers: new ProviderRegistry().register(provider),
   });
@@ -76,10 +81,10 @@ describe("AIEngine", () => {
     const services = createDefaultServices({
       knowledge: loader,
       prompts: new PromptBuilder(
-        new InMemoryTemplateStore().register({
-          key: "score",
-          template: "symptoms={{knowledge.symptoms}}",
-        }),
+        new InMemoryTemplateLoader().register(
+          "score",
+          "symptoms={{knowledge.symptoms}}",
+        ),
       ),
       providers: new ProviderRegistry().register(fakeProvider({ score: 1 })),
     });
@@ -132,10 +137,41 @@ describe("SchemaValidator", () => {
 describe("PromptBuilder", () => {
   it("throws on a missing template variable", () => {
     const builder = new PromptBuilder(
-      new InMemoryTemplateStore().register({ key: "t", template: "{{missing}}" }),
+      new InMemoryTemplateLoader().register("t", "{{missing}}"),
     );
     expect(() =>
       builder.build("t", { context: createAIContext() }),
     ).toThrow(/Missing prompt variable/);
+  });
+});
+
+describe("FileTemplateLoader", () => {
+  it("loads placeholder templates from disk and caches them", () => {
+    const loader = new FileTemplateLoader();
+    const body = loader.load("assessment");
+    expect(body).toContain("placeholder");
+    // Second read is served from cache (same content).
+    expect(loader.load("assessment")).toBe(body);
+  });
+
+  it("throws for an unknown template", () => {
+    expect(() => new FileTemplateLoader().load("does-not-exist")).toThrow(
+      /not found/,
+    );
+  });
+});
+
+describe("createAIEngine (bootstrap)", () => {
+  it("assembles an engine and registers modules", () => {
+    const engine = createAIEngine({ modules: [new ScoreModule()] });
+    expect(engine).toBeInstanceOf(AIEngine);
+    expect(engine.registered).toEqual(["score"]);
+  });
+
+  it("allows overriding services (e.g. providers) for tests", () => {
+    const engine = createAIEngine({
+      services: { providers: new ProviderRegistry().register(fakeProvider({})) },
+    });
+    expect(engine.registered).toEqual([]);
   });
 });

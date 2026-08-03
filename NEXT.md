@@ -9,6 +9,10 @@ Working notes on where the project is and what comes next. See
   - **Phase 1 — Patient Portal vertical slice: complete** (read-only portal +
     self-service contact editing). See
     [docs/product/09-sprint-3.md](docs/product/09-sprint-3.md).
+- **AI Engine — foundation: complete (framework only).** `src/ai/` — engine,
+  modules, providers, knowledge, prompts (filesystem templates), typed results,
+  and `createAIEngine()` bootstrap. No providers, prompt text, or medical logic
+  yet. Next: wire a real provider + register the first module (AssessmentModule).
 
 ## Next candidates (Sprint 3, Phase 2+)
 

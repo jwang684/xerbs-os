@@ -56,6 +56,10 @@ export abstract class BaseModule<TOutput> implements ExecutableModule {
   /** Provider to use; falls back to the registry default when undefined. */
   protected readonly providerName?: string;
 
+  /** Optional generation tunables passed through to the provider. */
+  protected readonly temperature?: number;
+  protected readonly maxTokens?: number;
+
   /** Override to declare which knowledge to load; default: reuse context.knowledge. */
   protected knowledgeRequest(context: AIContext): KnowledgeRequest | undefined {
     void context;
@@ -88,7 +92,13 @@ export abstract class BaseModule<TOutput> implements ExecutableModule {
     });
 
     const provider = services.providers.resolve(this.providerName);
-    const response = await provider.generate({ prompt });
+    const response = await provider.generate({
+      prompt,
+      responseFormat: "json",
+      schema: this.outputSchema,
+      temperature: this.temperature,
+      maxTokens: this.maxTokens,
+    });
 
     const result = services.validator.validateJson(
       this.outputSchema,
