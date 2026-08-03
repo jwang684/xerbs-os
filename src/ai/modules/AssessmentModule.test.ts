@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { createAIEngine } from "../bootstrap";
 import { AIEngine, createDefaultServices } from "../engine/AIEngine";
 import type { AIProvider, GenerateRequest } from "../providers/AIProvider";
 import { ProviderRegistry } from "../providers/ProviderRegistry";
@@ -11,8 +12,20 @@ import { AssessmentModule } from "./AssessmentModule";
 
 const validResult = {
   chiefComplaint: "Headaches for two weeks",
-  symptomSummary: "Dull frontal headaches, worse in the afternoon; poor sleep.",
+  presentingSymptoms: [
+    {
+      name: "frontal headache",
+      duration: "2 weeks",
+      onset: "gradual",
+      severity: "moderate",
+      notes: "worse in the afternoon",
+    },
+    { name: "poor sleep", severity: "unknown" },
+  ],
+  symptomSummary: "Dull frontal headaches for two weeks, worse in the afternoon; poor sleep.",
+  relevantHistory: ["No known drug allergies"],
   redFlags: [],
+  dataGaps: ["No information on hydration or screen time"],
   confidence: 0.7,
 };
 
@@ -40,19 +53,35 @@ function servicesWith(provider: AIProvider) {
 }
 
 describe("AssessmentSchema", () => {
-  it("accepts a valid assessment and defaults redFlags", () => {
+  it("accepts a full structured assessment", () => {
+    const parsed = AssessmentSchema.parse(validResult);
+    expect(parsed.presentingSymptoms).toHaveLength(2);
+    expect(parsed.presentingSymptoms[0].severity).toBe("moderate");
+  });
+
+  it("defaults optional arrays and symptom severity", () => {
     const parsed = AssessmentSchema.parse({
       chiefComplaint: "x",
       symptomSummary: "y",
+      presentingSymptoms: [{ name: "cough" }],
       confidence: 0.5,
     });
     expect(parsed.redFlags).toEqual([]);
+    expect(parsed.relevantHistory).toEqual([]);
+    expect(parsed.dataGaps).toEqual([]);
+    expect(parsed.presentingSymptoms[0].severity).toBe("unknown");
   });
 
-  it("rejects invalid output (bad confidence / missing fields)", () => {
+  it("rejects invalid output (bad confidence / bad severity / missing fields)", () => {
     expect(AssessmentSchema.safeParse({ ...validResult, confidence: 2 }).success).toBe(
       false,
     );
+    expect(
+      AssessmentSchema.safeParse({
+        ...validResult,
+        presentingSymptoms: [{ name: "x", severity: "extreme" }],
+      }).success,
+    ).toBe(false);
     expect(AssessmentSchema.safeParse({ chiefComplaint: "only" }).success).toBe(
       false,
     );
@@ -60,12 +89,14 @@ describe("AssessmentSchema", () => {
 });
 
 describe("assessment prompt", () => {
-  it("loads assessment.md with input placeholders and safety rules", () => {
+  it("loads assessment.md with input placeholders, fields, and safety rules", () => {
     const body = new FileTemplateLoader().load("assessment");
     expect(body).toContain("{{patient}}");
     expect(body).toContain("{{questionnaire}}");
+    expect(body).toContain("presentingSymptoms");
+    expect(body).toContain("dataGaps");
     expect(body.toLowerCase()).toContain("json");
-    // Must instruct against diagnosis / treatment / formulas.
+    // Must forbid diagnosis / treatment / formulas.
     expect(body).toMatch(/diagnos/i);
     expect(body).toMatch(/formula/i);
     expect(body).toMatch(/treatment/i);
@@ -73,7 +104,7 @@ describe("assessment prompt", () => {
 });
 
 describe("AssessmentModule", () => {
-  it("runs the pipeline and stores a structured AssessmentResult", async () => {
+  it("runs the pipeline and stores a high-quality structured result", async () => {
     let seen: GenerateRequest | undefined;
     const services = servicesWith(fakeProvider(validResult, (r) => (seen = r)));
     const engine = new AIEngine(services).use(new AssessmentModule());
@@ -85,16 +116,29 @@ describe("AssessmentModule", () => {
       }),
     );
 
-    // Result is stored, typed, and matches the schema.
     expect(ctx.results.assessment).toMatchObject({
       chiefComplaint: "Headaches for two weeks",
       confidence: 0.7,
-      redFlags: [],
     });
+    expect(ctx.results.assessment?.presentingSymptoms[0].name).toBe(
+      "frontal headache",
+    );
     // The prompt asked for JSON and embedded the patient input.
     expect(seen?.responseFormat).toBe("json");
     expect(seen?.prompt).toContain("Alice Example");
     expect(seen?.prompt).toContain("poor");
+  });
+
+  it("is runnable through the public createAIEngine entry point", async () => {
+    // The default pipeline is Patient Input -> AssessmentModule -> AssessmentResult.
+    const engine = createAIEngine({
+      services: { providers: new ProviderRegistry().register(fakeProvider(validResult)) },
+    });
+    expect(engine.registered).toEqual(["assessment"]);
+    const ctx = await engine.run(
+      createAIContext({ patient: { fullName: "Bob" } }),
+    );
+    expect(ctx.results.assessment?.chiefComplaint).toBe("Headaches for two weeks");
   });
 
   it("throws ModuleExecutionError when the model output is invalid", async () => {
