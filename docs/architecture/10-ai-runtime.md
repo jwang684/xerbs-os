@@ -133,6 +133,72 @@ the primary risk this contract exists to prevent:
 - **Configuration, not hardcoding:** provider/model/tunables/prompt version come
   from `AIConfig` keyed by module name.
 
+## Global runtime rules
+
+These three rules are binding on every current and future module. They generalize
+the per-module contracts above into system-wide guarantees.
+
+### 1. Evidence Flow Rule
+
+The pipeline is strictly sequential, and each module consumes **only the
+structured outputs of previous modules** — never raw inputs that an earlier
+module has already normalized.
+
+**AssessmentModule is the sole owner of raw clinical input.** Once it has
+structured the questionnaire, symptoms, tongue findings, history, etc., no
+downstream module may independently re-parse those raw inputs.
+
+```
+Patient Input → Assessment → Summary → Diagnosis → Formula → Prescription
+```
+
+- **Summary** consumes `AssessmentResult`.
+- **Diagnosis** consumes `AssessmentResult` and `SummaryResult`.
+- **Formula** consumes `DiagnosisResult`.
+- **Prescription** consumes `FormulaResult`.
+
+A downstream module must not re-read `questionnaire`, `tongue`, or other raw
+`AIContext` inputs that have already been structured by Assessment. Raw inputs
+enter the pipeline exactly once, through Assessment. This guarantees a **single
+source of truth** for every fact.
+
+### 2. Clinical Layer Rule
+
+Every module belongs to **exactly one** clinical reasoning layer, and no module
+may cross into another:
+
+| Module | Clinical layer |
+|---|---|
+| Assessment | organizing facts |
+| Summary | organizing and highlighting facts |
+| Diagnosis | clinical interpretation and syndrome differentiation |
+| Formula | treatment decisions and herbal formula selection |
+| Prescription | executable prescriptions and patient instructions |
+
+Consequences (non-exhaustive):
+
+- Assessment must never diagnose.
+- Summary must never recommend treatment.
+- Diagnosis must never recommend dosages.
+- Formula must never modify diagnoses.
+- Prescription must never reinterpret diagnoses.
+
+This layer separation must remain stable as the system evolves; new modules must
+claim a single layer, not straddle two.
+
+### 3. Immutable Result Rule
+
+Once a module completes successfully, **its output is immutable**. Later modules
+may only **read** previous results — never modify, overwrite, or reinterpret
+them. Each module appends new information **into its own result object only**.
+
+For example, `results.assessment` is immutable after AssessmentModule finishes:
+Summary, Diagnosis, Formula, and Prescription may all read it, but none may
+change it.
+
+This guarantees **reproducibility, auditability, traceability, and deterministic
+execution** across the pipeline.
+
 ## Status
 
 | Module | Contract | Executable |
