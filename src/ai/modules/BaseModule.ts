@@ -1,3 +1,4 @@
+import type { AIConfig } from "../config/AIConfig";
 import type { KnowledgeLoader } from "../knowledge/KnowledgeLoader";
 import type { PromptBuilder } from "../prompts/PromptBuilder";
 import type { ProviderRegistry } from "../providers/ProviderRegistry";
@@ -11,6 +12,8 @@ export interface ModuleServices {
   prompts: PromptBuilder;
   providers: ProviderRegistry;
   validator: SchemaValidator;
+  /** Centralized model/provider/temperature/token/prompt-version configuration. */
+  config: AIConfig;
 }
 
 /** The non-generic view of a module the engine runs. */
@@ -91,13 +94,20 @@ export abstract class BaseModule<TOutput> implements ExecutableModule {
       variables: this.variables(context),
     });
 
-    const provider = services.providers.resolve(this.providerName);
+    // Configuration keyed by module name; explicit module fields win over it.
+    // Undefined when nothing is configured yet — the engine then falls back to
+    // the registry default provider and the module's own tunables.
+    const model = services.config.model(this.name);
+    const provider = services.providers.resolve(
+      this.providerName ?? model?.provider,
+    );
     const response = await provider.generate({
       prompt,
       responseFormat: "json",
       schema: this.outputSchema,
-      temperature: this.temperature,
-      maxTokens: this.maxTokens,
+      temperature: this.temperature ?? model?.temperature,
+      maxTokens: this.maxTokens ?? model?.maxTokens,
+      options: model ? { model: model.model } : undefined,
     });
 
     const result = services.validator.validateJson(

@@ -1,3 +1,4 @@
+import { AIConfig, emptyAIConfig } from "./config/AIConfig";
 import { AIEngine } from "./engine/AIEngine";
 import { StubKnowledgeLoader } from "./knowledge/KnowledgeLoader";
 import type { ExecutableModule, ModuleServices } from "./modules/BaseModule";
@@ -9,6 +10,8 @@ import { SchemaValidator } from "./utils/SchemaValidator";
 export interface CreateAIEngineOptions {
   /** Modules to register, in execution order. */
   modules?: ExecutableModule[];
+  /** Centralized configuration (model/provider/temperature/tokens/prompt versions). */
+  config?: AIConfig;
   /** Override individual services (mainly for tests). */
   services?: Partial<ModuleServices>;
 }
@@ -31,12 +34,14 @@ export function createAIEngine(options: CreateAIEngineOptions = {}): AIEngine {
     options.services?.prompts ?? new PromptBuilder(new FileTemplateLoader());
   const knowledge = options.services?.knowledge ?? new StubKnowledgeLoader();
   const validator = options.services?.validator ?? new SchemaValidator();
+  const config = options.services?.config ?? options.config ?? emptyAIConfig();
 
   // ── Provider registration (the only place this should happen) ──────────────
   // e.g. providers.register(new OpenAIProvider(env.OPENAI_API_KEY), { default: true });
+  // Model/temperature/token selection comes from `config` (AIConfig), not here.
   // Intentionally empty during the framework-only phase.
 
-  const engine = new AIEngine({ providers, prompts, knowledge, validator });
+  const engine = new AIEngine({ providers, prompts, knowledge, validator, config });
   if (options.modules) engine.use(...options.modules);
   return engine;
 }

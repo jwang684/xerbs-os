@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import { createAIEngine } from "../bootstrap";
+import { createAIConfig } from "../config/AIConfig";
 import { StubKnowledgeLoader } from "../knowledge/KnowledgeLoader";
 import { BaseModule, ModuleExecutionError } from "../modules/BaseModule";
 import type { AIProvider, GenerateRequest } from "../providers/AIProvider";
@@ -158,6 +159,76 @@ describe("FileTemplateLoader", () => {
     expect(() => new FileTemplateLoader().load("does-not-exist")).toThrow(
       /not found/,
     );
+  });
+});
+
+describe("AIConfig", () => {
+  const config = createAIConfig({
+    provider: { default: "openai" },
+    defaultModel: { model: "base-model", temperature: 0.2 },
+    models: {
+      score: { provider: "anthropic", model: "score-model", maxTokens: 500 },
+    },
+    prompts: { defaultVersion: "v1", versions: { assessment: "v2" } },
+  });
+
+  it("merges the keyed model over the default and resolves the provider", () => {
+    const m = config.model("score");
+    expect(m).toEqual({
+      provider: "anthropic",
+      model: "score-model",
+      temperature: 0.2, // inherited from defaultModel
+      maxTokens: 500,
+    });
+    expect(config.model()?.provider).toBe("openai"); // default provider
+    expect(config.provider("score")).toBe("anthropic");
+    expect(config.provider("unknown")).toBe("openai");
+  });
+
+  it("resolves prompt versions with a default fallback", () => {
+    expect(config.promptVersion("assessment")).toBe("v2");
+    expect(config.promptVersion("summary")).toBe("v1");
+  });
+
+  it("returns undefined / throws when no model is configured", () => {
+    const empty = createAIConfig({
+      provider: { default: "x" },
+      prompts: { defaultVersion: "v1" },
+    });
+    expect(empty.model("anything")).toBeUndefined();
+    expect(() => empty.requireModel("anything")).toThrow(/No model configured/);
+  });
+});
+
+describe("BaseModule + AIConfig", () => {
+  it("drives provider/temperature/model from config keyed by module name", async () => {
+    let seen: { temperature?: number; model?: unknown; provider?: string } = {};
+    const provider: AIProvider = {
+      name: "cfg",
+      generate(req) {
+        seen = {
+          temperature: req.temperature,
+          model: req.options?.model,
+          provider: "cfg",
+        };
+        return Promise.resolve({ text: JSON.stringify({ score: 1 }) });
+      },
+    };
+    const services = createDefaultServices({
+      prompts: new PromptBuilder(
+        new InMemoryTemplateLoader().register("score", "hi"),
+      ),
+      providers: new ProviderRegistry().register(provider),
+      config: createAIConfig({
+        provider: { default: "cfg" },
+        models: {
+          score: { provider: "cfg", model: "score-x", temperature: 0.9 },
+        },
+        prompts: { defaultVersion: "v1" },
+      }),
+    });
+    await new AIEngine(services).use(new ScoreModule()).run(createAIContext());
+    expect(seen).toEqual({ temperature: 0.9, model: "score-x", provider: "cfg" });
   });
 });
 

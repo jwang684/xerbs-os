@@ -1,3 +1,4 @@
+import { emptyAIConfig } from "../config/AIConfig";
 import { StubKnowledgeLoader } from "../knowledge/KnowledgeLoader";
 import type { ExecutableModule, ModuleServices } from "../modules/BaseModule";
 import { PromptBuilder } from "../prompts/PromptBuilder";
@@ -20,6 +21,7 @@ export function createDefaultServices(
     prompts: overrides.prompts ?? new PromptBuilder(new FileTemplateLoader()),
     providers: overrides.providers ?? new ProviderRegistry(),
     validator: overrides.validator ?? new SchemaValidator(),
+    config: overrides.config ?? emptyAIConfig(),
   };
 }
 
