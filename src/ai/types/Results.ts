@@ -1,15 +1,13 @@
 /**
  * Typed module results.
  *
- * Each future AI module produces one of these. They are intentionally minimal
- * for now — a single `kind` discriminant — so the framework carries no medical
- * shape yet, while giving `AIContext.results` real types instead of `unknown`.
- * The owning module fills in its fields when it is built.
+ * `AssessmentResult` is now the real, schema-derived shape (see
+ * `../schemas/assessment`). The remaining results are still minimal placeholders
+ * — a single `kind` discriminant — so `AIContext.results` stays typed until each
+ * owning module is built.
  */
 
-export interface AssessmentResult {
-  readonly kind: "assessment";
-}
+import type { AssessmentResult } from "../schemas/assessment";
 
 export interface SummaryResult {
   readonly kind: "summary";

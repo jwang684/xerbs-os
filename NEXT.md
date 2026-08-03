@@ -11,8 +11,12 @@ Working notes on where the project is and what comes next. See
     [docs/product/09-sprint-3.md](docs/product/09-sprint-3.md).
 - **AI Engine — foundation: complete (framework only).** `src/ai/` — engine,
   modules, providers, knowledge, prompts (filesystem templates), typed results,
-  and `createAIEngine()` bootstrap. No providers, prompt text, or medical logic
-  yet. Next: wire a real provider + register the first module (AssessmentModule).
+  config layer, and `createAIEngine()` bootstrap.
+- **AI Engine — AssessmentModule: complete (first real module).** Pipeline is
+  Patient Input → AssessmentModule → AssessmentResult. Real `assessment.md`
+  prompt (organizes findings only — no diagnosis/treatment/formula), OpenAI
+  provider behind the `AIProvider` abstraction, registered in the bootstrap.
+  Requires `OPENAI_API_KEY` (+ `OPENAI_MODEL`) at runtime. Next: SummaryModule.
 
 ## Next candidates (Sprint 3, Phase 2+)
 

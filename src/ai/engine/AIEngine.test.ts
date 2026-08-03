@@ -147,12 +147,13 @@ describe("PromptBuilder", () => {
 });
 
 describe("FileTemplateLoader", () => {
-  it("loads placeholder templates from disk and caches them", () => {
+  it("loads templates from disk and caches them", () => {
     const loader = new FileTemplateLoader();
-    const body = loader.load("assessment");
+    // `summary` is still a placeholder template at this stage.
+    const body = loader.load("summary");
     expect(body).toContain("placeholder");
     // Second read is served from cache (same content).
-    expect(loader.load("assessment")).toBe(body);
+    expect(loader.load("summary")).toBe(body);
   });
 
   it("throws for an unknown template", () => {
@@ -239,10 +240,10 @@ describe("createAIEngine (bootstrap)", () => {
     expect(engine.registered).toEqual(["score"]);
   });
 
-  it("allows overriding services (e.g. providers) for tests", () => {
+  it("registers AssessmentModule by default and allows service overrides", () => {
     const engine = createAIEngine({
       services: { providers: new ProviderRegistry().register(fakeProvider({})) },
     });
-    expect(engine.registered).toEqual([]);
+    expect(engine.registered).toEqual(["assessment"]);
   });
 });

@@ -1,9 +1,11 @@
 import { AIConfig, emptyAIConfig } from "./config/AIConfig";
 import { AIEngine } from "./engine/AIEngine";
 import { StubKnowledgeLoader } from "./knowledge/KnowledgeLoader";
+import { AssessmentModule } from "./modules/AssessmentModule";
 import type { ExecutableModule, ModuleServices } from "./modules/BaseModule";
 import { PromptBuilder } from "./prompts/PromptBuilder";
 import { FileTemplateLoader } from "./prompts/TemplateLoader";
+import { OpenAIProvider } from "./providers/OpenAIProvider";
 import { ProviderRegistry } from "./providers/ProviderRegistry";
 import { SchemaValidator } from "./utils/SchemaValidator";
 
@@ -34,14 +36,25 @@ export function createAIEngine(options: CreateAIEngineOptions = {}): AIEngine {
     options.services?.prompts ?? new PromptBuilder(new FileTemplateLoader());
   const knowledge = options.services?.knowledge ?? new StubKnowledgeLoader();
   const validator = options.services?.validator ?? new SchemaValidator();
-  const config = options.services?.config ?? options.config ?? emptyAIConfig();
+  const config = options.services?.config ?? options.config ?? emptyAIConfig("openai");
 
   // ── Provider registration (the only place this should happen) ──────────────
-  // e.g. providers.register(new OpenAIProvider(env.OPENAI_API_KEY), { default: true });
-  // Model/temperature/token selection comes from `config` (AIConfig), not here.
-  // Intentionally empty during the framework-only phase.
+  // OpenAI is the initial provider. The SDK stays behind OpenAIProvider; no
+  // OpenAI types appear here. The model id comes from the environment (never
+  // hardcoded); AIConfig can override it per module. Skipped when providers are
+  // injected (tests) or no API key is present.
+  if (!options.services?.providers) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (apiKey) {
+      providers.register(
+        new OpenAIProvider({ apiKey, model: process.env.OPENAI_MODEL }),
+        { default: true },
+      );
+    }
+  }
 
   const engine = new AIEngine({ providers, prompts, knowledge, validator, config });
-  if (options.modules) engine.use(...options.modules);
+  // The pipeline: Patient Input → AssessmentModule → AssessmentResult.
+  engine.use(...(options.modules ?? [new AssessmentModule()]));
   return engine;
 }

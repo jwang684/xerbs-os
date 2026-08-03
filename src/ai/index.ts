@@ -15,6 +15,8 @@ export * from "./knowledge/KnowledgeLoader";
 export * from "./prompts/TemplateLoader";
 export * from "./prompts/PromptBuilder";
 export * from "./utils/SchemaValidator";
+export * from "./schemas/assessment";
 export * from "./modules/BaseModule";
+export * from "./modules/AssessmentModule";
 export * from "./engine/AIEngine";
 export * from "./bootstrap";
