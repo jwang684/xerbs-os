@@ -1,0 +1,13 @@
+/**
+ * Public API of the AI foundation. Import from `@/ai` rather than reaching into
+ * individual files.
+ */
+export * from "./types/AIContext";
+export * from "./types/Knowledge";
+export * from "./providers/AIProvider";
+export * from "./providers/ProviderRegistry";
+export * from "./knowledge/KnowledgeLoader";
+export * from "./prompts/PromptBuilder";
+export * from "./utils/SchemaValidator";
+export * from "./modules/BaseModule";
+export * from "./engine/AIEngine";
