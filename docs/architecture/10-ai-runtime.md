@@ -135,8 +135,15 @@ the primary risk this contract exists to prevent:
 
 ## Global runtime rules
 
-These three rules are binding on every current and future module. They generalize
-the per-module contracts above into system-wide guarantees.
+The following rules are binding on every current and future module. They
+generalize the per-module contracts above into system-wide guarantees.
+
+> **Clinical Safety Principle**
+>
+> Clinical confidence is **evidence-driven, not reasoning-driven**. Reasoning may
+> improve interpretation, but it must never increase confidence without
+> additional clinical evidence. This principle applies to every AI module in the
+> pipeline and underpins the Confidence Propagation Rule below.
 
 ### 1. Evidence Flow Rule
 
