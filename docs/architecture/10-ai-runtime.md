@@ -199,6 +199,59 @@ change it.
 This guarantees **reproducibility, auditability, traceability, and deterministic
 execution** across the pipeline.
 
+### 4. Confidence Propagation Rule
+
+Every module must **explicitly communicate its confidence** — the module's
+certainty given the evidence available at its stage. Confidence is part of the
+**structured output**, not an internal detail.
+
+Allowed confidence values are defined by the AI Output Standard (e.g. `Low` /
+`Medium` / `High`, or whatever standardized enum the project adopts). Today,
+`AssessmentResult.confidence` is expressed as a number in `[0, 1]`; each future
+module declares confidence in its own schema following the same standard.
+
+**Propagation.** Confidence flows through the pipeline: each downstream module
+inherits the uncertainty of the modules before it. A downstream module may:
+
+- keep the same confidence,
+- **lower** its confidence when evidence becomes conflicting or thin, and
+- explain why confidence changed.
+
+A downstream module must **never raise** confidence unless **new clinical
+evidence** enters the pipeline. New evidence includes, for example: tongue
+diagnosis, pulse diagnosis, laboratory results, imaging, wearable-device data,
+physician review, additional patient history, or follow-up questionnaires.
+
+**Reasoning alone is not new evidence.** Additional inference over the *same*
+data must not increase confidence — this prevents artificial confidence
+inflation.
+
+Example (no new evidence introduced):
+
+```
+Assessment   confidence = High
+    ↓
+Summary      confidence = High
+    ↓
+Diagnosis    confidence = Medium   (interpretation adds uncertainty)
+    ↓
+Formula      confidence = Medium
+    ↓
+Prescription confidence = Medium
+```
+
+- If Diagnosis is `Medium`, Formula and Prescription must not become `High`
+  unless additional evidence has entered the pipeline.
+- If Assessment is `Low` because patient information is incomplete, all
+  downstream modules should preserve or lower that uncertainty until new evidence
+  is introduced.
+
+**Every confidence change should be explainable.** Modules should record *why*
+confidence decreased or stayed the same — e.g. insufficient patient history,
+conflicting symptoms, an incomplete questionnaire, inconsistent tongue findings,
+or missing laboratory data. This supports transparency, auditability, and
+physician trust.
+
 ## Status
 
 | Module | Contract | Executable |
