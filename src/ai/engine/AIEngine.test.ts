@@ -149,11 +149,11 @@ describe("PromptBuilder", () => {
 describe("FileTemplateLoader", () => {
   it("loads templates from disk and caches them", () => {
     const loader = new FileTemplateLoader();
-    // `summary` is still a placeholder template at this stage.
-    const body = loader.load("summary");
+    // `diagnosis` is still a placeholder template at this stage.
+    const body = loader.load("diagnosis");
     expect(body).toContain("placeholder");
     // Second read is served from cache (same content).
-    expect(loader.load("summary")).toBe(body);
+    expect(loader.load("diagnosis")).toBe(body);
   });
 
   it("throws for an unknown template", () => {
