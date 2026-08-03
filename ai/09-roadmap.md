@@ -1,35 +1,91 @@
-Phase 1
+# AI Roadmap
 
-Assessment
+## Phase 1 — Clinical Understanding ✅
 
-Summary
+- Assessment
+- Summary
 
------------------
+Status:
+Completed
 
-Phase 2
+---
 
-Diagnosis
+## Phase 2 — Clinical Reasoning
 
------------------
+- Diagnosis
 
-Phase 3
+Goal
 
-Formula
+Interpret clinical findings into syndrome differentiation.
 
------------------
+---
 
-Phase 4
+## Phase 3 — Clinical Treatment
 
-Marketplace
+- Formula
+- Prescription
 
------------------
+Goal
 
-Phase 5
+Transform diagnosis into an evidence-based treatment plan.
 
-Follow-up AI
+---
 
------------------
+## Phase 4 — Clinical Follow-up
 
-Phase 6
+- Follow-up
+- Outcome Tracking
 
-Continuous Learning
+Goal
+
+Monitor patient progress and generate next-step recommendations.
+
+---
+
+## Phase 5 — Knowledge Expansion
+
+- Formula Library
+- Herb Library
+- Clinical Rules
+- Contraindications
+- Pattern Knowledge
+
+Goal
+
+Continuously enrich the medical knowledge base without changing the AI framework.
+
+---
+
+## Phase 6 — Multimodal Intelligence
+
+- Tongue Analysis
+- Pulse Analysis
+- Face Diagnosis
+- Voice Analysis
+- Laboratory Analysis
+- Wearable Data
+
+Goal
+
+Expand the AI engine to support multimodal clinical evidence.
+
+---
+
+## Phase 7 — Continuous Learning
+
+- Clinical Evaluation
+- Prompt Optimization
+- Knowledge Updates
+- AI Benchmarking
+
+Goal
+
+Improve quality through evaluation instead of modifying the framework.
+
+---
+
+## Long-term
+
+- Marketplace
+- Third-party AI Modules
+- External Knowledge Packages
