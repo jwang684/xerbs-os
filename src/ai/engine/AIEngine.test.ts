@@ -240,10 +240,10 @@ describe("createAIEngine (bootstrap)", () => {
     expect(engine.registered).toEqual(["score"]);
   });
 
-  it("registers AssessmentModule by default and allows service overrides", () => {
+  it("registers the default pipeline (assessment → summary) and allows service overrides", () => {
     const engine = createAIEngine({
       services: { providers: new ProviderRegistry().register(fakeProvider({})) },
     });
-    expect(engine.registered).toEqual(["assessment"]);
+    expect(engine.registered).toEqual(["assessment", "summary"]);
   });
 });

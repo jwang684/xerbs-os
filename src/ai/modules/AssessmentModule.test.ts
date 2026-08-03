@@ -130,8 +130,10 @@ describe("AssessmentModule", () => {
   });
 
   it("is runnable through the public createAIEngine entry point", async () => {
-    // The default pipeline is Patient Input -> AssessmentModule -> AssessmentResult.
+    // Scope to Assessment only (the default pipeline also includes Summary,
+    // which this Assessment-focused test does not exercise).
     const engine = createAIEngine({
+      modules: [new AssessmentModule()],
       services: { providers: new ProviderRegistry().register(fakeProvider(validResult)) },
     });
     expect(engine.registered).toEqual(["assessment"]);
