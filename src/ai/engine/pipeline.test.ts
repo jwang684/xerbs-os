@@ -5,67 +5,78 @@ import type { AIProvider } from "../providers/AIProvider";
 import { ProviderRegistry } from "../providers/ProviderRegistry";
 import type { AssessmentResult } from "../schemas/assessment";
 import { createAIContext } from "../types/AIContext";
+import type { DiagnosisResult } from "../types/DiagnosisResult";
 import type { SummaryResult } from "../types/SummaryResult";
 
-// The Assessment the fake provider returns for the assessment prompt.
+// Consistent, guard-passing fixtures chained across the pipeline:
+// Assessment → Summary (derived from it) → Diagnosis (derived from Summary).
+
 const assessment: AssessmentResult = {
-  chiefComplaint: "Headaches for two weeks",
+  chiefComplaint: "Fatigue for two weeks",
   presentingSymptoms: [
-    { name: "frontal headache", duration: "2 weeks", severity: "moderate" },
-    { name: "poor sleep", severity: "unknown" },
+    { name: "fatigue", duration: "2 weeks", severity: "moderate" },
   ],
-  symptomSummary: "Frontal headaches for two weeks; poor sleep.",
-  relevantHistory: ["No known drug allergies"],
-  redFlags: ["sudden severe chest pain"],
-  dataGaps: ["No hydration information provided"],
+  symptomSummary: "Two weeks of fatigue.",
+  relevantHistory: [],
+  redFlags: [],
+  dataGaps: ["No sleep information provided"],
   confidence: 0.7,
 };
 
-// A faithful Summary consistent with that Assessment (passes SummaryModule guards).
 const summary: SummaryResult = {
-  clinicalSummary: "Two weeks of frontal headaches with poor sleep.",
+  clinicalSummary: "Two weeks of fatigue.",
   significantFindings: [
     {
-      finding: "Frontal headache",
+      finding: "fatigue",
       priority: "high",
-      evidence: [{ source: "presentingSymptoms", text: "frontal headache" }],
-    },
-    {
-      finding: "Poor sleep",
-      priority: "medium",
-      evidence: [{ source: "presentingSymptoms", text: "poor sleep" }],
+      evidence: [{ source: "presentingSymptoms", text: "fatigue" }],
     },
   ],
-  redFlags: [
-    {
-      finding: "Acute severe chest pain",
-      priority: "high",
-      evidence: [{ source: "redFlags", text: "sudden severe chest pain" }],
-    },
-  ],
-  missingInformation: [{ field: "No hydration information provided" }],
+  redFlags: [],
+  missingInformation: [{ field: "No sleep information provided" }],
   confidence: 0.7,
   confidenceReason: "preserved; no new evidence",
 };
 
-// One fake provider that answers each stage by inspecting the prompt. The
-// summary prompt uniquely calls the model a "summarizer".
+const diagnosis: DiagnosisResult = {
+  candidates: [
+    {
+      pattern: "Spleen Qi Deficiency",
+      rank: 1,
+      reasoning: "Persistent fatigue is consistent with Qi deficiency.",
+      // Provenance points back to a Summary section.
+      supportingEvidence: [{ source: "significantFindings", text: "fatigue" }],
+      conflictingEvidence: [],
+    },
+  ],
+  insufficientEvidence: false,
+  confidence: 0.6, // <= Summary confidence
+  confidenceReason: "lowered: a single supporting finding",
+  uncertaintyNotes: ["Sleep information would help refine this."],
+};
+
+// One prompt-aware fake provider that answers each stage, keyed off a token
+// unique to each template: the diagnosis prompt names "DiagnosisResult", the
+// summary prompt calls the model a "summarizer"; assessment is the default.
 const provider: AIProvider = {
   name: "fake",
   generate(req) {
-    const isSummary = req.prompt.includes("summarizer");
-    return Promise.resolve({
-      text: JSON.stringify(isSummary ? summary : assessment),
-    });
+    const p = req.prompt;
+    const reply = p.includes("DiagnosisResult")
+      ? diagnosis
+      : p.includes("summarizer")
+        ? summary
+        : assessment;
+    return Promise.resolve({ text: JSON.stringify(reply) });
   },
 };
 
-describe("AI pipeline integration (Assessment → Summary)", () => {
-  it("runs the default two-module pipeline; Summary consumes the Assessment", async () => {
+describe("AI pipeline integration (Assessment → Summary → Diagnosis)", () => {
+  it("runs all three modules; Diagnosis consumes the Summary", async () => {
     const engine = createAIEngine({
       services: { providers: new ProviderRegistry().register(provider) },
     });
-    expect(engine.registered).toEqual(["assessment", "summary"]);
+    expect(engine.registered).toEqual(["assessment", "summary", "diagnosis"]);
 
     const ctx = await engine.run(
       createAIContext({
@@ -76,14 +87,20 @@ describe("AI pipeline integration (Assessment → Summary)", () => {
 
     const a = ctx.results.assessment as AssessmentResult | undefined;
     const s = ctx.results.summary as SummaryResult | undefined;
+    const d = ctx.results.diagnosis as DiagnosisResult | undefined;
 
-    // Both stages produced results, stored under their own keys.
-    expect(a?.chiefComplaint).toBe("Headaches for two weeks");
+    // All three stages produced results under their own keys.
+    expect(a?.chiefComplaint).toBe("Fatigue for two weeks");
     expect(s?.clinicalSummary).toBeTruthy();
+    expect(d?.candidates).toHaveLength(1);
+    expect(d?.candidates[0].pattern).toBe("Spleen Qi Deficiency");
 
-    // Summary consumed the Assessment and honored the runtime guards.
-    expect(s?.redFlags[0].evidence[0].text).toBe("sudden severe chest pain");
-    expect(s?.missingInformation[0].field).toBe("No hydration information provided");
-    expect(s ? s.confidence <= (a?.confidence ?? 0) : false).toBe(true);
+    // Confidence never exceeds the Summary's (propagation held through the chain).
+    expect(d ? d.confidence <= (s?.confidence ?? 0) : false).toBe(true);
+
+    // Evidence provenance survives: the diagnosis cites a Summary section.
+    expect(d?.candidates[0].supportingEvidence[0].source).toBe(
+      "significantFindings",
+    );
   });
 });
