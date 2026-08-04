@@ -1,149 +1,446 @@
 # Xerbs OS
 
-**The AI operating system for personalized herbal healthcare** — from intake to
-AI-assisted diagnosis to an AI-generated herbal prescription.
+> An AI-native Clinical Operating System for Integrative Medicine.
 
-> **Status: Sprint 1 — Release Candidate 1.** The end-to-end clinical workflow
-> is implemented and verified. See the
-> [Sprint 1 Release Report](docs/product/07-sprint-1-release-report.md).
+Xerbs OS is an open clinical platform that combines Electronic Health Records (EHR), AI Clinical Reasoning, Knowledge Management, and Workflow Automation into a unified operating system for modern healthcare.
 
-## Workflow
+The long-term vision is to build an explainable, evidence-driven AI clinical engine that assists healthcare professionals while remaining deterministic, auditable, and clinically safe.
 
-```mermaid
-flowchart LR
-  Login --> Patient --> Visit --> Questionnaire --> Diagnosis --> Prescription
+---
+
+# Current Status
+
+Current Version
+
+**v0.1.1 — Clinical Understanding**
+
+Current Phase
+
+✅ Clinical Understanding
+
+Current AI Capability
+
+Assessment → Summary
+
+---
+
+# Current AI Pipeline
+
+```
+Patient Input
+        │
+        ▼
+Assessment
+        │
+        ▼
+Summary
+        │
+        ▼
+Diagnosis (Coming Soon)
+        │
+        ▼
+Formula (Coming Soon)
+        │
+        ▼
+Prescription (Coming Soon)
+        │
+        ▼
+Follow-up AI (Future)
 ```
 
-Each visit collects a questionnaire, an AI **diagnosis** is generated from it
-(one is marked *active*), and an AI **prescription** is generated from the active
-diagnosis. Diagnoses and prescriptions are immutable; history is preserved.
+---
 
-## Tech stack (as built)
+# AI Engine
 
-| Concern | Choice |
-|---|---|
-| Framework | Next.js 16 (App Router, Turbopack), React 19, TypeScript |
-| Database | PostgreSQL 16 (Docker) |
-| Cache (provisioned) | Redis 7 (Docker) |
-| ORM / migrations | Drizzle ORM + drizzle-kit |
-| Auth | Better Auth (email/password, cookie sessions) |
-| Validation | Zod |
-| AI | OpenAI Responses API, behind a provider interface (with a `fake` provider) |
-| Tests | Vitest (integration, against real Postgres) |
-| Styling | Tailwind CSS v4 |
+The AI Engine is built as a deterministic multi-stage pipeline.
 
-## Prerequisites
+Every module owns exactly one clinical responsibility.
 
-- **Docker Desktop** (for PostgreSQL + Redis)
-- **Node.js 20+** and npm
+| Module | Status | Responsibility |
+|---------|--------|----------------|
+| Assessment | ✅ | Organize all raw clinical information |
+| Summary | ✅ | Organize & highlight important findings |
+| Diagnosis | 🚧 | Clinical reasoning & syndrome differentiation |
+| Formula | 📅 | Treatment strategy & formula selection |
+| Prescription | 📅 | Prescription generation |
+| Follow-up | 📅 | Longitudinal patient management |
 
-## Setup
+---
 
-```bash
-# 1. Install dependencies
-npm install
+# Clinical Runtime Principles
 
-# 2. Configure environment
-cp .env.example .env.local
-#    Then edit .env.local — set POSTGRES_PASSWORD + a matching DATABASE_URL,
-#    a BETTER_AUTH_SECRET (openssl rand -base64 32), and (optionally) an
-#    OPENAI_API_KEY. Leave AI_PROVIDER=fake to run without a real key.
+The runtime follows several deterministic safety rules.
 
-# 3. Start Postgres + Redis
-npm run db:up
+## Clinical Safety Principle
 
-# 4. Apply migrations and seed the demo organization + provider
-npm run db:migrate
-npm run db:seed
+Clinical confidence is **evidence-driven**, never reasoning-driven.
 
-# 5. Run the app
-npm run dev        # http://localhost:3000
+Reasoning may improve interpretation.
+
+Reasoning must **never** increase confidence without additional clinical evidence.
+
+---
+
+## Runtime Rules
+
+- Evidence Flow Rule
+
+- Clinical Layer Rule
+
+- Immutable Result Rule
+
+- Confidence Propagation Rule
+
+These rules guarantee:
+
+- deterministic execution
+
+- traceable evidence
+
+- reproducible outputs
+
+- auditable AI reasoning
+
+---
+
+# Completed Features
+
+## AI Framework
+
+- Modular AI Engine
+
+- Provider-independent architecture
+
+- Prompt Template System
+
+- Schema-first validation
+
+- Knowledge Loader
+
+- Runtime Configuration
+
+- OpenAI Provider
+
+- Bootstrap Pipeline
+
+---
+
+## Clinical Modules
+
+### Assessment
+
+✅ Structured clinical assessment
+
+✅ Evidence extraction
+
+✅ Confidence scoring
+
+✅ Red flag identification
+
+✅ Missing information detection
+
+---
+
+### Summary
+
+✅ Clinical summarization
+
+✅ Finding prioritization
+
+✅ Evidence preservation
+
+✅ Missing information propagation
+
+✅ Runtime safety guards
+
+---
+
+# Architecture
+
+```
+Patient Input
+
+↓
+
+Assessment
+
+↓
+
+Summary
+
+↓
+
+Diagnosis
+
+↓
+
+Formula
+
+↓
+
+Prescription
 ```
 
-### Signing in
+Each module
 
-There is no self-service sign-up page in Sprint 1 (Login only); provider
-accounts are provisioned out-of-band. To create a login for the demo
-organization while the dev server is running:
+- owns one responsibility
 
-```bash
-# Create a credentialed user
-curl -s -X POST http://localhost:3000/api/auth/sign-up/email \
-  -H 'Content-Type: application/json' \
-  -d '{"name":"Demo Provider","email":"demo@xerbs.example","password":"DemoPass!123"}'
+- produces one structured result
 
-# Grant that user membership in the seeded demo organization
-docker exec xerbs-postgres psql -U xerbs -d xerbs -c "INSERT INTO organization_members (organization_id, user_id, role) SELECT o.id, u.id, 'practitioner' FROM organizations o, \"user\" u WHERE o.slug='xerbs-demo-clinic' AND u.email='demo@xerbs.example' ON CONFLICT DO NOTHING;"
+- never modifies previous modules
+
+- only reads upstream outputs
+
+---
+
+# Technology Stack
+
+Frontend
+
+- Next.js 16
+- React 19
+- TypeScript
+
+Backend
+
+- Better Auth
+- tRPC
+- Drizzle ORM
+- PostgreSQL
+
+AI
+
+- OpenAI Responses API
+- Modular AI Engine
+- Zod
+- Prompt Templates
+- Runtime Contract
+
+Infrastructure
+
+- Docker
+- GitHub Actions
+- Vitest
+
+---
+
+# Documentation
+
+## Architecture
+
+```
+docs/architecture/
 ```
 
-Then sign in at `/login` with `demo@xerbs.example` / `DemoPass!123`.
+System architecture
 
-## Environment variables
+Backend
 
-| Variable | Purpose |
-|---|---|
-| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | Postgres container credentials |
-| `DATABASE_URL` | Connection string used by Drizzle (must match the three above) |
-| `REDIS_URL` | Redis connection (provisioned; unused in Sprint 1) |
-| `BETTER_AUTH_SECRET` | Better Auth signing secret |
-| `BETTER_AUTH_URL` | Base URL for Better Auth (e.g. `http://localhost:3000`) |
-| `AI_PROVIDER` | `openai` or `fake` (deterministic, no network) |
-| `OPENAI_API_KEY` / `OPENAI_MODEL` | OpenAI credentials (needed when `AI_PROVIDER=openai`) |
+Frontend
 
-`.env.local` is gitignored and must never be committed.
+Platform
 
-## Scripts
+AI Runtime
 
-| Script | Description |
-|---|---|
-| `npm run dev` | Start the Next.js dev server |
-| `npm run build` | Production build |
-| `npm run lint` / `npm run typecheck` | ESLint / `tsc --noEmit` |
-| `npm run test` | Run the Vitest integration suite |
-| `npm run db:up` / `db:down` | Start / stop Postgres + Redis |
-| `npm run db:generate` | Generate a Drizzle migration from the schema |
-| `npm run db:migrate` | Apply migrations |
-| `npm run db:seed` | Seed the demo organization + provider |
-| `npm run db:studio` | Open Drizzle Studio |
+---
 
-## Testing
+## AI Design
 
-Integration tests run against the live Docker Postgres and exercise the service
-and repository layers (CRUD, soft delete, versioned validation, immutability,
-active-diagnosis, organization isolation, authorization) plus the OpenAI
-providers via a mocked client:
-
-```bash
-npm run db:up      # database must be running
-npm run test
+```
+ai/
 ```
 
-## Project structure
+Engine
 
-```text
+Assessment
+
+Summary
+
+Diagnosis
+
+Formula
+
+Knowledge
+
+Roadmap
+
+---
+
+## Clinical Specifications
+
+```
+docs/clinical/
+```
+
+Assessment Specification
+
+Summary Specification
+
+Knowledge Design
+
+Runtime Contract
+
+---
+
+# Development Workflow
+
+Every clinical module follows the same workflow.
+
+1. Clinical Specification
+
+2. Schema
+
+3. Knowledge
+
+4. Prompt
+
+5. Module
+
+6. Tests
+
+7. Pipeline Integration
+
+Framework changes are only allowed when a real implementation exposes a concrete limitation.
+
+Clinical capability is always prioritized over framework expansion.
+
+---
+
+# Roadmap
+
+## Phase 1 — Clinical Understanding
+
+✅ Assessment
+
+✅ Summary
+
+---
+
+## Phase 2 — Clinical Reasoning
+
+🚧 Diagnosis
+
+Differential reasoning
+
+Pattern differentiation
+
+Diagnostic confidence
+
+---
+
+## Phase 3 — Clinical Treatment
+
+📅 Formula
+
+📅 Prescription
+
+---
+
+## Phase 4 — Marketplace
+
+Clinical knowledge packages
+
+AI plugins
+
+External integrations
+
+---
+
+## Phase 5 — Follow-up AI
+
+Longitudinal patient monitoring
+
+Outcome tracking
+
+Adaptive follow-up
+
+---
+
+## Phase 6 — Continuous Learning
+
+Evaluation
+
+Prompt optimization
+
+Knowledge updates
+
+Benchmarking
+
+---
+
+# Repository Structure
+
+```
 src/
-  app/                     # Next.js App Router
-    api/                   #   REST route handlers (thin: auth → service → response)
-    login, patients, visits#   thin-client UI pages
-  components/              # shared UI (AppShell auth guard, primitives)
-  db/                      # Drizzle schema, client, seed, generated auth-schema
-  lib/                     # auth (Better Auth), api client, hooks, types
-  server/                  # backend domains (no HTTP concerns)
-    auth/                  #   getAuthContext (session → org + role), authz
-    http/                  #   error types, request/validation helpers
-    patients/ visits/ questionnaires/ diagnoses/ prescriptions/
-                           #   each: repository + service (+ ai/ for AI domains)
-drizzle/                   # SQL migrations + snapshots
-docs/                      # product, architecture, and API documentation
+    ai/
+        engine/
+        modules/
+        prompts/
+        providers/
+        schemas/
+        knowledge/
+        types/
+
+docs/
+    architecture/
+    clinical/
+    api/
+
+public/
+
+drizzle/
 ```
 
-## Documentation
+---
 
-- [API Reference](docs/api-reference.md)
-- [Implemented Architecture](docs/architecture/07-implemented-architecture.md)
-- [MVP Scope & Status](docs/product/05-mvp.md)
-- [Sprint 1 Release Report](docs/product/07-sprint-1-release-report.md)
+# Contributing
 
-## License
+Please read
 
-Released under the MIT License upon first public release.
+```
+CONTRIBUTING.md
+```
+
+before submitting pull requests.
+
+The repository follows strict architectural and clinical governance rules.
+
+---
+
+# Decisions
+
+Architectural decisions are documented in
+
+```
+DECISIONS.md
+```
+
+Every major design decision should be recorded before implementation.
+
+---
+
+# Releases
+
+Release notes are available under
+
+```
+docs/releases/
+```
+
+Current Release
+
+**v0.1.1 — Clinical Understanding**
+
+---
+
+# License
+
+MIT License
+
+---
+
+# Vision
+
+Build an explainable, evidence-based AI Clinical Operating System that assists clinicians while preserving transparency, traceability, and clinical safety.
+
+**Clinical AI should augment medical professionals—not replace them.**
