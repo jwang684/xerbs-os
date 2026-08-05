@@ -6,10 +6,11 @@ import { ProviderRegistry } from "../providers/ProviderRegistry";
 import type { AssessmentResult } from "../schemas/assessment";
 import { createAIContext } from "../types/AIContext";
 import type { DiagnosisResult } from "../types/DiagnosisResult";
+import type { FormulaResult } from "../types/FormulaResult";
 import type { SummaryResult } from "../types/SummaryResult";
 
 // Consistent, guard-passing fixtures chained across the pipeline:
-// Assessment → Summary (derived from it) → Diagnosis (derived from Summary).
+// Assessment → Summary → Diagnosis → Formula (each derived from the previous).
 
 const assessment: AssessmentResult = {
   chiefComplaint: "Fatigue for two weeks",
@@ -44,7 +45,6 @@ const diagnosis: DiagnosisResult = {
       pattern: "Spleen Qi Deficiency",
       rank: 1,
       reasoning: "Persistent fatigue is consistent with Qi deficiency.",
-      // Provenance points back to a Summary section.
       supportingEvidence: [{ source: "significantFindings", text: "fatigue" }],
       conflictingEvidence: [],
     },
@@ -55,28 +55,56 @@ const diagnosis: DiagnosisResult = {
   uncertaintyNotes: ["Sleep information would help refine this."],
 };
 
+const formula: FormulaResult = {
+  treatmentHypotheses: [
+    {
+      rank: 1,
+      treatmentPrinciple: "Tonify Qi",
+      formulaFamily: "Qi-tonifying formulas",
+      reasoning: "Addresses the diagnosed Qi deficiency.",
+      // Provenance points back to a Diagnosis section.
+      supportingEvidence: [
+        { source: "candidates", text: "Spleen Qi Deficiency" },
+      ],
+      conflictingEvidence: [],
+    },
+  ],
+  insufficientEvidence: false,
+  confidence: 0.6, // <= Diagnosis confidence
+  confidenceReason: "preserved; no new evidence",
+  uncertaintyNotes: [],
+};
+
 // One prompt-aware fake provider that answers each stage, keyed off a token
-// unique to each template: the diagnosis prompt names "DiagnosisResult", the
-// summary prompt calls the model a "summarizer"; assessment is the default.
+// unique to each template. Order matters: the formula prompt names BOTH
+// "FormulaResult" (its output) and "DiagnosisResult" (its input), so check
+// "FormulaResult" first.
 const provider: AIProvider = {
   name: "fake",
   generate(req) {
     const p = req.prompt;
-    const reply = p.includes("DiagnosisResult")
-      ? diagnosis
-      : p.includes("summarizer")
-        ? summary
-        : assessment;
+    const reply = p.includes("FormulaResult")
+      ? formula
+      : p.includes("DiagnosisResult")
+        ? diagnosis
+        : p.includes("summarizer")
+          ? summary
+          : assessment;
     return Promise.resolve({ text: JSON.stringify(reply) });
   },
 };
 
-describe("AI pipeline integration (Assessment → Summary → Diagnosis)", () => {
-  it("runs all three modules; Diagnosis consumes the Summary", async () => {
+describe("AI pipeline integration (Assessment → Summary → Diagnosis → Formula)", () => {
+  it("runs all four modules; Formula consumes the Diagnosis", async () => {
     const engine = createAIEngine({
       services: { providers: new ProviderRegistry().register(provider) },
     });
-    expect(engine.registered).toEqual(["assessment", "summary", "diagnosis"]);
+    expect(engine.registered).toEqual([
+      "assessment",
+      "summary",
+      "diagnosis",
+      "formula",
+    ]);
 
     const ctx = await engine.run(
       createAIContext({
@@ -88,19 +116,24 @@ describe("AI pipeline integration (Assessment → Summary → Diagnosis)", () =>
     const a = ctx.results.assessment as AssessmentResult | undefined;
     const s = ctx.results.summary as SummaryResult | undefined;
     const d = ctx.results.diagnosis as DiagnosisResult | undefined;
+    const f = ctx.results.formula as FormulaResult | undefined;
 
-    // All three stages produced results under their own keys.
+    // All four stages produced results under their own keys.
     expect(a?.chiefComplaint).toBe("Fatigue for two weeks");
     expect(s?.clinicalSummary).toBeTruthy();
-    expect(d?.candidates).toHaveLength(1);
     expect(d?.candidates[0].pattern).toBe("Spleen Qi Deficiency");
 
-    // Confidence never exceeds the Summary's (propagation held through the chain).
-    expect(d ? d.confidence <= (s?.confidence ?? 0) : false).toBe(true);
+    // Formula produced treatment hypotheses.
+    expect(f?.treatmentHypotheses).toHaveLength(1);
+    expect(f?.treatmentHypotheses[0].treatmentPrinciple).toBe("Tonify Qi");
+    expect(f?.treatmentHypotheses[0].formulaFamily).toBe("Qi-tonifying formulas");
 
-    // Evidence provenance survives: the diagnosis cites a Summary section.
-    expect(d?.candidates[0].supportingEvidence[0].source).toBe(
-      "significantFindings",
+    // Confidence never exceeds the Diagnosis's (propagation held through the chain).
+    expect(f ? f.confidence <= (d?.confidence ?? 0) : false).toBe(true);
+
+    // Evidence provenance survives: the treatment strategy cites a Diagnosis section.
+    expect(f?.treatmentHypotheses[0].supportingEvidence[0].source).toBe(
+      "candidates",
     );
   });
 });

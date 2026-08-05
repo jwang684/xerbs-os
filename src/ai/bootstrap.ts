@@ -4,6 +4,7 @@ import { StubKnowledgeLoader } from "./knowledge/KnowledgeLoader";
 import { AssessmentModule } from "./modules/AssessmentModule";
 import type { ExecutableModule, ModuleServices } from "./modules/BaseModule";
 import { DiagnosisModule } from "./modules/DiagnosisModule";
+import { FormulaModule } from "./modules/FormulaModule";
 import { SummaryModule } from "./modules/SummaryModule";
 import { PromptBuilder } from "./prompts/PromptBuilder";
 import { FileTemplateLoader } from "./prompts/TemplateLoader";
@@ -57,13 +58,15 @@ export function createAIEngine(options: CreateAIEngineOptions = {}): AIEngine {
 
   const engine = new AIEngine({ providers, prompts, knowledge, validator, config });
   // The pipeline, in runtime-contract order:
-  //   Patient Input → Assessment → Summary → Diagnosis → (Formula → Prescription)
-  // Assessment, Summary, and Diagnosis are implemented; later modules append here.
+  //   Patient Input → Assessment → Summary → Diagnosis → Formula → (Prescription)
+  // Assessment, Summary, Diagnosis, and Formula are implemented; later modules
+  // append here.
   engine.use(
     ...(options.modules ?? [
       new AssessmentModule(),
       new SummaryModule(),
       new DiagnosisModule(),
+      new FormulaModule(),
     ]),
   );
   return engine;

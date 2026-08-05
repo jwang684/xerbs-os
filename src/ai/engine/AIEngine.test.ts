@@ -240,10 +240,15 @@ describe("createAIEngine (bootstrap)", () => {
     expect(engine.registered).toEqual(["score"]);
   });
 
-  it("registers the default pipeline (assessment → summary → diagnosis) and allows service overrides", () => {
+  it("registers the default pipeline (assessment → summary → diagnosis → formula) and allows service overrides", () => {
     const engine = createAIEngine({
       services: { providers: new ProviderRegistry().register(fakeProvider({})) },
     });
-    expect(engine.registered).toEqual(["assessment", "summary", "diagnosis"]);
+    expect(engine.registered).toEqual([
+      "assessment",
+      "summary",
+      "diagnosis",
+      "formula",
+    ]);
   });
 });
