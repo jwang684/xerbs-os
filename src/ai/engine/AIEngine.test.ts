@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { createAIEngine } from "../bootstrap";
 import { createAIConfig } from "../config/AIConfig";
-import { StubKnowledgeLoader } from "../knowledge/KnowledgeLoader";
+import type { KnowledgeLoader } from "../knowledge/KnowledgeLoader";
 import { BaseModule, ModuleExecutionError } from "../modules/BaseModule";
 import type { AIProvider, GenerateRequest } from "../providers/AIProvider";
 import { ProviderRegistry } from "../providers/ProviderRegistry";
@@ -78,7 +78,14 @@ describe("AIEngine", () => {
   });
 
   it("loads requested knowledge before building the prompt", async () => {
-    const loader = new StubKnowledgeLoader();
+    // A transport loader that supplies a slice for the requested opaque
+    // identifier (the framework stays domain-agnostic; only this test loader
+    // knows the identifier "symptoms" that ScoreModule requests).
+    const loader: KnowledgeLoader = {
+      load: (request) =>
+        Promise.resolve(request?.symptoms ? { symptoms: "loaded" } : {}),
+    };
+    let seenPrompt = "";
     const services = createDefaultServices({
       knowledge: loader,
       prompts: new PromptBuilder(
@@ -87,11 +94,16 @@ describe("AIEngine", () => {
           "symptoms={{knowledge.symptoms}}",
         ),
       ),
-      providers: new ProviderRegistry().register(fakeProvider({ score: 1 })),
+      providers: new ProviderRegistry().register(
+        fakeProvider({ score: 1 }, (p) => (seenPrompt = p)),
+      ),
     });
     const engine = new AIEngine(services).use(new ScoreModule());
     const ctx = await engine.run(createAIContext());
-    // Stub returns an empty array for the requested `symptoms` slice.
+
+    // The requested slice was loaded and injected into the prompt before the
+    // provider call.
+    expect(seenPrompt).toBe("symptoms=loaded");
     expect(ctx.results.score).toEqual({ score: 1 });
   });
 });
