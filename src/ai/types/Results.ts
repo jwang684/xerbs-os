@@ -1,20 +1,18 @@
 /**
  * Typed module results.
  *
- * `AssessmentResult`, `SummaryResult`, `DiagnosisResult`, and `FormulaResult` are
- * the real, schema-derived shapes (see `../schemas/*`). The remaining results are
- * still minimal placeholders — a single `kind` discriminant — so
- * `AIContext.results` stays typed until each owning module is built.
+ * `AssessmentResult`, `SummaryResult`, `DiagnosisResult`, `FormulaResult`, and
+ * `PrescriptionResult` are the real, schema-derived shapes (see `../schemas/*`).
+ * The remaining result is still a minimal placeholder — a single `kind`
+ * discriminant — so `AIContext.results` stays typed until its owning module is
+ * built.
  */
 
 import type { AssessmentResult } from "../schemas/assessment";
 import type { DiagnosisResult } from "./DiagnosisResult";
 import type { FormulaResult } from "./FormulaResult";
+import type { PrescriptionResult } from "./PrescriptionResult";
 import type { SummaryResult } from "./SummaryResult";
-
-export interface PrescriptionResult {
-  readonly kind: "prescription";
-}
 
 export interface FollowUpResult {
   readonly kind: "followup";
