@@ -1,8 +1,10 @@
 import { DiagnosisSchema } from "../schemas/DiagnosisSchema";
 import type { AIContext } from "../types/AIContext";
 import type { DiagnosisResult } from "../types/DiagnosisResult";
+import type { KnowledgeRequest } from "../types/Knowledge";
 import type { SummaryResult } from "../types/SummaryResult";
 import { BaseModule, ModuleExecutionError } from "./BaseModule";
+import { knowledgeOrNone } from "./knowledgeFallback";
 
 /** Trim + lower-case for deterministic, case-insensitive text comparison. */
 const norm = (s: string): string => s.trim().toLowerCase();
@@ -32,6 +34,15 @@ export class DiagnosisModule extends BaseModule<DiagnosisResult> {
   protected readonly outputSchema = DiagnosisSchema;
 
   /**
+   * Declares the knowledge this module depends on (frozen Diagnosis knowledge
+   * architecture): canonical pattern definitions. Demand only — the content is
+   * optional and supplied by a future loader; the stub returns nothing today.
+   */
+  protected knowledgeRequest(): KnowledgeRequest {
+    return { diagnosisPatternDefinitions: true };
+  }
+
+  /**
    * Prompt variables: the Summary (primary evidence) and Assessment (immutable
    * context) as JSON, plus the optional pattern-definitions block. Also serves as
    * Guard 1's pre-flight check (runs before the provider call).
@@ -42,11 +53,13 @@ export class DiagnosisModule extends BaseModule<DiagnosisResult> {
       summary: JSON.stringify(summary, null, 2),
       // Immutable supporting context (may be absent → "null", always a string).
       assessment: JSON.stringify(context.results.assessment ?? null, null, 2),
-      // Optional Content: v1 graceful fallback. When a real
-      // `diagnosisPatternDefinitions` interface is wired, this is where the
-      // supplied definitions would be injected; absence must never be read as
-      // missing patient evidence.
-      patternDefinitions: "(none provided)",
+      // Optional Content with graceful fallback (Option B): the requested
+      // `diagnosisPatternDefinitions` slice is injected when supplied, else
+      // "(none provided)". Absence must never be read as missing patient evidence.
+      patternDefinitions: knowledgeOrNone(
+        this.knowledge,
+        "diagnosisPatternDefinitions",
+      ),
     };
   }
 

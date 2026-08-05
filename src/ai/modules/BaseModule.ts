@@ -3,7 +3,7 @@ import type { KnowledgeLoader } from "../knowledge/KnowledgeLoader";
 import type { PromptBuilder } from "../prompts/PromptBuilder";
 import type { ProviderRegistry } from "../providers/ProviderRegistry";
 import type { AIContext } from "../types/AIContext";
-import type { KnowledgeRequest } from "../types/Knowledge";
+import type { KnowledgeBundle, KnowledgeRequest } from "../types/Knowledge";
 import type { Schema, SchemaValidator } from "../utils/SchemaValidator";
 
 /** The shared services the engine injects into every module's `execute`. */
@@ -63,13 +63,28 @@ export abstract class BaseModule<TOutput> implements ExecutableModule {
   protected readonly temperature?: number;
   protected readonly maxTokens?: number;
 
+  /**
+   * The knowledge bundle loaded for the current run. `execute` populates it
+   * before `variables()` runs, so a module reads its requested identifiers from
+   * here (applying its own graceful fallback) without expanding the `variables`
+   * signature. Opaque and immutable; undefined until the first run and whenever
+   * no knowledge was requested or supplied.
+   */
+  protected knowledge?: KnowledgeBundle;
+
   /** Override to declare which knowledge to load; default: reuse context.knowledge. */
   protected knowledgeRequest(context: AIContext): KnowledgeRequest | undefined {
     void context;
     return undefined;
   }
 
-  /** Override to expose extra variables to the prompt template. */
+  /**
+   * Override to expose extra variables to the prompt template. A module that
+   * requested knowledge reads it from {@link BaseModule.knowledge} (populated by
+   * `execute` before this runs) and applies its own graceful fallback (Option B).
+   * The signature stays stable on purpose: future internal state is exposed as
+   * protected members, never as new `variables` parameters.
+   */
   protected variables(context: AIContext): Record<string, unknown> {
     void context;
     return {};
@@ -87,6 +102,9 @@ export abstract class BaseModule<TOutput> implements ExecutableModule {
     const knowledge = request
       ? await services.knowledge.load(request)
       : context.knowledge;
+    // Store the loaded bundle on the instance so variables() can read it via
+    // this.knowledge without expanding the Template Method signature.
+    this.knowledge = knowledge;
 
     const prompt = services.prompts.build(this.templateKey, {
       context,

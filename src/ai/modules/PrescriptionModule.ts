@@ -1,8 +1,10 @@
 import { PrescriptionSchema } from "../schemas/PrescriptionSchema";
 import type { AIContext } from "../types/AIContext";
 import type { FormulaResult } from "../types/FormulaResult";
+import type { KnowledgeRequest } from "../types/Knowledge";
 import type { PrescriptionResult } from "../types/PrescriptionResult";
 import { BaseModule, ModuleExecutionError } from "./BaseModule";
+import { knowledgeOrNone } from "./knowledgeFallback";
 
 /** Trim + lower-case for deterministic, case-insensitive text comparison. */
 const norm = (s: string): string => s.trim().toLowerCase();
@@ -42,6 +44,21 @@ export class PrescriptionModule extends BaseModule<PrescriptionResult> {
   protected readonly outputSchema = PrescriptionSchema;
 
   /**
+   * Declares the knowledge this module depends on (frozen Prescription knowledge
+   * architecture): named-formula definitions, the treatment→formula reference
+   * map, and the formula/herb name vocabularies. Demand only — content is
+   * optional and supplied by a future loader; the stub returns nothing today.
+   */
+  protected knowledgeRequest(): KnowledgeRequest {
+    return {
+      prescriptionFormulaDefinitions: true,
+      treatmentFormulaMap: true,
+      formulaCatalog: true,
+      herbCatalog: true,
+    };
+  }
+
+  /**
    * Prompt variables: Formula (primary), Diagnosis/Summary/Assessment (context) as
    * JSON, plus the four optional knowledge blocks (graceful fallback). Also serves
    * as Guard 1's pre-flight check (runs before the provider call).
@@ -53,13 +70,15 @@ export class PrescriptionModule extends BaseModule<PrescriptionResult> {
       diagnosis: JSON.stringify(context.results.diagnosis ?? null, null, 2),
       summary: JSON.stringify(context.results.summary ?? null, null, 2),
       assessment: JSON.stringify(context.results.assessment ?? null, null, 2),
-      // Optional Content: v1 graceful fallback. When the real loader keys are
-      // wired, this is where supplied reference knowledge would be injected;
-      // absence is a change of knowledge source only, never missing evidence.
-      prescriptionFormulaDefinitions: "(none provided)",
-      treatmentFormulaMap: "(none provided)",
-      formulaCatalog: "(none provided)",
-      herbCatalog: "(none provided)",
+      // Optional Content with graceful fallback (Option B): each requested slice
+      // is injected when supplied, else "(none provided)". Reference only.
+      prescriptionFormulaDefinitions: knowledgeOrNone(
+        this.knowledge,
+        "prescriptionFormulaDefinitions",
+      ),
+      treatmentFormulaMap: knowledgeOrNone(this.knowledge, "treatmentFormulaMap"),
+      formulaCatalog: knowledgeOrNone(this.knowledge, "formulaCatalog"),
+      herbCatalog: knowledgeOrNone(this.knowledge, "herbCatalog"),
     };
   }
 

@@ -2,7 +2,9 @@ import { FormulaSchema } from "../schemas/FormulaSchema";
 import type { AIContext } from "../types/AIContext";
 import type { DiagnosisResult } from "../types/DiagnosisResult";
 import type { FormulaResult } from "../types/FormulaResult";
+import type { KnowledgeRequest } from "../types/Knowledge";
 import { BaseModule, ModuleExecutionError } from "./BaseModule";
+import { knowledgeOrNone } from "./knowledgeFallback";
 
 /** Trim + lower-case for deterministic, case-insensitive text comparison. */
 const norm = (s: string): string => s.trim().toLowerCase();
@@ -47,6 +49,16 @@ export class FormulaModule extends BaseModule<FormulaResult> {
   protected readonly outputSchema = FormulaSchema;
 
   /**
+   * Declares the knowledge this module depends on (frozen Formula knowledge
+   * architecture): treatment-principle/formula-family definitions and the
+   * pattern-to-treatment reference map. Demand only — content is optional and
+   * supplied by a future loader; the stub returns nothing today.
+   */
+  protected knowledgeRequest(): KnowledgeRequest {
+    return { formulaDefinitions: true, patternTreatmentMap: true };
+  }
+
+  /**
    * Prompt variables: Diagnosis (primary), Summary and Assessment (context) as
    * JSON, plus the two optional knowledge blocks (graceful fallback). Also serves
    * as Guard 1's pre-flight check (runs before the provider call).
@@ -57,8 +69,10 @@ export class FormulaModule extends BaseModule<FormulaResult> {
       diagnosis: JSON.stringify(diagnosis, null, 2),
       summary: JSON.stringify(context.results.summary ?? null, null, 2),
       assessment: JSON.stringify(context.results.assessment ?? null, null, 2),
-      formulaDefinitions: "(none provided)",
-      patternTreatmentMap: "(none provided)",
+      // Optional Content with graceful fallback (Option B): injected when
+      // supplied, else "(none provided)". Reference only — never rules.
+      formulaDefinitions: knowledgeOrNone(this.knowledge, "formulaDefinitions"),
+      patternTreatmentMap: knowledgeOrNone(this.knowledge, "patternTreatmentMap"),
     };
   }
 
