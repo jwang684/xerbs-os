@@ -186,9 +186,9 @@ catalog. Same canonicalization convention.*
 
 ## Batch 9 — additional canonical names
 
-*Status: proposed — pending review (Knowledge Content Sprint · Step 14). Batches 1
-through 8 above are frozen and unchanged; these entries extend the catalog. Same
-canonicalization convention.*
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Step 14.
+Batches 1 through 8 above are frozen and unchanged; these entries extend the
+catalog. Same canonicalization convention.*
 
 - Sheng Hua Tang
 - Ge Xia Zhu Yu Tang
