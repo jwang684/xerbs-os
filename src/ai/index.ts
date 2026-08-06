@@ -12,6 +12,8 @@ export * from "./config/AIConfig";
 export * from "./providers/AIProvider";
 export * from "./providers/ProviderRegistry";
 export * from "./knowledge/KnowledgeLoader";
+export * from "./knowledge/KnowledgeRegistry";
+export * from "./knowledge/ProductionKnowledgeLoader";
 export * from "./prompts/TemplateLoader";
 export * from "./prompts/PromptBuilder";
 export * from "./utils/SchemaValidator";

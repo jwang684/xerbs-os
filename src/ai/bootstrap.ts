@@ -1,6 +1,7 @@
 import { AIConfig, emptyAIConfig } from "./config/AIConfig";
 import { AIEngine } from "./engine/AIEngine";
-import { StubKnowledgeLoader } from "./knowledge/KnowledgeLoader";
+import { ProductionKnowledgeLoader } from "./knowledge/ProductionKnowledgeLoader";
+import { productionKnowledgeRegistry } from "./knowledge/productionRegistry";
 import { AssessmentModule } from "./modules/AssessmentModule";
 import type { ExecutableModule, ModuleServices } from "./modules/BaseModule";
 import { DiagnosisModule } from "./modules/DiagnosisModule";
@@ -26,10 +27,11 @@ export interface CreateAIEngineOptions {
  * The single assembly point for the AI framework.
  *
  * It constructs every framework service — {@link ProviderRegistry},
- * {@link PromptBuilder} (filesystem-backed), {@link StubKnowledgeLoader},
- * {@link SchemaValidator} — wires them into an {@link AIEngine}, and is the ONLY
- * place providers should be registered. Application code calls `createAIEngine()`
- * and never instantiates framework services directly.
+ * {@link PromptBuilder} (filesystem-backed), {@link ProductionKnowledgeLoader}
+ * (registry-driven), {@link SchemaValidator} — wires them into an
+ * {@link AIEngine}, and is the ONLY place providers should be registered.
+ * Application code calls `createAIEngine()` and never instantiates framework
+ * services directly.
  *
  * No providers are registered yet (framework-only phase); the marked block below
  * is where they will go.
@@ -38,7 +40,9 @@ export function createAIEngine(options: CreateAIEngineOptions = {}): AIEngine {
   const providers = options.services?.providers ?? new ProviderRegistry();
   const prompts =
     options.services?.prompts ?? new PromptBuilder(new FileTemplateLoader());
-  const knowledge = options.services?.knowledge ?? new StubKnowledgeLoader();
+  const knowledge =
+    options.services?.knowledge ??
+    new ProductionKnowledgeLoader(productionKnowledgeRegistry);
   const validator = options.services?.validator ?? new SchemaValidator();
   const config = options.services?.config ?? options.config ?? emptyAIConfig("openai");
 
