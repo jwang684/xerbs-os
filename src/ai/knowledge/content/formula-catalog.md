@@ -117,3 +117,25 @@ catalog. Same canonicalization convention.*
 - Wu Wei Xiao Du Yin
 - Xiao Feng San
 - Zhen Gan Xi Feng Tang
+
+## Batch 6 — additional canonical names
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Step 11.
+Batches 1 through 5 above are frozen and unchanged; these entries extend the
+catalog. Same canonicalization convention.*
+
+- Si Ni Tang
+- Xiao Cheng Qi Tang
+- Tiao Wei Cheng Qi Tang
+- Da Jian Zhong Tang
+- Xiao Jian Zhong Tang
+- Wu Mei Wan
+- Su He Xiang Wan
+- An Gong Niu Huang Wan
+- Zhi Zhu Wan
+- Bei Mu Gua Lou San
+- Qing Qi Hua Tan Wan
+- Ling Gui Zhu Gan Tang
+- Du Huo Ji Sheng Tang
+- Juan Bi Tang
+- Yang He Tang
