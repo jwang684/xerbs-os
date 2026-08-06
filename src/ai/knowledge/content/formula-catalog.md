@@ -51,3 +51,25 @@ canonicalization convention.*
 - Bao He Wan
 - Xue Fu Zhu Yu Tang
 - Liu Jun Zi Tang
+
+## Batch 3 — additional canonical names
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Step 8.
+Batches 1 and 2 above are frozen and unchanged; these entries extend the catalog.
+Same canonicalization convention.*
+
+- Ge Gen Tang
+- Zhi Sou San
+- Bai Tou Weng Tang
+- Huang Lian Jie Du Tang
+- Qing Ying Tang
+- Dang Gui Bu Xue Tang
+- Sheng Mai San
+- Yu Ping Feng San
+- Zhen Wu Tang
+- Wu Zhu Yu Tang
+- Su Zi Jiang Qi Tang
+- Chai Hu Shu Gan San
+- Bu Yang Huan Wu Tang
+- Ma Zi Ren Wan
+- Gan Mai Da Zao Tang

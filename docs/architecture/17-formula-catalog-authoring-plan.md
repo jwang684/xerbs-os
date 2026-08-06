@@ -115,6 +115,40 @@ approved batch from being rewritten.
 **Governing principle.** *Approved batches become stable assets. Future batches
 extend. Identity migration is exceptional. Authoring is additive.*
 
+### 2c. Batch Closure Principle
+
+**Every frozen authoring batch becomes a complete, independently reviewable
+knowledge asset.** Once a batch is frozen, it is closed.
+
+After a batch is frozen:
+
+- its **review is complete**,
+- its **editorial decisions are complete**, and
+- its **canonicalization is complete**.
+
+Future batches review only *new* content; they do **not** reopen completed
+batches. A frozen batch stands on its own — it can be read and audited as a
+finished unit without reference to what came after it.
+
+**Exception.** The only reason to revisit a frozen batch is a formal **Identity
+Migration**. Normal authoring never reopens history.
+
+**Relationship.** The three governance principles cover distinct concerns:
+
+- **Authoring Independence** protects previously *approved identities* (they are not
+  renamed or replaced).
+- **Catalog Consistency Review** protects the *current catalog* (a new candidate
+  collides with nothing already approved).
+- **Batch Closure** defines the *lifecycle of an approved batch* (frozen = closed;
+  reviewed once, stays reviewed).
+
+Together they make the catalog append-only in practice: identities endure, the
+whole catalog stays collision-free, and each batch is a settled review unit.
+
+**Governing principle.** *Every frozen batch is a stable knowledge asset. Future
+batches extend the catalog. Identity Migration is exceptional. History is
+append-only.*
+
 ## 3. Editorial Standards
 
 Every entry must satisfy:
