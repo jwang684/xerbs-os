@@ -88,10 +88,10 @@ template.*
 
 ## Batch 4 — additional definitions
 
-*Status: proposed — pending review (Knowledge Content Sprint · Prescription Formula
-Definitions · Step 9). Batches 1 through 3 above are frozen and unchanged; these
-entries extend the collection. Same entry model, abstraction level, and writing
-template.*
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Prescription
+Formula Definitions · Step 9. Batches 1 through 3 above are frozen and unchanged;
+these entries extend the collection. Same entry model, abstraction level, and
+writing template.*
 
 - **Qing Wei San** — A classical Chinese herbal formula that clears stomach heat and cools the blood.
 - **Yu Nu Jian** — A classical Chinese herbal formula that clears stomach heat and enriches the yin.
