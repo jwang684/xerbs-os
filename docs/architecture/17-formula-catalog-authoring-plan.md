@@ -41,6 +41,43 @@ Conceptual, order-significant; no tooling or format is implied:
 Rejected or deferred candidates do not enter the catalog; absence is acceptable
 (the runtime falls back via Option B for anything not yet catalogued).
 
+### 2a. Authoring Independence Principle
+
+**Every approved authoring batch becomes a stable knowledge asset.** Future
+authoring batches *extend* the catalog; they do **not** rewrite previously approved
+identities.
+
+**Each approved batch is considered stable.** Subsequent batches should only:
+
+- add new canonical identities, and
+- improve overall coverage.
+
+They should **not**:
+
+- rename existing canonical identities,
+- replace approved identities, or
+- reorganize previously approved content.
+
+**Exception.** The only legitimate reason to modify an approved canonical identity
+is a formal **Identity Migration**. Identity Migration is exceptional — it is not
+normal authoring. **Normal authoring is additive.**
+
+**Relationship.** This complements the frozen principles without changing them:
+
+- **Canonical Naming Stability** governs *the identity* — a canonical name, once
+  chosen, endures.
+- **Minimal Vocabulary** governs *the entry* — it stays a bare canonical name.
+- **The Authoring Workflow** governs *how an entry is produced*.
+- **Authoring Independence** governs *the authoring history* — approved batches are
+  not reopened by later ones.
+
+Canonical Naming Stability protects the *identity*; Authoring Independence protects
+the *authoring history*. One keeps a name from changing; the other keeps an
+approved batch from being rewritten.
+
+**Governing principle.** *Approved batches become stable assets. Future batches
+extend. Identity migration is exceptional. Authoring is additive.*
+
 ## 3. Editorial Standards
 
 Every entry must satisfy:
