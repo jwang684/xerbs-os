@@ -95,3 +95,25 @@ catalog. Same canonicalization convention.*
 - Sang Piao Xiao San
 - Xiang Su San
 - Zhi Shi Dao Zhi Wan
+
+## Batch 5 — additional canonical names
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Step 10.
+Batches 1 through 4 above are frozen and unchanged; these entries extend the
+catalog. Same canonicalization convention.*
+
+- Huo Xiang Zheng Qi San
+- Qing Shu Yi Qi Tang
+- Zhu Ye Shi Gao Tang
+- Yin Chen Hao Tang
+- San Ren Tang
+- Zhu Ling Tang
+- Wu Pi San
+- Zhen Ren Yang Zang Tang
+- Si Ni San
+- Tao He Cheng Qi Tang
+- Da Cheng Qi Tang
+- Wan Dai Tang
+- Wu Wei Xiao Du Yin
+- Xiao Feng San
+- Zhen Gan Xi Feng Tang
