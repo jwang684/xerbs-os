@@ -40,3 +40,25 @@ Every referenced formula already exists in the frozen Formula Catalog (Batch 1).
 - **Er Chen Tang** — A classical Chinese herbal formula that dries dampness and transforms phlegm.
 - **Gui Pi Tang** — A classical Chinese herbal formula that tonifies qi and blood and nourishes the spleen and heart.
 - **Yin Qiao San** — A classical Chinese herbal formula that releases the exterior and clears heat.
+
+## Batch 2 — additional definitions
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Prescription
+Formula Definitions · Step 5. Batch 1 above is frozen and unchanged; these entries
+extend the collection. Same entry model, abstraction level, and writing template.*
+
+- **Bai Hu Tang** — A classical Chinese herbal formula that clears heat and drains fire.
+- **Xiao Qing Long Tang** — A classical Chinese herbal formula that releases the exterior and warms and transforms phlegm-fluids.
+- **Da Chai Hu Tang** — A classical Chinese herbal formula that harmonizes the lesser yang and drains the interior.
+- **Ma Xing Shi Gan Tang** — A classical Chinese herbal formula that clears heat and diffuses the lung.
+- **Sang Ju Yin** — A classical Chinese herbal formula that releases the exterior and clears the lung.
+- **Jin Gui Shen Qi Wan** — A classical Chinese herbal formula that warms and tonifies the kidney yang.
+- **Zhi Bai Di Huang Wan** — A classical Chinese herbal formula that enriches the yin and clears heat.
+- **Long Dan Xie Gan Tang** — A classical Chinese herbal formula that drains fire and damp-heat from the liver and gallbladder.
+- **Tian Ma Gou Teng Yin** — A classical Chinese herbal formula that extinguishes wind and calms the liver.
+- **Suan Zao Ren Tang** — A classical Chinese herbal formula that nourishes the blood and quiets the spirit.
+- **Wen Dan Tang** — A classical Chinese herbal formula that transforms phlegm and harmonizes the gallbladder and stomach.
+- **Ping Wei San** — A classical Chinese herbal formula that dries dampness and harmonizes the stomach.
+- **Bao He Wan** — A classical Chinese herbal formula that reduces accumulation and harmonizes the stomach.
+- **Xue Fu Zhu Yu Tang** — A classical Chinese herbal formula that invigorates the blood and dispels stasis.
+- **Liu Jun Zi Tang** — A classical Chinese herbal formula that tonifies qi, strengthens the spleen, and transforms phlegm.
