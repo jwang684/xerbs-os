@@ -85,3 +85,49 @@ template.*
 - **Bu Yang Huan Wu Tang** — A classical Chinese herbal formula that tonifies qi and invigorates the blood.
 - **Ma Zi Ren Wan** — A classical Chinese herbal formula that moistens the intestines and unblocks the bowels.
 - **Gan Mai Da Zao Tang** — A classical Chinese herbal formula that nourishes the heart and quiets the spirit.
+
+## Batch 4 — additional definitions
+
+*Status: proposed — pending review (Knowledge Content Sprint · Prescription Formula
+Definitions · Step 9). Batches 1 through 3 above are frozen and unchanged; these
+entries extend the collection. Same entry model, abstraction level, and writing
+template.*
+
+- **Qing Wei San** — A classical Chinese herbal formula that clears stomach heat and cools the blood.
+- **Yu Nu Jian** — A classical Chinese herbal formula that clears stomach heat and enriches the yin.
+- **Dao Chi San** — A classical Chinese herbal formula that clears heat and promotes urination.
+- **Xie Bai San** — A classical Chinese herbal formula that drains heat from the lung and redirects its qi downward.
+- **Shao Yao Tang** — A classical Chinese herbal formula that clears damp-heat and regulates the qi and blood.
+- **Gui Zhi Fu Ling Wan** — A classical Chinese herbal formula that invigorates the blood and reduces fixed masses.
+- **Wen Jing Tang** — A classical Chinese herbal formula that warms the channels and nourishes the blood.
+- **Zuo Gui Wan** — A classical Chinese herbal formula that enriches the yin and replenishes the essence.
+- **You Gui Wan** — A classical Chinese herbal formula that warms the kidney yang and replenishes the essence.
+- **Yi Guan Jian** — A classical Chinese herbal formula that enriches the yin and soothes the liver.
+- **Bai He Gu Jin Tang** — A classical Chinese herbal formula that nourishes the yin and moistens the lung.
+- **Zhi Gan Cao Tang** — A classical Chinese herbal formula that tonifies qi and blood and enriches the yin.
+- **Sang Piao Xiao San** — A classical Chinese herbal formula that astringes the essence and stabilizes the bladder.
+- **Xiang Su San** — A classical Chinese herbal formula that releases the exterior and regulates the qi.
+- **Zhi Shi Dao Zhi Wan** — A classical Chinese herbal formula that reduces accumulation and drains damp-heat.
+
+## Batch 5 — additional definitions
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Prescription
+Formula Definitions. Batches 1 through 4 above are frozen and unchanged; these
+entries extend the collection. Same entry model, abstraction level, and writing
+template.*
+
+- **Huo Xiang Zheng Qi San** — A classical Chinese herbal formula that releases the exterior and transforms dampness.
+- **Qing Shu Yi Qi Tang** — A classical Chinese herbal formula that clears summerheat and augments the qi.
+- **Zhu Ye Shi Gao Tang** — A classical Chinese herbal formula that clears heat and generates fluids.
+- **Yin Chen Hao Tang** — A classical Chinese herbal formula that clears damp-heat and promotes urination.
+- **San Ren Tang** — A classical Chinese herbal formula that diffuses the qi and transforms dampness.
+- **Zhu Ling Tang** — A classical Chinese herbal formula that promotes urination, clears heat, and nourishes the yin.
+- **Wu Pi San** — A classical Chinese herbal formula that promotes urination and drains water.
+- **Zhen Ren Yang Zang Tang** — A classical Chinese herbal formula that astringes the intestines and warms the interior.
+- **Si Ni San** — A classical Chinese herbal formula that resolves constraint and harmonizes the liver and spleen.
+- **Tao He Cheng Qi Tang** — A classical Chinese herbal formula that drains heat and breaks up blood stasis.
+- **Da Cheng Qi Tang** — A classical Chinese herbal formula that drains heat and vigorously unblocks the bowels.
+- **Wan Dai Tang** — A classical Chinese herbal formula that strengthens the spleen and transforms dampness.
+- **Wu Wei Xiao Du Yin** — A classical Chinese herbal formula that clears heat, resolves toxicity, and disperses clumping.
+- **Xiao Feng San** — A classical Chinese herbal formula that disperses wind and clears heat and dampness.
+- **Zhen Gan Xi Feng Tang** — A classical Chinese herbal formula that subdues the yang and extinguishes wind.
