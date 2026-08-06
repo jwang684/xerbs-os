@@ -161,3 +161,47 @@ catalog. Same canonicalization convention.*
 - Yi Wei Tang
 - Zeng Ye Tang
 - Run Chang Wan
+
+## Batch 8 — additional canonical names
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Step 13.
+Batches 1 through 7 above are frozen and unchanged; these entries extend the
+catalog. Same canonicalization convention.*
+
+- Gu Chong Tang
+- Mu Li San
+- Yi Huang Tang
+- Suo Quan Wan
+- Jin Suo Gu Jing Wan
+- Zhi Shi Xiao Pi Wan
+- Mu Xiang Bing Lang Wan
+- Jian Pi Wan
+- Wu Ji San
+- Ding Chuan Tang
+- Ju Pi Zhu Ru Tang
+- Xuan Fu Dai Zhe Tang
+- Ban Xia Hou Po Tang
+- Liang Fu Wan
+- Tong Xie Yao Fang
+
+## Batch 9 — additional canonical names
+
+*Status: proposed — pending review (Knowledge Content Sprint · Step 14). Batches 1
+through 8 above are frozen and unchanged; these entries extend the catalog. Same
+canonicalization convention.*
+
+- Sheng Hua Tang
+- Ge Xia Zhu Yu Tang
+- Fu Yuan Huo Xue Tang
+- Dan Shen Yin
+- Shi Xiao San
+- Huai Hua San
+- Xiao Ji Yin Zi
+- Huang Tu Tang
+- Zhi Bao Dan
+- Zi Xue Dan
+- Da Bu Yin Wan
+- Er Zhi Wan
+- Gui Lu Er Xian Jiao
+- Ren Shen Yang Ying Tang
+- Shi Quan Da Bu Tang
