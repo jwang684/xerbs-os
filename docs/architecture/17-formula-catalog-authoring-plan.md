@@ -41,7 +41,44 @@ Conceptual, order-significant; no tooling or format is implied:
 Rejected or deferred candidates do not enter the catalog; absence is acceptable
 (the runtime falls back via Option B for anything not yet catalogued).
 
-### 2a. Authoring Independence Principle
+### 2a. Catalog Consistency Review
+
+**Every new batch is reviewed against the entire approved catalog before authoring
+proceeds.** A candidate is not authored in isolation; it is first checked against
+everything already approved.
+
+Consistency review includes:
+
+- **existing identities** — comparison against the full set of approved entries;
+- **canonical identity** — whether the candidate is genuinely a new identity;
+- **duplicate detection** — the candidate is not already present;
+- **near-duplicate detection** — the candidate is not a variant spelling/
+  romanization of an existing entry;
+- **canonicalization consistency** — the candidate obeys the same naming convention
+  as the whole catalog;
+- **batch independence** — the review never edits prior batches; it only decides
+  whether the candidate may be added.
+
+**This review occurs *before* canonicalization** — determining whether a candidate
+is genuinely new precedes choosing its canonical representation. There is no point
+canonicalizing a candidate that turns out to already exist under some form.
+
+**Relationship.** The three concerns are distinct:
+
+- **The Editorial Workflow** defines *the process* (the ordered steps).
+- **Catalog Consistency Review** protects *the existing catalog* (nothing new
+  collides with or duplicates what is already approved).
+- **Canonicalization** establishes *identity* (one representation per identity).
+- **Authoring Independence** protects *authoring history* (prior batches are
+  immutable).
+
+Workflow defines the process; Consistency Review protects the existing catalog;
+Canonicalization establishes identity — separate responsibilities that compose.
+
+**Governing principle.** *Review the catalog before extending it. Extend only when
+the identity is genuinely new. Consistency precedes canonicalization.*
+
+### 2b. Authoring Independence Principle
 
 **Every approved authoring batch becomes a stable knowledge asset.** Future
 authoring batches *extend* the catalog; they do **not** rewrite previously approved

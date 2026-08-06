@@ -29,3 +29,25 @@ is exactly one canonical name and nothing else. One entry per identity.
 - Er Chen Tang
 - Gui Pi Tang
 - Yin Qiao San
+
+## Batch 2 — additional canonical names
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Step 7.
+Batch 1 above is frozen and unchanged; these entries extend the catalog. Same
+canonicalization convention.*
+
+- Bai Hu Tang
+- Xiao Qing Long Tang
+- Da Chai Hu Tang
+- Ma Xing Shi Gan Tang
+- Sang Ju Yin
+- Jin Gui Shen Qi Wan
+- Zhi Bai Di Huang Wan
+- Long Dan Xie Gan Tang
+- Tian Ma Gou Teng Yin
+- Suan Zao Ren Tang
+- Wen Dan Tang
+- Ping Wei San
+- Bao He Wan
+- Xue Fu Zhu Yu Tang
+- Liu Jun Zi Tang
