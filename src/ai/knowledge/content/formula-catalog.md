@@ -73,3 +73,25 @@ Same canonicalization convention.*
 - Bu Yang Huan Wu Tang
 - Ma Zi Ren Wan
 - Gan Mai Da Zao Tang
+
+## Batch 4 — additional canonical names
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Step 9.
+Batches 1, 2, and 3 above are frozen and unchanged; these entries extend the
+catalog. Same canonicalization convention.*
+
+- Qing Wei San
+- Yu Nu Jian
+- Dao Chi San
+- Xie Bai San
+- Shao Yao Tang
+- Gui Zhi Fu Ling Wan
+- Wen Jing Tang
+- Zuo Gui Wan
+- You Gui Wan
+- Yi Guan Jian
+- Bai He Gu Jin Tang
+- Zhi Gan Cao Tang
+- Sang Piao Xiao San
+- Xiang Su San
+- Zhi Shi Dao Zhi Wan

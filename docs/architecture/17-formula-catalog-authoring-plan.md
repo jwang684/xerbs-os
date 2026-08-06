@@ -217,6 +217,28 @@ assist, but the judgment is the author's):
 
 Growth is deliberate and reviewable, never bulk or unreviewed.
 
+### 6a. Catalog Coverage Principle
+
+**Formula Catalog coverage is intentionally incremental.** The catalog is not
+expected to become complete in a single batch, and completeness is not a
+precondition for usefulness.
+
+- Coverage is **not expected to become complete in one batch**.
+- Coverage **grows through successive reviewed batches**.
+- **Previously approved coverage remains stable** — earlier batches are not
+  reopened to expand coverage.
+- **New coverage is added beside existing coverage** — additively, never by
+  reworking what already exists.
+
+**Relationship to Option B.** Because Option B already guarantees graceful absence,
+**missing catalog entries never become runtime failures** — an uncatalogued formula
+simply falls back, and the pipeline continues unchanged. Coverage is therefore a
+**knowledge-authoring concern, not a runtime concern**: the runtime's correctness
+does not depend on how complete the catalog is.
+
+**Governing principle.** *Coverage grows incrementally. Quality precedes breadth.
+Option B permits partial coverage. Runtime is independent of catalog completeness.*
+
 ## 7. Completion Criteria (Version 1)
 
 Qualitative only; no counts are estimated. Formula Catalog authoring is
