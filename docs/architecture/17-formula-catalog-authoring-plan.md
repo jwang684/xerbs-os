@@ -1,0 +1,147 @@
+# Formula Catalog Authoring Plan
+
+**Knowledge Content Sprint · Step 5 (Formula Catalog Authoring Plan).** Status:
+**Approved and frozen (2026-08-06).** This document defines *how* Formula Catalog
+authoring will be performed — its editorial process, quality standards, review
+workflow, and consistency requirements. It creates no formula entries, contains no
+formula names or medical content, and implements nothing. It is fully consistent
+with, and changes none of, the frozen Runtime, Knowledge Transport, Content
+Architecture / Specification, and the Formula Catalog Architecture Review and
+Specification (`docs/architecture/13`–`16`).
+
+## 1. Authoring Objectives
+
+The objective of Formula Catalog authoring is to establish a **complete, stable,
+canonical identity layer** for formulas — the authoritative name-space that
+`prescriptionFormulaDefinitions` and `treatmentFormulaMap` reference.
+
+Authoring produces **identity only**: one canonical name per formula, nothing more.
+It does not produce meaning, relationships, execution detail, or context. Success
+is measured by *stability and consistency of identity*, not by breadth of content:
+a small, clean, canonical name-space is the goal, not a large one.
+
+## 2. Authoring Workflow
+
+Conceptual, order-significant; no tooling or format is implied:
+
+1. **Identify a candidate formula** — a formula identity proposed for inclusion.
+2. **Determine whether it already exists** — check the existing catalog for the
+   same identity under any representation (including near-duplicate spellings).
+3. **Apply the canonicalization policy** — select the single canonical
+   representation per the frozen Canonicalization Principle and the naming
+   convention (§3), resolving equivalent forms to it.
+4. **Verify uniqueness** — confirm the canonical name is not already present and
+   does not collide with, or near-duplicate, an existing entry.
+5. **Create the canonical entry** — record the canonical name only (identity, no
+   other field), per the Minimal Vocabulary Principle.
+6. **Perform review** — subject the proposed entry to structural, editorial, and
+   clinical review (§4).
+7. **Approve for inclusion** — only a fully reviewed entry enters the catalog.
+
+Rejected or deferred candidates do not enter the catalog; absence is acceptable
+(the runtime falls back via Option B for anything not yet catalogued).
+
+## 3. Editorial Standards
+
+Every entry must satisfy:
+
+- **Consistency** — all entries follow the same editorial conventions; the catalog
+  reads as one coherent name-space, not a patchwork of styles.
+- **Canonical naming convention** — a single, explicitly-agreed convention governs
+  spelling/representation, applied uniformly (this is the standard that prevents
+  variant-spelling entries the contract cannot detect).
+- **One entry per identity** — exactly one canonical entry per formula; never two
+  entries for the same identity.
+- **Avoidance of duplicates** — no repeated canonical names.
+- **Avoidance of alternate spellings** — variant spellings/romanizations of the
+  same identity are resolved to the canonical form, not added as separate entries.
+- **No contextual information** — no usage, indication, selection, or policy.
+- **No explanatory text** — no meaning or description; meaning is owned by
+  `prescriptionFormulaDefinitions`.
+
+The unifying editorial rule: **an entry is a canonical name and nothing else.**
+
+## 4. Review Process
+
+Every proposed entry passes three distinct reviews before inclusion, kept separate
+because they answer different questions:
+
+- **Structural correctness** — is the entry well-formed (a non-empty canonical name,
+  a name and nothing else, no exact duplicate within the slice)? This mirrors what
+  the validation contract enforces mechanically; the reviewer confirms the entry is
+  *contract-shaped*.
+- **Editorial correctness** — does the entry follow the canonical naming convention,
+  avoid near-duplicate/variant spellings, and read consistently with the rest of the
+  catalog? This is the human judgment the contract cannot perform.
+- **Clinical correctness** — is this the *right and appropriate* canonical name for
+  the formula (Clinical Evaluation)? A semantic/clinical judgment, owned by
+  clinically-qualified review, distinct from structure and editorial style.
+
+An entry is included only when all three reviews pass. The three must not be
+conflated: a structurally valid, editorially clean entry can still be clinically
+wrong, and vice versa.
+
+## 5. Consistency Checks
+
+Conceptual checks authors perform before proposing an entry (mechanical aids may
+assist, but the judgment is the author's):
+
+- **Duplicate identities** — the same formula is not already catalogued under any
+  representation.
+- **Near-duplicate spellings** — the candidate is not a variant spelling/romanization
+  of an existing entry (the check the contract cannot make).
+- **Canonical naming consistency** — the candidate obeys the naming convention used
+  by every other entry.
+- **Reference consistency** — canonical names other interfaces will reference remain
+  resolvable; existing references are not invalidated (identity stability, per the
+  Canonical Naming Stability Principle).
+
+## 6. Expansion Strategy
+
+- **Growth is incremental** — the catalog is authored entry by entry; it need not be
+  complete to be useful, since uncatalogued formulas fall back via Option B.
+- **Quality over quantity** — a smaller, clean, consistently-canonical name-space is
+  preferred to a larger one with duplicates or variant spellings.
+- **Stability over rapid expansion** — established canonical identities are preserved;
+  new identities are added *beside* them (never by churning existing names), and the
+  identity layer is extended by additive capabilities (future aliases/localization),
+  not by expanding entries (Minimal Vocabulary Principle).
+
+Growth is deliberate and reviewable, never bulk or unreviewed.
+
+## 7. Completion Criteria (Version 1)
+
+Qualitative only; no counts are estimated. Formula Catalog authoring is
+sufficiently complete for Version 1 when:
+
+- every catalogued entry is a single canonical name that has passed all three
+  reviews;
+- the catalog is internally consistent — no duplicates, no near-duplicate variant
+  spellings, one uniform naming convention;
+- every canonical name that other interfaces (`prescriptionFormulaDefinitions`,
+  `treatmentFormulaMap`) need to reference is present and resolvable;
+- the name-space is stable — canonical identities are settled and not expected to
+  churn.
+
+Completeness is defined by *consistency, stability, and reference-coverage of what
+has been authored*, not by reaching any particular size. Because Option B covers
+anything absent, v1 does not require exhaustiveness — it requires correctness of
+what exists.
+
+## 8. Sufficiency Review
+
+**The frozen architecture completely supports beginning actual Formula Catalog
+authoring after this plan. No limitation; not stopping.** Authoring produces a set
+of canonical names that will sit behind the frozen `formulaCatalog` registry entry,
+be validated structurally by its contract, referenced by definitions/mappings,
+transported opaquely, and consumed with Option B. Every mechanism exists and is
+frozen; the editorial process, standards, and reviews defined here are *authoring
+governance*, not architecture. Nothing in this plan requires a change to the
+runtime, framework, registry, loader, or contracts. Authoring may begin against
+this plan and the frozen specification.
+
+## Scope
+
+Authoring plan only. No formula names, no catalog entries, no medical content, no
+code, and no change to architecture, runtime, framework, registry, loader, or
+contracts.
