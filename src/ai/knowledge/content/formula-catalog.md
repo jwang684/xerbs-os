@@ -139,3 +139,25 @@ catalog. Same canonicalization convention.*
 - Du Huo Ji Sheng Tang
 - Juan Bi Tang
 - Yang He Tang
+
+## Batch 7 — additional canonical names
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Step 12.
+Batches 1 through 6 above are frozen and unchanged; these entries extend the
+catalog. Same canonicalization convention.*
+
+- Xin Yi San
+- Cang Er Zi San
+- Chuan Xiong Cha Tiao San
+- Xiao Xu Ming Tang
+- Da Qin Jiao Tang
+- Bei Xie Fen Qing Yin
+- Fang Ji Huang Qi Tang
+- Ling Jiao Gou Teng Tang
+- Da Ding Feng Zhu
+- Sang Xing Tang
+- Qing Zao Jiu Fei Tang
+- Mai Men Dong Tang
+- Yi Wei Tang
+- Zeng Ye Tang
+- Run Chang Wan
