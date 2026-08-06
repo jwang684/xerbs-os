@@ -62,3 +62,26 @@ extend the collection. Same entry model, abstraction level, and writing template
 - **Bao He Wan** — A classical Chinese herbal formula that reduces accumulation and harmonizes the stomach.
 - **Xue Fu Zhu Yu Tang** — A classical Chinese herbal formula that invigorates the blood and dispels stasis.
 - **Liu Jun Zi Tang** — A classical Chinese herbal formula that tonifies qi, strengthens the spleen, and transforms phlegm.
+
+## Batch 3 — additional definitions
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Prescription
+Formula Definitions · Step 7. Batches 1 and 2 above are frozen and unchanged; these
+entries extend the collection. Same entry model, abstraction level, and writing
+template.*
+
+- **Ge Gen Tang** — A classical Chinese herbal formula that releases the exterior and relaxes the sinews.
+- **Zhi Sou San** — A classical Chinese herbal formula that disperses wind and diffuses the lung.
+- **Bai Tou Weng Tang** — A classical Chinese herbal formula that clears heat and resolves toxicity.
+- **Huang Lian Jie Du Tang** — A classical Chinese herbal formula that drains fire and resolves toxicity.
+- **Qing Ying Tang** — A classical Chinese herbal formula that clears heat from the nutritive level and nourishes the yin.
+- **Dang Gui Bu Xue Tang** — A classical Chinese herbal formula that augments qi and generates the blood.
+- **Sheng Mai San** — A classical Chinese herbal formula that tonifies qi, generates fluids, and astringes the yin.
+- **Yu Ping Feng San** — A classical Chinese herbal formula that tonifies qi and stabilizes the exterior.
+- **Zhen Wu Tang** — A classical Chinese herbal formula that warms the yang and transforms water.
+- **Wu Zhu Yu Tang** — A classical Chinese herbal formula that warms the middle and directs rebellious qi downward.
+- **Su Zi Jiang Qi Tang** — A classical Chinese herbal formula that directs qi downward and transforms phlegm.
+- **Chai Hu Shu Gan San** — A classical Chinese herbal formula that spreads the liver and moves qi.
+- **Bu Yang Huan Wu Tang** — A classical Chinese herbal formula that tonifies qi and invigorates the blood.
+- **Ma Zi Ren Wan** — A classical Chinese herbal formula that moistens the intestines and unblocks the bowels.
+- **Gan Mai Da Zao Tang** — A classical Chinese herbal formula that nourishes the heart and quiets the spirit.
