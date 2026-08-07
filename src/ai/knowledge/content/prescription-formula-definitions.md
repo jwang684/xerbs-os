@@ -200,3 +200,26 @@ template.*
 - **Ban Xia Hou Po Tang** — A classical Chinese herbal formula that moves qi and dissipates phlegm clumping.
 - **Liang Fu Wan** — A classical Chinese herbal formula that warms the stomach and moves qi.
 - **Tong Xie Yao Fang** — A classical Chinese herbal formula that spreads the liver and strengthens the spleen.
+
+## Batch 9 — additional definitions
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Prescription
+Formula Definitions. Batches 1 through 8 above are frozen and unchanged; these
+entries extend the collection. Same entry model, abstraction level, and writing
+template.*
+
+- **Sheng Hua Tang** — A classical Chinese herbal formula that warms the channels and dispels blood stasis.
+- **Ge Xia Zhu Yu Tang** — A classical Chinese herbal formula that invigorates the blood and moves qi to dispel stasis.
+- **Fu Yuan Huo Xue Tang** — A classical Chinese herbal formula that invigorates the blood and unblocks the channels to dispel stasis.
+- **Dan Shen Yin** — A classical Chinese herbal formula that invigorates the blood and regulates the qi.
+- **Shi Xiao San** — A classical Chinese herbal formula that dispels blood stasis and stanches bleeding.
+- **Huai Hua San** — A classical Chinese herbal formula that cools the blood and stanches bleeding.
+- **Xiao Ji Yin Zi** — A classical Chinese herbal formula that cools the blood, stanches bleeding, and promotes urination.
+- **Huang Tu Tang** — A classical Chinese herbal formula that warms the middle and stanches bleeding.
+- **Zhi Bao Dan** — A classical Chinese herbal formula that clears heat, opens the orifices, and dispels turbidity.
+- **Zi Xue Dan** — A classical Chinese herbal formula that clears heat, opens the orifices, and extinguishes wind.
+- **Da Bu Yin Wan** — A classical Chinese herbal formula that enriches the yin and downbears fire.
+- **Er Zhi Wan** — A classical Chinese herbal formula that enriches the liver and kidney yin.
+- **Gui Lu Er Xian Jiao** — A classical Chinese herbal formula that tonifies the yin and yang and replenishes essence and blood.
+- **Ren Shen Yang Ying Tang** — A classical Chinese herbal formula that tonifies qi and blood and quiets the spirit.
+- **Shi Quan Da Bu Tang** — A classical Chinese herbal formula that tonifies qi and blood and warms the yang.
