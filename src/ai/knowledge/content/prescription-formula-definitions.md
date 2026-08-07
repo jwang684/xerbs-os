@@ -131,3 +131,26 @@ template.*
 - **Wu Wei Xiao Du Yin** — A classical Chinese herbal formula that clears heat, resolves toxicity, and disperses clumping.
 - **Xiao Feng San** — A classical Chinese herbal formula that disperses wind and clears heat and dampness.
 - **Zhen Gan Xi Feng Tang** — A classical Chinese herbal formula that subdues the yang and extinguishes wind.
+
+## Batch 6 — additional definitions
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Prescription
+Formula Definitions. Batches 1 through 5 above are frozen and unchanged; these
+entries extend the collection. Same entry model, abstraction level, and writing
+template.*
+
+- **Si Ni Tang** — A classical Chinese herbal formula that warms the interior and restores the yang.
+- **Xiao Cheng Qi Tang** — A classical Chinese herbal formula that drains heat and moderately unblocks the bowels.
+- **Tiao Wei Cheng Qi Tang** — A classical Chinese herbal formula that drains heat and harmonizes the stomach.
+- **Da Jian Zhong Tang** — A classical Chinese herbal formula that warms the middle and dispels cold.
+- **Xiao Jian Zhong Tang** — A classical Chinese herbal formula that warms and strengthens the middle.
+- **Wu Mei Wan** — A classical Chinese herbal formula that simultaneously warms and clears and astringes.
+- **Su He Xiang Wan** — A classical Chinese herbal formula that warmly opens the orifices and moves qi.
+- **An Gong Niu Huang Wan** — A classical Chinese herbal formula that clears heat, resolves toxicity, and opens the orifices.
+- **Zhi Zhu Wan** — A classical Chinese herbal formula that strengthens the spleen and reduces accumulation.
+- **Bei Mu Gua Lou San** — A classical Chinese herbal formula that moistens the lung and transforms phlegm-heat.
+- **Qing Qi Hua Tan Wan** — A classical Chinese herbal formula that clears heat and directs phlegm downward.
+- **Ling Gui Zhu Gan Tang** — A classical Chinese herbal formula that warms and fortifies the spleen yang and transforms phlegm-fluids.
+- **Du Huo Ji Sheng Tang** — A classical Chinese herbal formula that dispels wind-dampness and tonifies the liver and kidney.
+- **Juan Bi Tang** — A classical Chinese herbal formula that dispels wind-dampness and unblocks the channels.
+- **Yang He Tang** — A classical Chinese herbal formula that warms the blood and disperses cold.
