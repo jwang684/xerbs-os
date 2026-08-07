@@ -154,3 +154,26 @@ template.*
 - **Du Huo Ji Sheng Tang** — A classical Chinese herbal formula that dispels wind-dampness and tonifies the liver and kidney.
 - **Juan Bi Tang** — A classical Chinese herbal formula that dispels wind-dampness and unblocks the channels.
 - **Yang He Tang** — A classical Chinese herbal formula that warms the blood and disperses cold.
+
+## Batch 7 — additional definitions
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Prescription
+Formula Definitions. Batches 1 through 6 above are frozen and unchanged; these
+entries extend the collection. Same entry model, abstraction level, and writing
+template.*
+
+- **Xin Yi San** — A classical Chinese herbal formula that disperses wind-cold and unblocks the nasal orifices.
+- **Cang Er Zi San** — A classical Chinese herbal formula that dispels wind, transforms dampness, and unblocks the nasal orifices.
+- **Chuan Xiong Cha Tiao San** — A classical Chinese herbal formula that disperses wind and clears the head.
+- **Xiao Xu Ming Tang** — A classical Chinese herbal formula that dispels wind and unblocks the channels.
+- **Da Qin Jiao Tang** — A classical Chinese herbal formula that dispels wind and nourishes the blood.
+- **Bei Xie Fen Qing Yin** — A classical Chinese herbal formula that separates the clear from the turbid.
+- **Fang Ji Huang Qi Tang** — A classical Chinese herbal formula that augments the qi and drains water.
+- **Ling Jiao Gou Teng Tang** — A classical Chinese herbal formula that cools the liver and extinguishes wind.
+- **Da Ding Feng Zhu** — A classical Chinese herbal formula that enriches the yin and extinguishes wind.
+- **Sang Xing Tang** — A classical Chinese herbal formula that clears dryness and moistens the lung.
+- **Qing Zao Jiu Fei Tang** — A classical Chinese herbal formula that clears dryness and augments the lung.
+- **Mai Men Dong Tang** — A classical Chinese herbal formula that nourishes the yin and moistens the lung and stomach.
+- **Yi Wei Tang** — A classical Chinese herbal formula that nourishes the stomach yin and generates fluids.
+- **Zeng Ye Tang** — A classical Chinese herbal formula that generates fluids and moistens dryness.
+- **Run Chang Wan** — A classical Chinese herbal formula that moistens the intestines and nourishes the blood.
