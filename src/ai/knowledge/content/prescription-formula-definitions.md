@@ -177,3 +177,26 @@ template.*
 - **Yi Wei Tang** — A classical Chinese herbal formula that nourishes the stomach yin and generates fluids.
 - **Zeng Ye Tang** — A classical Chinese herbal formula that generates fluids and moistens dryness.
 - **Run Chang Wan** — A classical Chinese herbal formula that moistens the intestines and nourishes the blood.
+
+## Batch 8 — additional definitions
+
+*Status: Approved and frozen (2026-08-06) — Knowledge Content Sprint · Prescription
+Formula Definitions. Batches 1 through 7 above are frozen and unchanged; these
+entries extend the collection. Same entry model, abstraction level, and writing
+template.*
+
+- **Gu Chong Tang** — A classical Chinese herbal formula that strengthens the spleen and secures the blood.
+- **Mu Li San** — A classical Chinese herbal formula that consolidates the exterior and astringes.
+- **Yi Huang Tang** — A classical Chinese herbal formula that strengthens the spleen and clears damp-heat.
+- **Suo Quan Wan** — A classical Chinese herbal formula that warms the kidney and secures the bladder.
+- **Jin Suo Gu Jing Wan** — A classical Chinese herbal formula that tonifies the kidney and secures the essence.
+- **Zhi Shi Xiao Pi Wan** — A classical Chinese herbal formula that disperses focal clumping and strengthens the spleen.
+- **Mu Xiang Bing Lang Wan** — A classical Chinese herbal formula that moves qi and guides out accumulation.
+- **Jian Pi Wan** — A classical Chinese herbal formula that strengthens the spleen and disperses food stagnation.
+- **Wu Ji San** — A classical Chinese herbal formula that dispels cold and resolves accumulation.
+- **Ding Chuan Tang** — A classical Chinese herbal formula that diffuses the lung and directs qi downward.
+- **Ju Pi Zhu Ru Tang** — A classical Chinese herbal formula that clears the stomach and directs rebellious qi downward.
+- **Xuan Fu Dai Zhe Tang** — A classical Chinese herbal formula that harmonizes the stomach, directs rebellious qi downward, and transforms phlegm.
+- **Ban Xia Hou Po Tang** — A classical Chinese herbal formula that moves qi and dissipates phlegm clumping.
+- **Liang Fu Wan** — A classical Chinese herbal formula that warms the stomach and moves qi.
+- **Tong Xie Yao Fang** — A classical Chinese herbal formula that spreads the liver and strengthens the spleen.
