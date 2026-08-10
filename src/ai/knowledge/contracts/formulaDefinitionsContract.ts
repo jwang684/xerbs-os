@@ -29,8 +29,8 @@
  *
  * Cross-content referential integrity (`formulaDefinitions.principle ∈
  * formulaDefinitionCatalog`) is a separate build-time layer (specified in Doc 41 §7),
- * not this contract. This module is not yet referenced by the registry; wiring is a
- * later step.
+ * not this contract. This module is registered in the production registry as the
+ * interface's structural contract.
  */
 
 import type {

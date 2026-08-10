@@ -14,7 +14,7 @@
  * belong to editorial review or other/future validation layers. On success it returns
  * `value: raw` — the input, untouched.
  *
- * This module is not yet referenced by the registry; wiring is a later step.
+ * This module is registered in the production registry as the interface's structural contract.
  */
 
 import type {

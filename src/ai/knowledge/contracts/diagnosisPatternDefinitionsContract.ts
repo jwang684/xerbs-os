@@ -27,7 +27,7 @@
  *
  * Cross-content referential integrity (`diagnosisPatternDefinitions.pattern ∈
  * diagnosisPatternCatalog`) is a separate build-time layer, not this contract. This module
- * is not yet referenced by the registry; wiring is a later step.
+ * is registered in the production registry as the interface's structural contract.
  */
 
 import type {

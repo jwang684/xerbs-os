@@ -23,8 +23,8 @@
  * The authoritative structural check for the value produced by
  * {@link treatmentFormulaMapSource}. It validates STRUCTURE ONLY, in isolation, and returns
  * the validated value unchanged or the reasons it is invalid. Deterministic and
- * side-effect-free; no repair. This module is not yet referenced by the registry; wiring is a
- * later step.
+ * side-effect-free; no repair. This module is registered in the production registry as the
+ * interface's structural contract.
  *
  * Note: the exact-two-fields rule (TFMC-3) is the structural guard against metadata drift —
  * any entry bearing a field beyond {principle, formula} is rejected, so no weight, confidence,

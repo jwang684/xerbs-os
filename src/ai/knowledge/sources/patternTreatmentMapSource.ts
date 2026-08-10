@@ -3,10 +3,9 @@
  *
  * Pattern Treatment Map Wiring Sprint · Step 2 (Source). Exposes the completed derivation
  * layer as a real {@link KnowledgeSource} — a pure data provider behind the frozen transport
- * seam. It is NOT yet registered: `productionRegistry.ts` still binds the identifier via
- * `pending(...)`, so at runtime the interface remains absent and `FormulaModule` falls back
- * (Option B). The validation contract, dual cross-content check, and registry upgrade are
- * later steps.
+ * seam. It is registered in `productionRegistry.ts` with its structural contract, so at
+ * runtime the loader validates and serves this interface to `FormulaModule`; Option B applies
+ * only if the content is ever absent.
  *
  * OWNERSHIP BOUNDARY: this source owns **transport only**. Structural validation belongs to
  * the contract layer. Two-sided reference integrity (pattern ∈ diagnosisPatternCatalog,

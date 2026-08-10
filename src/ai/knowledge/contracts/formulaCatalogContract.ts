@@ -16,7 +16,7 @@
  *  - repair — no trim, rewrite, normalize, dedupe, sort, or mutate.
  * On success it returns `value: raw` — the input, untouched.
  *
- * This module is not yet referenced by the registry; wiring is a later step.
+ * This module is registered in the production registry as the interface's structural contract.
  */
 
 import type {

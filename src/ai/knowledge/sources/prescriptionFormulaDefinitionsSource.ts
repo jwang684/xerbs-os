@@ -3,10 +3,9 @@
  *
  * Wiring Sprint · Step 2 (Source). Exposes the completed derivation layer as a real
  * {@link KnowledgeSource} — a pure data provider behind the frozen transport seam.
- * It is NOT yet registered: `productionRegistry.ts` still binds the identifier to a
- * placeholder, so at runtime the interface remains absent and modules fall back
- * (Option B). Registry integration, the validation contract, and runtime wiring are
- * later steps.
+ * It is registered in `productionRegistry.ts` with its structural contract, so at runtime
+ * the loader validates and serves this interface to requesting modules; Option B applies
+ * only if the content is ever absent.
  *
  * Ownership: the authored corpus owns meaning; `formulaCatalog` owns identity; this
  * source owns neither. It is only a transport provider — it yields the structured

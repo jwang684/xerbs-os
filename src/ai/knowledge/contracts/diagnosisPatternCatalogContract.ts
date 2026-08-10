@@ -20,7 +20,7 @@
  * in isolation, and returns the validated value unchanged or the reasons it is
  * invalid. Deterministic and side-effect-free; no repair.
  *
- * This module is not yet referenced by the registry; wiring is a later step.
+ * This module is registered in the production registry as the interface's structural contract.
  */
 
 import type {

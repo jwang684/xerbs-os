@@ -3,10 +3,9 @@
  *
  * Treatment Formula Map Wiring Sprint · Step 2 (Source). Exposes the completed derivation
  * layer as a real {@link KnowledgeSource} — a pure data provider behind the frozen transport
- * seam. It is NOT yet registered: `productionRegistry.ts` still binds the identifier via
- * `pending(...)`, so at runtime the interface remains absent and `PrescriptionModule` falls
- * back (Option B). The validation contract, dual cross-content check, and registry upgrade are
- * later steps.
+ * seam. It is registered in `productionRegistry.ts` with its structural contract, so at
+ * runtime the loader validates and serves this interface to `PrescriptionModule`; Option B
+ * applies only if the content is ever absent.
  *
  * OWNERSHIP BOUNDARY: this source owns **transport only**. It does NOT own structural
  * validation, duplicate detection, referential integrity, coverage analysis, recommendation

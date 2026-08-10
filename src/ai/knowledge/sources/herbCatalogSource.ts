@@ -3,10 +3,9 @@
  *
  * Herb Catalog Wiring Sprint · Step 2 (Source). Exposes the completed derivation
  * layer as a real {@link KnowledgeSource} — a pure data provider behind the frozen
- * transport seam. It is NOT yet registered: `productionRegistry.ts` still binds the
- * identifier to a placeholder, so at runtime the interface remains absent and
- * consumers fall back (Option B). Registry integration, the validation contract, and
- * runtime wiring are later steps.
+ * transport seam. It is registered in `productionRegistry.ts` with its structural
+ * contract, so at runtime the loader validates and serves this interface to consumers;
+ * Option B applies only if the content is ever absent.
  *
  * Ownership: the authored corpus (`herb-catalog.md`) owns identity; this source owns
  * nothing — it is only a transport provider that yields the canonical herb-name set.

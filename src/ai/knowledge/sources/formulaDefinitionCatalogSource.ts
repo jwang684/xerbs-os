@@ -3,9 +3,9 @@
  *
  * Formula Definition Catalog Wiring Sprint · Step 2 (Source). Exposes the completed
  * derivation layer as a real {@link KnowledgeSource} — a pure data provider behind the
- * frozen transport seam. It is NOT yet registered: the identifier has no registry
- * entry, so at runtime the interface is absent and any consumer falls back (Option B).
- * Registry integration, the validation contract, and runtime wiring are later steps.
+ * frozen transport seam. It is registered in `productionRegistry.ts` with its structural
+ * contract, so at runtime the loader validates and serves this interface; Option B applies
+ * only if the content is ever absent.
  *
  * Ownership: the authored corpus (`formula-definition-catalog.md`) owns identity; this
  * source owns nothing — it is only a transport provider that yields the canonical
