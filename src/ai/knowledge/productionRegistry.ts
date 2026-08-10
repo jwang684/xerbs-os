@@ -3,6 +3,24 @@ import type {
   KnowledgeRegistryEntry,
   KnowledgeSource,
 } from "./KnowledgeRegistry";
+import { diagnosisPatternCatalogContract } from "./contracts/diagnosisPatternCatalogContract";
+import { diagnosisPatternDefinitionsContract } from "./contracts/diagnosisPatternDefinitionsContract";
+import { formulaCatalogContract } from "./contracts/formulaCatalogContract";
+import { formulaDefinitionCatalogContract } from "./contracts/formulaDefinitionCatalogContract";
+import { formulaDefinitionsContract } from "./contracts/formulaDefinitionsContract";
+import { herbCatalogContract } from "./contracts/herbCatalogContract";
+import { patternTreatmentMapContract } from "./contracts/patternTreatmentMapContract";
+import { prescriptionFormulaDefinitionsContract } from "./contracts/prescriptionFormulaDefinitionsContract";
+import { treatmentFormulaMapContract } from "./contracts/treatmentFormulaMapContract";
+import { diagnosisPatternCatalogSource } from "./sources/diagnosisPatternCatalogSource";
+import { diagnosisPatternDefinitionsSource } from "./sources/diagnosisPatternDefinitionsSource";
+import { formulaCatalogSource } from "./sources/formulaCatalogSource";
+import { formulaDefinitionCatalogSource } from "./sources/formulaDefinitionCatalogSource";
+import { formulaDefinitionsSource } from "./sources/formulaDefinitionsSource";
+import { herbCatalogSource } from "./sources/herbCatalogSource";
+import { patternTreatmentMapSource } from "./sources/patternTreatmentMapSource";
+import { prescriptionFormulaDefinitionsSource } from "./sources/prescriptionFormulaDefinitionsSource";
+import { treatmentFormulaMapSource } from "./sources/treatmentFormulaMapSource";
 
 /**
  * The production knowledge inventory — the single source of truth (Knowledge
@@ -46,11 +64,49 @@ function pending(identifier: string): KnowledgeRegistryEntry {
 }
 
 export const productionKnowledgeRegistry: readonly KnowledgeRegistryEntry[] = [
-  pending("diagnosisPatternDefinitions"),
-  pending("formulaDefinitions"),
-  pending("patternTreatmentMap"),
-  pending("prescriptionFormulaDefinitions"),
-  pending("treatmentFormulaMap"),
-  pending("formulaCatalog"),
-  pending("herbCatalog"),
+  {
+    identifier: "diagnosisPatternDefinitions",
+    source: diagnosisPatternDefinitionsSource,
+    contract: diagnosisPatternDefinitionsContract,
+  },
+  {
+    identifier: "diagnosisPatternCatalog",
+    source: diagnosisPatternCatalogSource,
+    contract: diagnosisPatternCatalogContract,
+  },
+  {
+    identifier: "formulaDefinitions",
+    source: formulaDefinitionsSource,
+    contract: formulaDefinitionsContract,
+  },
+  {
+    identifier: "patternTreatmentMap",
+    source: patternTreatmentMapSource,
+    contract: patternTreatmentMapContract,
+  },
+  {
+    identifier: "prescriptionFormulaDefinitions",
+    source: prescriptionFormulaDefinitionsSource,
+    contract: prescriptionFormulaDefinitionsContract,
+  },
+  {
+    identifier: "treatmentFormulaMap",
+    source: treatmentFormulaMapSource,
+    contract: treatmentFormulaMapContract,
+  },
+  {
+    identifier: "formulaCatalog",
+    source: formulaCatalogSource,
+    contract: formulaCatalogContract,
+  },
+  {
+    identifier: "formulaDefinitionCatalog",
+    source: formulaDefinitionCatalogSource,
+    contract: formulaDefinitionCatalogContract,
+  },
+  {
+    identifier: "herbCatalog",
+    source: herbCatalogSource,
+    contract: herbCatalogContract,
+  },
 ];
