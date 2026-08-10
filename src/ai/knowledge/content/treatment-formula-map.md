@@ -1,0 +1,231 @@
+# Treatment Formula Map — Treatment-Principle → Formula Associations
+
+**Treatment Formula Map · Content Sprint · Authoring (v1).** Status:
+**PROPOSED — PENDING REVIEW.** This is authored knowledge content for the
+`treatmentFormulaMap` relationship interface: the strategy→execution relationship layer. Each
+entry is a single reference **association** linking a treatment-principle identity (owned by
+`formulaDefinitionCatalog`) to a named-formula identity (owned by `formulaCatalog`). It is not
+yet wired to the loader/registry/contract (a later step).
+
+**Entry model (per Doc 58 / representation Doc 54):** one association per line —
+`- **<Treatment Principle>** — <Formula>`. Both sides are references to canonical identities;
+neither is restated or defined here.
+
+**Association semantics:** an entry communicates only *"this treatment principle and this named
+formula are related"* (the formula is a candidate reference for the principle). It does NOT
+communicate recommendation, best/preferred/strongest choice, ranking, priority, confidence,
+certainty, probability, weighting, rationale, automatic selection, or deterministic routing.
+Relationships are many-to-many; cardinality implies nothing about preference. The corpus
+contains no meaning, rationale, scores, weights, or metadata.
+
+## Treatment-principle → formula associations
+
+- **Release the Exterior** — Gui Zhi Tang
+- **Release Wind-Cold** — Gui Zhi Tang
+- **Release Wind-Cold** — Ma Huang Tang
+- **Harmonize the Lesser Yang** — Xiao Chai Hu Tang
+- **Tonify Qi** — Si Jun Zi Tang
+- **Strengthen the Spleen** — Si Jun Zi Tang
+- **Tonify Blood** — Si Wu Tang
+- **Tonify Qi and Blood** — Ba Zhen Tang
+- **Nourish Yin** — Liu Wei Di Huang Wan
+- **Tonify the Kidney** — Liu Wei Di Huang Wan
+- **Raise the Yang** — Bu Zhong Yi Qi Tang
+- **Tonify Qi** — Bu Zhong Yi Qi Tang
+- **Harmonize the Stomach** — Ban Xia Xie Xin Tang
+- **Warm the Middle and Dispel Cold** — Li Zhong Wan
+- **Harmonize the Liver and Spleen** — Xiao Yao San
+- **Spread the Liver and Regulate Qi** — Xiao Yao San
+- **Promote Urination and Drain Dampness** — Wu Ling San
+- **Dry Dampness and Transform Phlegm** — Er Chen Tang
+- **Tonify Qi and Blood** — Gui Pi Tang
+- **Nourish the Heart and Calm the Spirit** — Gui Pi Tang
+- **Release Wind-Heat** — Yin Qiao San
+- **Clear Heat and Drain Fire** — Bai Hu Tang
+- **Release Wind-Cold** — Xiao Qing Long Tang
+- **Warm and Transform Cold-Phlegm** — Xiao Qing Long Tang
+- **Harmonize the Lesser Yang** — Da Chai Hu Tang
+- **Purge Heat Accumulation** — Da Chai Hu Tang
+- **Clear Heat and Transform Phlegm** — Ma Xing Shi Gan Tang
+- **Stop Cough and Calm Wheezing** — Ma Xing Shi Gan Tang
+- **Release Wind-Heat** — Sang Ju Yin
+- **Stop Cough and Calm Wheezing** — Sang Ju Yin
+- **Tonify Yang** — Jin Gui Shen Qi Wan
+- **Tonify the Kidney** — Jin Gui Shen Qi Wan
+- **Nourish Yin** — Zhi Bai Di Huang Wan
+- **Clear Deficiency Heat** — Zhi Bai Di Huang Wan
+- **Clear Damp-Heat** — Long Dan Xie Gan Tang
+- **Clear Heat and Drain Fire** — Long Dan Xie Gan Tang
+- **Calm the Liver and Extinguish Wind** — Tian Ma Gou Teng Yin
+- **Nourish the Heart and Calm the Spirit** — Suan Zao Ren Tang
+- **Clear Heat and Transform Phlegm** — Wen Dan Tang
+- **Harmonize the Stomach** — Wen Dan Tang
+- **Dry Dampness** — Ping Wei San
+- **Harmonize the Stomach** — Ping Wei San
+- **Reduce Food Stagnation** — Bao He Wan
+- **Invigorate the Blood and Dispel Stasis** — Xue Fu Zhu Yu Tang
+- **Strengthen the Spleen and Transform Dampness** — Liu Jun Zi Tang
+- **Tonify Qi** — Liu Jun Zi Tang
+- **Release Wind-Cold** — Ge Gen Tang
+- **Stop Cough and Calm Wheezing** — Zhi Sou San
+- **Release Wind-Cold** — Zhi Sou San
+- **Clear Heat and Resolve Toxicity** — Bai Tou Weng Tang
+- **Clear Damp-Heat** — Bai Tou Weng Tang
+- **Clear Heat and Drain Fire** — Huang Lian Jie Du Tang
+- **Clear Heat and Resolve Toxicity** — Huang Lian Jie Du Tang
+- **Clear Heat and Cool the Blood** — Qing Ying Tang
+- **Augment Qi and Generate Blood** — Dang Gui Bu Xue Tang
+- **Tonify Qi** — Sheng Mai San
+- **Generate Fluids and Moisten Dryness** — Sheng Mai San
+- **Stabilize the Exterior and Astringe Sweat** — Yu Ping Feng San
+- **Tonify Qi** — Yu Ping Feng San
+- **Warm and Transform Water-Dampness** — Zhen Wu Tang
+- **Warm the Middle and Dispel Cold** — Wu Zhu Yu Tang
+- **Direct Rebellious Qi Downward** — Wu Zhu Yu Tang
+- **Direct Rebellious Qi Downward** — Su Zi Jiang Qi Tang
+- **Stop Cough and Calm Wheezing** — Su Zi Jiang Qi Tang
+- **Spread the Liver and Regulate Qi** — Chai Hu Shu Gan San
+- **Invigorate the Blood and Dispel Stasis** — Bu Yang Huan Wu Tang
+- **Tonify Qi** — Bu Yang Huan Wu Tang
+- **Moisten the Intestines and Unblock the Bowels** — Ma Zi Ren Wan
+- **Nourish the Heart and Calm the Spirit** — Gan Mai Da Zao Tang
+- **Clear Heat and Drain Fire** — Qing Wei San
+- **Clear Heat and Cool the Blood** — Qing Wei San
+- **Clear Heat and Drain Fire** — Yu Nu Jian
+- **Nourish Yin** — Yu Nu Jian
+- **Clear Heat** — Dao Chi San
+- **Promote Urination and Drain Dampness** — Dao Chi San
+- **Clear Heat** — Xie Bai San
+- **Stop Cough and Calm Wheezing** — Xie Bai San
+- **Clear Damp-Heat** — Shao Yao Tang
+- **Invigorate the Blood and Dispel Stasis** — Gui Zhi Fu Ling Wan
+- **Warm the Channels and Dispel Cold** — Wen Jing Tang
+- **Nourish Yin** — Zuo Gui Wan
+- **Tonify the Kidney** — Zuo Gui Wan
+- **Tonify Yang** — You Gui Wan
+- **Tonify the Kidney** — You Gui Wan
+- **Nourish Yin** — Yi Guan Jian
+- **Nourish Yin** — Bai He Gu Jin Tang
+- **Moisten the Lung** — Bai He Gu Jin Tang
+- **Tonify Qi and Blood** — Zhi Gan Cao Tang
+- **Nourish Yin** — Zhi Gan Cao Tang
+- **Secure Essence** — Sang Piao Xiao San
+- **Consolidate the Kidney and Secure the Bladder** — Sang Piao Xiao San
+- **Release Wind-Cold** — Xiang Su San
+- **Regulate Qi** — Xiang Su San
+- **Reduce Food Stagnation** — Zhi Shi Dao Zhi Wan
+- **Clear Damp-Heat** — Zhi Shi Dao Zhi Wan
+- **Release the Exterior** — Huo Xiang Zheng Qi San
+- **Transform Dampness** — Huo Xiang Zheng Qi San
+- **Clear Summerheat** — Qing Shu Yi Qi Tang
+- **Clear Heat and Drain Fire** — Zhu Ye Shi Gao Tang
+- **Generate Fluids and Moisten Dryness** — Zhu Ye Shi Gao Tang
+- **Clear Damp-Heat** — Yin Chen Hao Tang
+- **Transform Dampness** — San Ren Tang
+- **Promote Urination and Drain Dampness** — Zhu Ling Tang
+- **Promote Urination and Drain Dampness** — Wu Pi San
+- **Bind the Intestines** — Zhen Ren Yang Zang Tang
+- **Warm the Middle and Dispel Cold** — Zhen Ren Yang Zang Tang
+- **Harmonize the Liver and Spleen** — Si Ni San
+- **Spread the Liver and Regulate Qi** — Si Ni San
+- **Invigorate the Blood and Dispel Stasis** — Tao He Cheng Qi Tang
+- **Purge Heat Accumulation** — Tao He Cheng Qi Tang
+- **Purge Heat Accumulation** — Da Cheng Qi Tang
+- **Strengthen the Spleen and Transform Dampness** — Wan Dai Tang
+- **Clear Heat and Resolve Toxicity** — Wu Wei Xiao Du Yin
+- **Resolve Toxicity and Reduce Abscesses** — Wu Wei Xiao Du Yin
+- **Dispel Wind-Dampness** — Xiao Feng San
+- **Clear Damp-Heat** — Xiao Feng San
+- **Calm the Liver and Extinguish Wind** — Zhen Gan Xi Feng Tang
+- **Rescue Devastated Yang** — Si Ni Tang
+- **Warm the Interior** — Si Ni Tang
+- **Purge Heat Accumulation** — Xiao Cheng Qi Tang
+- **Purge Heat Accumulation** — Tiao Wei Cheng Qi Tang
+- **Warm the Middle and Dispel Cold** — Da Jian Zhong Tang
+- **Warm the Middle and Dispel Cold** — Xiao Jian Zhong Tang
+- **Bind the Intestines** — Wu Mei Wan
+- **Expel Parasites** — Wu Mei Wan
+- **Warmly Open the Orifices** — Su He Xiang Wan
+- **Clear Heat and Open the Orifices** — An Gong Niu Huang Wan
+- **Strengthen the Spleen** — Zhi Zhu Wan
+- **Reduce Food Stagnation** — Zhi Zhu Wan
+- **Clear Heat and Transform Phlegm** — Bei Mu Gua Lou San
+- **Moisten the Lung** — Bei Mu Gua Lou San
+- **Clear Heat and Transform Phlegm** — Qing Qi Hua Tan Wan
+- **Warm and Transform Water-Dampness** — Ling Gui Zhu Gan Tang
+- **Dispel Wind-Dampness** — Du Huo Ji Sheng Tang
+- **Tonify the Kidney** — Du Huo Ji Sheng Tang
+- **Dispel Wind-Dampness** — Juan Bi Tang
+- **Unblock the Channels** — Juan Bi Tang
+- **Warm the Channels and Dispel Cold** — Yang He Tang
+- **Release Wind-Cold** — Xin Yi San
+- **Release Wind-Cold** — Cang Er Zi San
+- **Dispel Wind-Dampness** — Cang Er Zi San
+- **Release Wind-Cold** — Chuan Xiong Cha Tiao San
+- **Dispel Wind-Dampness** — Xiao Xu Ming Tang
+- **Unblock the Channels** — Xiao Xu Ming Tang
+- **Dispel Wind-Dampness** — Da Qin Jiao Tang
+- **Tonify Blood** — Da Qin Jiao Tang
+- **Separate the Clear from the Turbid** — Bei Xie Fen Qing Yin
+- **Promote Urination and Drain Dampness** — Fang Ji Huang Qi Tang
+- **Tonify Qi** — Fang Ji Huang Qi Tang
+- **Calm the Liver and Extinguish Wind** — Ling Jiao Gou Teng Tang
+- **Nourish Yin and Extinguish Wind** — Da Ding Feng Zhu
+- **Moisten the Lung** — Sang Xing Tang
+- **Moisten the Lung** — Qing Zao Jiu Fei Tang
+- **Nourish Yin** — Mai Men Dong Tang
+- **Moisten the Lung** — Mai Men Dong Tang
+- **Nourish Yin** — Yi Wei Tang
+- **Generate Fluids and Moisten Dryness** — Yi Wei Tang
+- **Generate Fluids and Moisten Dryness** — Zeng Ye Tang
+- **Moisten the Intestines and Unblock the Bowels** — Zeng Ye Tang
+- **Moisten the Intestines and Unblock the Bowels** — Run Chang Wan
+- **Stop Bleeding** — Gu Chong Tang
+- **Strengthen the Spleen** — Gu Chong Tang
+- **Stabilize the Exterior and Astringe Sweat** — Mu Li San
+- **Clear Damp-Heat** — Yi Huang Tang
+- **Strengthen the Spleen and Transform Dampness** — Yi Huang Tang
+- **Consolidate the Kidney and Secure the Bladder** — Suo Quan Wan
+- **Secure Essence** — Jin Suo Gu Jing Wan
+- **Strengthen the Spleen** — Zhi Shi Xiao Pi Wan
+- **Reduce Food Stagnation** — Zhi Shi Xiao Pi Wan
+- **Regulate Qi** — Mu Xiang Bing Lang Wan
+- **Reduce Food Stagnation** — Mu Xiang Bing Lang Wan
+- **Strengthen the Spleen** — Jian Pi Wan
+- **Reduce Food Stagnation** — Jian Pi Wan
+- **Warm the Middle and Dispel Cold** — Wu Ji San
+- **Stop Cough and Calm Wheezing** — Ding Chuan Tang
+- **Direct Rebellious Qi Downward** — Ju Pi Zhu Ru Tang
+- **Harmonize the Stomach** — Ju Pi Zhu Ru Tang
+- **Direct Rebellious Qi Downward** — Xuan Fu Dai Zhe Tang
+- **Harmonize the Stomach** — Xuan Fu Dai Zhe Tang
+- **Regulate Qi** — Ban Xia Hou Po Tang
+- **Transform Phlegm** — Ban Xia Hou Po Tang
+- **Warm the Middle and Dispel Cold** — Liang Fu Wan
+- **Regulate Qi** — Liang Fu Wan
+- **Harmonize the Liver and Spleen** — Tong Xie Yao Fang
+- **Invigorate the Blood and Dispel Stasis** — Sheng Hua Tang
+- **Warm the Channels and Dispel Cold** — Sheng Hua Tang
+- **Invigorate the Blood and Dispel Stasis** — Ge Xia Zhu Yu Tang
+- **Invigorate the Blood and Dispel Stasis** — Fu Yuan Huo Xue Tang
+- **Invigorate the Blood and Dispel Stasis** — Dan Shen Yin
+- **Regulate Qi** — Dan Shen Yin
+- **Invigorate the Blood and Dispel Stasis** — Shi Xiao San
+- **Stop Bleeding** — Shi Xiao San
+- **Cool the Blood and Stop Bleeding** — Huai Hua San
+- **Cool the Blood and Stop Bleeding** — Xiao Ji Yin Zi
+- **Stop Bleeding** — Huang Tu Tang
+- **Warm the Middle and Dispel Cold** — Huang Tu Tang
+- **Clear Heat and Open the Orifices** — Zhi Bao Dan
+- **Clear Heat and Open the Orifices** — Zi Xue Dan
+- **Extinguish Internal Wind** — Zi Xue Dan
+- **Nourish Yin** — Da Bu Yin Wan
+- **Clear Deficiency Heat** — Da Bu Yin Wan
+- **Nourish Yin** — Er Zhi Wan
+- **Tonify the Kidney** — Er Zhi Wan
+- **Tonify Yang** — Gui Lu Er Xian Jiao
+- **Nourish Yin** — Gui Lu Er Xian Jiao
+- **Tonify Qi and Blood** — Ren Shen Yang Ying Tang
+- **Nourish the Heart and Calm the Spirit** — Ren Shen Yang Ying Tang
+- **Tonify Qi and Blood** — Shi Quan Da Bu Tang
+- **Tonify Yang** — Shi Quan Da Bu Tang
